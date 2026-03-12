@@ -1,14 +1,12 @@
 {
   "name": "TopiVra Development",
-  "dockerComposeFile": ["../config/docker-compose.yml"],
-  "service": "server",
-  "workspaceFolder": "/workspace",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
+    "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+      "packages": "mysql-client,redis-tools"
     }
   },
-  "forwardPorts": [3001, 5174, 3306, 6379],
+  "forwardPorts": [3001, 5174],
   "portsAttributes": {
     "3001": {
       "label": "Backend API",
@@ -17,14 +15,6 @@
     "5174": {
       "label": "Frontend Dev Server",
       "onAutoForward": "openBrowser"
-    },
-    "3306": {
-      "label": "MySQL",
-      "onAutoForward": "silent"
-    },
-    "6379": {
-      "label": "Redis",
-      "onAutoForward": "silent"
     }
   },
   "customizations": {
@@ -37,6 +27,26 @@
       ]
     }
   },
-  "postCreateCommand": "npm install && cd client && npm install && cd ../server && npm install && npx prisma generate",
-  "remoteUser": "root"
+  "postCreateCommand": "cd server && npm install && npx prisma generate && cd ../client && npm install",
+  "remoteUser": "root",
+  "containerEnv": {
+    "DATABASE_URL": "mysql://root:password@localhost:3306/topter_c2c",
+    "REDIS_HOST": "localhost",
+    "REDIS_PORT": "6379",
+    "JWT_SECRET": "dev-jwt-secret-key-for-testing-only-32chars",
+    "JWT_EXPIRES_IN": "7d",
+    "JWT_REFRESH_SECRET": "dev-refresh-secret-key-for-testing-only-32chars",
+    "JWT_REFRESH_EXPIRES_IN": "30d",
+    "APP_PORT": "3001",
+    "NODE_ENV": "development",
+    "FRONTEND_URL": "http://localhost:5174",
+    "API_VERSION": "v1",
+    "PLATFORM_FEE_RATE": "0.05",
+    "MIN_WITHDRAWAL_AMOUNT": "10",
+    "WITHDRAWAL_FEE_RATE": "0.01",
+    "ORDER_AUTO_CANCEL_MINUTES": "30",
+    "ORDER_AUTO_CONFIRM_DAYS": "7",
+    "PAYMENT_EXPIRATION_MINUTES": "30",
+    "MAX_REFUND_DAYS": "7"
+  }
 }

@@ -28,12 +28,12 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      port: 5174,
+      port: 3000,
       host: '0.0.0.0',
       proxy: {
         '/api': {
-          // 优先使用 docker 环境变量，否则使用 .env 文件，最后默认 localhost:3001
-          target: process.env.VITE_API_PROXY_TARGET || env.VITE_API_PROXY_TARGET || 'http://localhost:3001',
+          // 优先使用 docker 环境变量，否则使用 .env 文件，最后默认 localhost:8000
+          target: process.env.VITE_API_PROXY_TARGET || env.VITE_API_PROXY_TARGET || 'http://localhost:8000',
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path,

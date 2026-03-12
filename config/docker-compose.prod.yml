@@ -78,7 +78,7 @@ services:
           memory: 512M
     environment:
       - NODE_ENV=production
-      - PORT=3001
+      - PORT=8000
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_HOST=redis
       - REDIS_PORT=6379

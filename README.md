@@ -42,9 +42,9 @@ scripts/deploy/START-DEV-WINDOWS.bat
 ```
 
 访问地址：
-- 前端：http://localhost:5174
-- 后端：http://localhost:3001
-- API 文档：http://localhost:3001/api/v1/docs
+- 前端：http://localhost:3000
+- 后端：http://localhost:8000
+- API 文档：http://localhost:8000/api/v1/docs
 - Nginx 代理：http://localhost
 
 ### Linux 生产环境

@@ -7,11 +7,13 @@ import { WebsocketModule } from '../websocket/websocket.module';
 import { MailModule } from '../../common/mail/mail.module';
 import { RedisModule } from '../../common/redis/redis.module';
 import { PaymentCallbackGuard } from './guards/payment-callback.guard';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
   imports: [
     PrismaModule,
     forwardRef(() => WebsocketModule),
+    forwardRef(() => OrdersModule),
     MailModule,
     RedisModule,
   ],

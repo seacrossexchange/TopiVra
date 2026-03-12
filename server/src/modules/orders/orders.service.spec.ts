@@ -7,12 +7,14 @@ import { OrderStatus, PaymentStatus } from '@prisma/client';
 import { RefundType } from './dto/refund.dto';
 import { AuditService } from '../../common/audit';
 import { NotificationService } from '../../common/notification';
+import { AutoDeliveryService } from '../inventory/auto-delivery.service';
 
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaService: any;
   let auditService: any;
   let notificationService: any;
+  let autoDeliveryService: any;
 
   const mockOrder = {
     id: 'order-123',
@@ -112,6 +114,10 @@ describe('OrdersService', () => {
       },
     };
 
+    const mockAutoDelivery = {
+      handlePaymentSuccess: jest.fn(),
+    };
+
     const mockConfig = {
       get: jest.fn().mockImplementation((key: string) => {
         if (key === 'ORDER_AUTO_CANCEL_MINUTES') return 30;
@@ -127,6 +133,7 @@ describe('OrdersService', () => {
         { provide: AuditService, useValue: mockAudit },
         { provide: NotificationService, useValue: mockNotification },
         { provide: ConfigService, useValue: mockConfig },
+        { provide: AutoDeliveryService, useValue: mockAutoDelivery },
       ],
     }).compile();
 
@@ -134,6 +141,7 @@ describe('OrdersService', () => {
     prismaService = mockPrisma;
     auditService = mockAudit;
     notificationService = mockNotification;
+    autoDeliveryService = mockAutoDelivery;
   });
 
   describe('create', () => {
@@ -322,6 +330,59 @@ describe('OrdersService', () => {
       prismaService.order.findUnique.mockResolvedValue(mockOrder);
 
       await expect(service.confirmDelivery('order-123', 'user-123')).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('handlePaymentSuccess (auto delivery integration)', () => {
+    it('应该更新订单状态为已支付并调用自动发货服务', async () => {
+      prismaService.order.update.mockResolvedValue({
+        ...mockOrder,
+        orderStatus: OrderStatus.PAID,
+        paymentStatus: PaymentStatus.PAID,
+      });
+      autoDeliveryService.handlePaymentSuccess.mockResolvedValue({
+        orderId: mockOrder.id,
+        success: true,
+      });
+
+      const result = await service.handlePaymentSuccess(mockOrder.id);
+
+      expect(prismaService.order.update).toHaveBeenCalledWith({
+        where: { id: mockOrder.id },
+        data: {
+          orderStatus: OrderStatus.PAID,
+          paymentStatus: PaymentStatus.PAID,
+        },
+      });
+      expect(autoDeliveryService.handlePaymentSuccess).toHaveBeenCalledWith(
+        mockOrder.id,
+      );
+      expect(result).toEqual(
+        expect.objectContaining({ orderId: mockOrder.id, success: true }),
+      );
+    });
+
+    it('自动发货失败时应该记录错误并返回失败结果', async () => {
+      prismaService.order.update.mockResolvedValue({
+        ...mockOrder,
+        orderStatus: OrderStatus.PAID,
+        paymentStatus: PaymentStatus.PAID,
+      });
+      autoDeliveryService.handlePaymentSuccess.mockRejectedValue(
+        new Error('inventory error'),
+      );
+
+      const result = await service.handlePaymentSuccess(mockOrder.id);
+
+      expect(prismaService.order.update).toHaveBeenCalled();
+      expect(autoDeliveryService.handlePaymentSuccess).toHaveBeenCalled();
+      expect(result).toEqual(
+        expect.objectContaining({
+          orderId: mockOrder.id,
+          success: false,
+          error: 'inventory error',
+        }),
+      );
     });
   });
 

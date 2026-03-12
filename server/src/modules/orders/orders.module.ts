@@ -5,9 +5,10 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { AuditModule } from '../../common/audit/audit.module';
 import { NotificationModule } from '../../common/notification';
 import { RedisModule } from '../../common/redis/redis.module';
+import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-  imports: [PrismaModule, AuditModule, NotificationModule, RedisModule],
+  imports: [PrismaModule, AuditModule, NotificationModule, RedisModule, InventoryModule],
   providers: [OrdersService],
   controllers: [OrdersController],
   exports: [OrdersService],

@@ -75,6 +75,9 @@ model User {
   // 消息系统
   sentMessages     Message[]    @relation("MessageSender")
   receivedMessages Message[]    @relation("MessageReceiver")
+  
+  // 库存系统
+  inventories      ProductInventory[]
 
   @@index([email])
   @@index([status])
@@ -223,6 +226,10 @@ model Product {
   // 库存
   stock         Int           @default(1)
   soldCount     Int           @default(0) @map("sold_count")
+  
+  // 自动发货
+  autoDeliver   Boolean       @default(true) @map("auto_deliver")
+  inventoryCount Int          @default(0) @map("inventory_count")
 
   // 图片
   images        Json?
@@ -257,6 +264,7 @@ model Product {
   reviews         Review[]
   favorites       Favorite[]
   cartItems       CartItem[]
+  inventories     ProductInventory[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -324,6 +332,7 @@ model Order {
   payments        Payment[]
   reviews         Review[]
   refundRequests  RefundRequest[]
+  inventories     ProductInventory[]
 
   @@index([buyerId])
   @@index([orderStatus])
@@ -373,6 +382,10 @@ model OrderItem {
   deliveredAt       DateTime?   @map("delivered_at")
   deliveryConfirmed Boolean     @default(false) @map("delivery_confirmed")
   confirmedAt       DateTime?   @map("confirmed_at")
+  
+  // 自动发货
+  inventoryId   String?       @map("inventory_id")
+  autoDelivered Boolean       @default(false) @map("auto_delivered")
 
   // 卖家结算
   sellerAmount      Decimal     @map("seller_amount") @db.Decimal(10, 2)
@@ -386,6 +399,7 @@ model OrderItem {
   order             Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product           Product     @relation(fields: [productId], references: [id])
   seller            User        @relation("SellerOrderItems", fields: [sellerId], references: [id])
+  inventory         ProductInventory? @relation(fields: [inventoryId], references: [id])
 
   @@index([orderId])
   @@index([sellerId])
@@ -439,6 +453,57 @@ enum PaymentRecordStatus {
   FAILED
   EXPIRED
   REFUNDED
+}
+
+// ==================== 账号库存系统 ====================
+
+model ProductInventory {
+  id          String   @id @default(uuid())
+  productId   String   @map("product_id")
+  sellerId    String   @map("seller_id")
+  
+  // 账号信息（加密存储）
+  accountData String   @db.Text @map("account_data")
+  accountHash String   @unique @map("account_hash")
+  
+  // 账号格式化数据（JSON）
+  accountInfo Json?    @map("account_info")
+  
+  // 状态
+  status      InventoryStatus @default(AVAILABLE)
+  
+  // 订单关联
+  orderId     String?  @map("order_id")
+  orderItemId String?  @map("order_item_id")
+  soldAt      DateTime? @map("sold_at")
+  
+  // 失效管理
+  isValid     Boolean  @default(true) @map("is_valid")
+  invalidReason String? @map("invalid_reason")
+  invalidAt   DateTime? @map("invalid_at")
+  
+  // 时间戳
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // 关联
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  order       Order?   @relation(fields: [orderId], references: [id])
+  orderItems  OrderItem[]
+  
+  @@index([productId, status])
+  @@index([sellerId, status])
+  @@index([accountHash])
+  @@index([orderId])
+  @@map("product_inventories")
+}
+
+enum InventoryStatus {
+  AVAILABLE  // 可用
+  RESERVED   // 预留（订单创建但未支付）
+  SOLD       // 已售出
+  INVALID    // 失效
 }
 
 // ==================== 购物车 ====================

@@ -11,6 +11,7 @@ import {
   MenuUnfoldOutlined,
   LogoutOutlined,
   MessageOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
 import { useAuthStore } from '@/store/authStore';
@@ -36,6 +37,11 @@ export default function SellerLayout() {
       key: '/seller/products',
       icon: <ShoppingOutlined />,
       label: t('seller.products', '商品管理'),
+    },
+    {
+      key: '/seller/inventory',
+      icon: <DatabaseOutlined />,
+      label: t('seller.inventory', '库存管理'),
     },
     {
       key: '/seller/orders',

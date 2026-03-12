@@ -34,6 +34,7 @@ const OAuthCallback = lazy(() => import('../pages/auth/OAuthCallback'));
 // 卖家页面
 const SellerDashboard = lazy(() => import('../pages/seller/Dashboard'));
 const SellerProducts = lazy(() => import('../pages/seller/Products'));
+const SellerInventory = lazy(() => import('../pages/seller/Inventory'));
 const SellerOrders = lazy(() => import('../pages/seller/Orders'));
 const SellerFinance = lazy(() => import('../pages/seller/Finance'));
 const SellerTickets = lazy(() => import('../pages/seller/Tickets'));
@@ -336,6 +337,14 @@ export const router = createBrowserRouter([
         element: (
           <LoadingWrapper>
             <SellerProducts />
+          </LoadingWrapper>
+        ),
+      },
+      {
+        path: 'inventory',
+        element: (
+          <LoadingWrapper>
+            <SellerInventory />
           </LoadingWrapper>
         ),
       },

@@ -33,6 +33,7 @@ import { CreditModule as CreditApiModule } from './modules/credit/credit.module'
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { MessagesModule } from './modules/messages/messages.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
 
 @Module({
@@ -74,6 +75,7 @@ import { RequestLoggerMiddleware } from './common/middleware/request-logger.midd
     // 业务模块
     MessagesModule,
     NotificationsModule,
+    InventoryModule,
     AuthModule,
     AdminModule,
     BlogModule,

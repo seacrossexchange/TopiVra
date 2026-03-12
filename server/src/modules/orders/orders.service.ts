@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -30,14 +31,18 @@ import {
   OperatorRole,
 } from '../../common/audit';
 import { NotificationService } from '../../common/notification';
+import { AutoDeliveryService } from '../inventory/auto-delivery.service';
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
     private notificationService: NotificationService,
     private configService: ConfigService,
+    private autoDeliveryService: AutoDeliveryService,
   ) {}
 
   // ==================== 创建订单 ====================
@@ -156,6 +161,39 @@ export class OrdersService {
     }
 
     return order;
+  }
+
+  // ==================== 买家查询订单列表 ====================
+
+  /**
+   * 处理支付成功（由支付模块调用）
+   */
+  async handlePaymentSuccess(orderId: string) {
+    this.logger.log(`处理支付成功: ${orderId}`);
+
+    // 更新订单状态为已支付
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        orderStatus: OrderStatus.PAID,
+        paymentStatus: PaymentStatus.PAID,
+      },
+    });
+
+    // 🔥 触发自动发货
+    try {
+      const result = await this.autoDeliveryService.handlePaymentSuccess(orderId);
+      this.logger.log(`自动发货结果: ${JSON.stringify(result)}`);
+      return result;
+    } catch (error) {
+      this.logger.error(`自动发货失败: ${error.message}`);
+      // 不影响支付流程，记录错误日志
+      return {
+        orderId,
+        success: false,
+        error: error.message,
+      };
+    }
   }
 
   // ==================== 买家查询订单列表 ====================

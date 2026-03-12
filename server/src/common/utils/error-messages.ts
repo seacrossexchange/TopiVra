@@ -147,7 +147,7 @@ export function formatFriendlyError(
   return {
     message: getFriendlyErrorMessage(error),
     suggestion,
-    code: typeof error === 'object' && 'code' in error ? error.code : undefined,
+    code: typeof error === 'object' && 'code' in error ? String(error.code) : undefined,
   };
 }
 

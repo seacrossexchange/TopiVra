@@ -12,6 +12,7 @@ import { MailService } from '../../common/mail/mail.service';
 import { Decimal } from '@prisma/client/runtime/library';
 import * as crypto from 'crypto';
 import { PaymentGatewayFactory } from './gateways';
+import { OrdersService } from '../orders/orders.service';
 
 // USDT 交易验证结果接口
 interface UsdtVerificationResult {
@@ -33,6 +34,8 @@ export class PaymentsService {
     private websocketGateway: WebsocketGateway,
     @Inject(forwardRef(() => MailService))
     private mailService: MailService,
+    @Inject(forwardRef(() => OrdersService))
+    private ordersService: OrdersService,
   ) {}
 
   // ==================== 创建支付订单 ====================
@@ -885,7 +888,7 @@ export class PaymentsService {
     const order = payment.order;
 
     // 使用事务确保数据一致性
-    const result = await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       // 更新支付状态
       await tx.payment.update({
         where: { id: payment.id },
@@ -896,7 +899,7 @@ export class PaymentsService {
         },
       });
 
-      // 更新订单状态
+      // 更新订单状态为已支付
       await tx.order.update({
         where: { id: payment.orderId },
         data: {
@@ -906,42 +909,6 @@ export class PaymentsService {
           paymentMethod: payment.method,
         },
       });
-
-      // 交付商品：更新订单项凭证并减少库存
-      const deliveries: any[] = [];
-      for (const item of order.orderItems) {
-        // 检查库存
-        if (item.product.stock < item.quantity) {
-          throw new BadRequestException(`商品 ${item.product.title} 库存不足`);
-        }
-
-        // 减少库存
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: { decrement: item.quantity },
-            soldCount: { increment: item.quantity },
-          },
-        });
-
-        // 更新订单项的交付凭证
-        // 使用类型断言访问 credentials 字段（Prisma Json 类型）
-        const productData = item.product as any;
-        const credentials = productData.credentials || {};
-        await tx.orderItem.update({
-          where: { id: item.id },
-          data: {
-            deliveredCredentials: credentials,
-            deliveredAt: new Date(),
-          },
-        });
-
-        deliveries.push({
-          orderItemId: item.id,
-          productId: item.productId,
-          credentials,
-        });
-      }
 
       // 计算卖家收益
       const sellerEarnings = order.orderItems.reduce((sum, item) => {
@@ -1020,52 +987,54 @@ export class PaymentsService {
           }
         }
       }
-
-      return { deliveries };
     });
 
-    this.logger.log(
-      `支付完成: ${paymentNo}, 订单: ${order.orderNo}, 已交付 ${result.deliveries.length} 个商品`,
-    );
+    this.logger.log(`支付完成: ${paymentNo}, 订单: ${order.orderNo}`);
 
-    // 发送实时通知给买家
+    // 🔥 触发自动发货（调用订单服务）
     try {
-      this.websocketGateway.sendToUser(order.buyerId, 'payment:completed', {
-        orderId: order.id,
-        orderNo: order.orderNo,
-        message: '您的订单已支付成功，商品已交付',
-        deliveries: result.deliveries.map((d) => ({
-          productId: d.productId,
-          status: 'DELIVERED',
-        })),
-      });
-    } catch (error) {
-      this.logger.warn(`WebSocket 通知发送失败: ${error.message}`);
-    }
+      const deliveryResult = await this.ordersService.handlePaymentSuccess(payment.orderId);
+      this.logger.log(`自动发货结果: ${JSON.stringify(deliveryResult)}`);
 
-    // 发送邮件通知
-    if (order.buyer.email && this.mailService.isAvailable()) {
+      // 发送实时通知给买家
       try {
-        await this.mailService.sendOrderNotification(
-          order.buyer.email,
-          '订单支付成功',
-          `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0;">
-              <h1 style="margin: 0; font-size: 24px;">支付成功</h1>
-            </div>
-            <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0; border-top: none;">
-              <p style="font-size: 16px; color: #333; margin-bottom: 20px;">您好 ${order.buyer.username}，</p>
-              <p style="font-size: 16px; color: #333; margin-bottom: 20px;">您的订单 <strong>${order.orderNo}</strong> 已支付成功，商品已自动交付到您的账户。</p>
-              <p style="font-size: 14px; color: #666;">请登录平台查看商品详情和账号信息。</p>
-              <p style="font-size: 14px; color: #999; margin-top: 30px;">感谢您的购买！</p>
-            </div>
-          </div>
-        `,
-        );
+        this.websocketGateway.sendToUser(order.buyerId, 'payment:completed', {
+          orderId: order.id,
+          orderNo: order.orderNo,
+          message: '您的订单已支付成功，商品已自动交付',
+          autoDelivery: deliveryResult.success,
+        });
       } catch (error) {
-        this.logger.warn(`邮件通知发送失败: ${error.message}`);
+        this.logger.warn(`WebSocket 通知发送失败: ${error.message}`);
       }
+
+      // 发送邮件通知
+      if (order.buyer.email && this.mailService.isAvailable()) {
+        try {
+          await this.mailService.sendOrderNotification(
+            order.buyer.email,
+            '订单支付成功',
+            `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                <h1 style="margin: 0; font-size: 24px;">支付成功</h1>
+              </div>
+              <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0; border-top: none;">
+                <p style="font-size: 16px; color: #333; margin-bottom: 20px;">您好 ${order.buyer.username}，</p>
+                <p style="font-size: 16px; color: #333; margin-bottom: 20px;">您的订单 <strong>${order.orderNo}</strong> 已支付成功，商品已自动交付到您的账户。</p>
+                <p style="font-size: 14px; color: #666;">请登录平台查看商品详情和账号信息。</p>
+                <p style="font-size: 14px; color: #999; margin-top: 30px;">感谢您的购买！</p>
+              </div>
+            </div>
+          `,
+          );
+        } catch (error) {
+          this.logger.warn(`邮件通知发送失败: ${error.message}`);
+        }
+      }
+    } catch (error) {
+      this.logger.error(`自动发货失败: ${error.message}`);
+      // 不影响支付流程，但需要通知管理员
     }
 
     return payment;

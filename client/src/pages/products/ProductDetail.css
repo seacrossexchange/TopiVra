@@ -1,0 +1,222 @@
+/**
+ * ProductDetail 页面样式
+ */
+
+.product-detail-container {
+  background: var(--color-bg-base);
+  min-height: 100vh;
+  padding: 24px 20px;
+}
+
+.product-detail-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.product-detail-breadcrumb {
+  margin-bottom: 24px;
+}
+
+.product-detail-image {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.product-detail-tags {
+  margin-bottom: 12px;
+}
+
+.product-detail-title {
+  margin-bottom: 8px;
+}
+
+.product-detail-rating {
+  font-size: 14px;
+}
+
+.product-detail-price-box {
+  background: var(--color-bg-subtle);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.product-detail-price-label {
+  color: var(--color-text-secondary);
+}
+
+.product-detail-price-value {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.product-detail-stock-info {
+  margin-left: 16px;
+  color: var(--color-text-secondary);
+}
+
+.product-detail-seller-card {
+  margin-top: 12px;
+}
+
+.product-detail-seller-name {
+  font-weight: 600;
+}
+
+.product-detail-seller-stats {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.product-detail-quantity-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.product-detail-actions {
+  width: 100%;
+}
+
+.product-detail-action-btn {
+  flex: 1;
+}
+
+.product-detail-guarantee {
+  background: var(--color-primary-bg);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.product-detail-guarantee-icon {
+  color: var(--color-primary);
+}
+
+.product-detail-guarantee-text {
+  font-size: 12px;
+}
+
+.product-detail-tabs-card {
+  margin-top: 24px;
+}
+
+/* Modal styles */
+.product-detail-modal-total {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.product-detail-modal-payment-label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.product-detail-payment-card {
+  border: 1px solid var(--color-border);
+  transition: border-color 0.2s;
+}
+
+.product-detail-payment-card:hover {
+  border-color: var(--color-primary);
+}
+
+.product-detail-payment-card.selected {
+  border: 2px solid var(--color-primary);
+}
+
+.product-detail-payment-desc {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .product-detail-container {
+  background: var(--color-bg-base);
+}
+
+[data-theme="dark"] .product-detail-price-box {
+  background: var(--color-bg-elevated);
+}
+
+[data-theme="dark"] .product-detail-guarantee {
+  background: rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-detail-container {
+    padding: 16px 12px;
+  }
+
+  .product-detail-price-value {
+    font-size: 24px;
+  }
+}
+
+/* ========== Share Bar ========== */
+.product-share-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 4px;
+  flex-wrap: wrap;
+}
+
+.product-share-label {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.product-share-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.product-share-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-card);
+  color: var(--share-color, var(--color-text-secondary));
+  transition: all 0.18s ease;
+  outline: none;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.product-share-btn:hover {
+  background: var(--share-color, var(--color-primary));
+  border-color: var(--share-color, var(--color-primary));
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.product-share-btn:active {
+  transform: scale(0.93) translateY(0);
+}
+
+.product-share-copy {
+  color: var(--color-text-secondary);
+  --share-color: var(--color-primary);
+}
+
+@media (max-width: 480px) {
+  .product-share-btn {
+    width: 32px;
+    height: 32px;
+  }
+}

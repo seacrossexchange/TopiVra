@@ -1,0 +1,175 @@
+/**
+ * Admin 页面共享样式
+ */
+
+/* 容器 */
+.admin-container {
+  padding: 24px;
+}
+
+/* 骨架屏加载 */
+.admin-skeleton {
+  padding: 24px;
+}
+
+/* 面包屑 */
+.admin-breadcrumb {
+  margin-bottom: 24px;
+}
+
+/* 页面标题 */
+.admin-title {
+  color: var(--color-text-primary);
+  margin-bottom: 24px;
+}
+
+/* 卡片 */
+.admin-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+}
+
+/* 筛选工具栏 */
+.admin-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar-select {
+  width: 120px;
+}
+
+.admin-toolbar-search {
+  width: 250px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+}
+
+/* 统计卡片行 */
+.admin-stats-row {
+  margin-bottom: 24px;
+}
+
+.admin-stats-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+}
+
+.admin-stats-title {
+  color: var(--color-text-secondary);
+}
+
+.admin-stats-prefix-success {
+  color: var(--color-success);
+}
+
+.admin-stats-prefix-warning {
+  color: var(--color-warning);
+}
+
+.admin-stats-value {
+  color: var(--color-text-primary);
+}
+
+/* 表格样式 */
+.admin-table {
+  background: transparent;
+}
+
+.admin-table-cell-primary {
+  color: var(--color-text-primary);
+}
+
+.admin-table-cell-secondary {
+  color: var(--color-text-secondary);
+}
+
+.admin-table-cell-accent {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.admin-table-cell-success {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.admin-table-cell-danger {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* 待办项链接 */
+.admin-pending-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.admin-pending-item:hover {
+  background: var(--color-bg-hover);
+}
+
+.admin-pending-label {
+  color: var(--color-text-primary);
+}
+
+.admin-pending-count-warning {
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.admin-pending-count-danger {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.admin-pending-count-accent {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.admin-pending-count-success {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+/* 待办列表 */
+.admin-pending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 图片 */
+.admin-product-image {
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* 拒绝对话框 */
+.admin-reject-modal-content {
+  margin-bottom: 12px;
+}
+
+.admin-reject-modal-label {
+  color: var(--color-text-secondary);
+}
+
+.admin-reject-modal-value {
+  color: var(--color-text-primary);
+}
+
+/* Dark theme */
+[data-theme="dark"] .admin-card {
+  background: var(--color-bg-card);
+}

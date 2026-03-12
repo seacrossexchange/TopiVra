@@ -1,0 +1,228 @@
+/**
+ * TopiVra 设计 Token
+ * 深色（默认）：Telegram 深夜黑 #0d0f14 + 电光蓝 #5b9cf5
+ * 浅色：纯净白 #ffffff + 宝蓝 #2563eb
+ */
+
+/* ========== 深色主题（默认） ========== */
+:root {
+  /* 品牌色 */
+  --color-primary: #5b9cf5;
+  --color-primary-hover: #7eb3f7;
+  --color-primary-active: #3d84f0;
+  --color-primary-light: rgba(91, 156, 245, 0.12);
+  --color-primary-lighter: rgba(91, 156, 245, 0.06);
+  --color-primary-bg: rgba(91, 156, 245, 0.12);
+  --color-primary-rgb: 91, 156, 245;
+
+  /* 语义色 */
+  --color-success: #34c759;
+  --color-success-hover: #2ab34a;
+  --color-success-light: rgba(52, 199, 89, 0.12);
+  --color-success-bg: rgba(52, 199, 89, 0.12);
+
+  --color-warning: #ff9f0a;
+  --color-warning-hover: #e08800;
+  --color-warning-light: rgba(255, 159, 10, 0.14);
+  --color-warning-bg: rgba(255, 159, 10, 0.14);
+
+  --color-error: #ff453a;
+  --color-error-hover: #e03028;
+  --color-error-light: rgba(255, 69, 58, 0.12);
+  --color-error-bg: rgba(255, 69, 58, 0.12);
+
+  --color-info: #5b9cf5;
+  --color-info-light: rgba(91, 156, 245, 0.12);
+  --color-info-bg: rgba(91, 156, 245, 0.12);
+
+  /* 文本色 */
+  --color-text-primary: #e8ecf4;
+  --color-text-secondary: #8b92a5;
+  --color-text-tertiary: #5a6275;
+  --color-text-disabled: #374155;
+  --color-text-placeholder: #4a5568;
+
+  /* 边框色 */
+  --color-border: #2d3345;
+  --color-border-light: #222938;
+  --color-border-dark: #3d4560;
+
+  /* 背景色 */
+  --color-bg-base: #0d0f14;
+  --color-bg-primary: #0d0f14;
+  --color-bg-secondary: #141820;
+  --color-bg-tertiary: #1a1f2e;
+  --color-bg-elevated: #1a1f2e;
+  --color-bg-card: #1a1f2e;
+  --color-bg-hover: #222938;
+  --color-bg-mask: rgba(0, 0, 0, 0.72);
+
+  /* 辅助色 */
+  --color-accent: #00c9a7;
+  --color-accent-hover: #00a88c;
+  --color-accent-light: rgba(0, 201, 167, 0.12);
+  --color-danger: #ff453a;
+  --color-danger-hover: #e03028;
+
+  /* 链接色 */
+  --color-link: #5b9cf5;
+  --color-link-hover: #7eb3f7;
+  --color-link-active: #3d84f0;
+
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* 圆角 */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 14px;
+  --radius-full: 9999px;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.48);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.56);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.66);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.28);
+  --shadow-card-hover: 0 8px 28px rgba(0, 0, 0, 0.42);
+  --shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.52);
+  --shadow-modal: 0 8px 40px rgba(0, 0, 0, 0.66);
+
+  /* 过渡 */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 层级 */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  --touch-target-min: 44px;
+}
+
+/* ========== 浅色主题 ========== */
+[data-theme='light'] {
+  /* 品牌色 - 宝蓝 */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-active: #1e40af;
+  --color-primary-light: #eff6ff;
+  --color-primary-lighter: #f8faff;
+  --color-primary-bg: #eff6ff;
+  --color-primary-rgb: 37, 99, 235;
+
+  /* 语义色 */
+  --color-success: #16a34a;
+  --color-success-hover: #15803d;
+  --color-success-light: #f0fdf4;
+  --color-success-bg: #f0fdf4;
+
+  --color-warning: #d97706;
+  --color-warning-hover: #b45309;
+  --color-warning-light: #fffbeb;
+  --color-warning-bg: #fffbeb;
+
+  --color-error: #dc2626;
+  --color-error-hover: #b91c1c;
+  --color-error-light: #fef2f2;
+  --color-error-bg: #fef2f2;
+
+  --color-info: #2563eb;
+  --color-info-light: #eff6ff;
+  --color-info-bg: #eff6ff;
+
+  /* 文本色 */
+  --color-text-primary: #0a0e1a;
+  --color-text-secondary: #3d4a5c;
+  --color-text-tertiary: #6b7a8d;
+  --color-text-disabled: #b0bac9;
+  --color-text-placeholder: #8b98ad;
+
+  /* 边框色 */
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+  --color-border-dark: #cbd5e1;
+
+  /* 背景色 */
+  --color-bg-base: #f8fafc;
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #f1f5f9;
+  --color-bg-tertiary: #e2e8f0;
+  --color-bg-elevated: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: #eff6ff;
+  --color-bg-mask: rgba(10, 14, 26, 0.5);
+
+  /* 辅助色 */
+  --color-accent: #0891b2;
+  --color-accent-hover: #0e7490;
+  --color-accent-light: #ecfeff;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+
+  /* 链接色 */
+  --color-link: #2563eb;
+  --color-link-hover: #1d4ed8;
+  --color-link-active: #1e40af;
+
+  /* 阴影 - 浅色更轻柔 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.13);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.07);
+  --shadow-card-hover: 0 6px 20px rgba(37, 99, 235, 0.14);
+  --shadow-dropdown: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 8px 40px rgba(0, 0, 0, 0.18);
+}
+
+/* ========== 系统跟随深色 ========== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-primary: #5b9cf5;
+    --color-primary-hover: #7eb3f7;
+    --color-primary-active: #3d84f0;
+    --color-primary-light: rgba(91, 156, 245, 0.12);
+    --color-primary-lighter: rgba(91, 156, 245, 0.06);
+    --color-primary-bg: rgba(91, 156, 245, 0.12);
+    --color-primary-rgb: 91, 156, 245;
+    --color-text-primary: #e8ecf4;
+    --color-text-secondary: #8b92a5;
+    --color-text-tertiary: #5a6275;
+    --color-text-disabled: #374155;
+    --color-text-placeholder: #4a5568;
+    --color-border: #2d3345;
+    --color-border-light: #222938;
+    --color-border-dark: #3d4560;
+    --color-bg-base: #0d0f14;
+    --color-bg-primary: #0d0f14;
+    --color-bg-secondary: #141820;
+    --color-bg-tertiary: #1a1f2e;
+    --color-bg-elevated: #1a1f2e;
+    --color-bg-card: #1a1f2e;
+    --color-bg-hover: #222938;
+    --color-bg-mask: rgba(0, 0, 0, 0.72);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.48);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.56);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.66);
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.28);
+    --shadow-card-hover: 0 8px 28px rgba(0, 0, 0, 0.42);
+  }
+}

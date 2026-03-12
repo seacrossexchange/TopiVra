@@ -1,0 +1,129 @@
+/**
+ * AdminLayout 管理后台布局样式
+ */
+
+.admin-layout {
+  min-height: 100vh;
+}
+
+.admin-layout__sider {
+  background: linear-gradient(180deg, #001529 0%, #002140 100%);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.admin-layout__sider .ant-menu {
+  background: transparent;
+  border: none;
+}
+
+.admin-layout__sider .ant-menu-item {
+  margin: 4px 8px;
+  border-radius: var(--radius-md);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.admin-layout__sider .ant-menu-item:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.admin-layout__sider .ant-menu-item-selected {
+  color: #fff;
+  background: var(--color-primary);
+}
+
+.admin-layout__logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-layout__logo a {
+  color: #fff;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.admin-layout__logo a:hover {
+  opacity: 0.8;
+}
+
+.admin-layout__header {
+  background: var(--color-bg-primary);
+  padding: 0 var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-layout__trigger {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.admin-layout__trigger:hover {
+  color: var(--color-text-primary);
+}
+
+.admin-layout__header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.admin-layout__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.admin-layout__user:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+.admin-layout__username {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.admin-layout__content {
+  margin: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  min-height: calc(100vh - 64px - var(--space-md) * 2);
+  overflow: auto;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .admin-layout__sider {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+  }
+
+  .admin-layout__content {
+    margin: var(--space-sm);
+    padding: var(--space-md);
+  }
+
+  .admin-layout__username {
+    display: none;
+  }
+}

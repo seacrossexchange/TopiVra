@@ -1,0 +1,152 @@
+/**
+ * 关于我们页面样式
+ * 支持暗色主题
+ */
+
+.about-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* Hero 区域 */
+.about-hero {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 48px 32px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.about-hero .hero-title {
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+  font-size: 2rem;
+}
+
+.about-hero .hero-intro {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  max-width: 600px;
+  margin: 0 auto 24px;
+}
+
+.about-hero .trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.about-hero .trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-primary-bg);
+  border: 1px solid var(--color-primary-border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  color: var(--color-primary);
+  font-size: 13px;
+}
+
+/* 统计卡片 */
+.about-stat-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 28px 16px;
+  text-align: center;
+  transition: border-color var(--duration-fast) var(--ease-in-out);
+}
+
+.about-stat-card:hover {
+  border-color: var(--color-primary);
+}
+
+.about-stat-card .stat-num {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.about-stat-card .stat-label {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* 功能卡片 */
+.about-feature-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  transition: border-color var(--duration-fast) var(--ease-in-out);
+  height: 100%;
+}
+
+.about-feature-card:hover {
+  border-color: var(--color-primary);
+}
+
+.about-feature-card .feature-icon {
+  font-size: 24px;
+  color: var(--color-primary);
+  margin-bottom: 12px;
+}
+
+.about-feature-card .feature-title {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.about-feature-card .feature-desc {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 平台标签 */
+.about-platforms {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.about-platforms .platform-tag {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 区域标题 */
+.about-section-title {
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+}
+
+/* 暗色主题适配 */
+[data-theme="dark"] .about-hero,
+[data-theme="dark"] .about-stat-card,
+[data-theme="dark"] .about-feature-card,
+[data-theme="dark"] .about-platforms {
+  background: var(--color-bg-card);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .about-platforms .platform-tag {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}

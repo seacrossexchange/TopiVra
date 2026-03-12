@@ -1,0 +1,126 @@
+/**
+ * TopiVra C2C 全局样式入口
+ * 导入顺序：tokens -> typography -> mobile
+ */
+
+/* 设计 Token（包含暗色主题变量） */
+@import './styles/tokens.css';
+
+/* 工具类（替代 inline styles） */
+@import './styles/utilities.css';
+
+/* 排版系统 */
+@import './styles/typography.css';
+
+/* 微交互动效 */
+@import './styles/animations.css';
+
+/* 移动端适配 */
+@import './styles/mobile.css';
+
+/* 页面共享样式 */
+@import './pages/admin/admin.css';
+@import './pages/static/static.css';
+
+/* ========== 全局基础样式 ========== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== 链接样式 ========== */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-in-out);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ========== 滚动条样式 ========== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* ========== 选择文本样式 ========== */
+::selection {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* ========== 焦点样式（无障碍） ========== */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ========== 跳过链接（无障碍） ========== */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  z-index: var(--z-toast);
+  transition: top var(--duration-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  top: var(--space-md);
+}
+
+/* ========== 全局过渡动画 ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TokBazzar - 离线</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    
+    .container {
+      text-align: center;
+      padding: 40px;
+      max-width: 500px;
+    }
+    
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 30px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.95); }
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    
+    p {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    
+    .retry-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      padding: 14px 32px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .retry-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">TokBazzar</div>
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M18.364 5.636a9 9 0 010 12.728M5.636 18.364a9 9 0 010-12.728" stroke-linecap="round"/>
+      <path d="M15.536 8.464a5 5 0 010 7.072M8.464 15.536a5 5 0 010-7.072" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+    </svg>
+    <h1>网络连接已断开</h1>
+    <p>抱歉，您当前处于离线状态。请检查您的网络连接，然后重试。</p>
+    <button class="retry-btn" onclick="window.location.reload()">重新连接</button>
+  </div>
+</body>
+</html>

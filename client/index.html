@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 防主题闪烁：在 CSS/JS 加载前立即设置主题 -->
+    <script>
+      (function() {
+        var stored = localStorage.getItem('topivra-theme');
+        var isDark;
+        if (stored === 'dark') {
+          isDark = true;
+        } else if (stored === 'light') {
+          isDark = false;
+        } else {
+          // system 或未设置，跟随系统
+          isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        // 暗色时移除 data-theme（:root 默认暗色），亮色时设置 light
+        if (!isDark) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="TopiVra - 全球数字账号安全交易平台，担保交易，即时交付，100%保障" />
+    <meta name="keywords" content="TopiVra, 数字账号, TikTok账号, Instagram账号, Facebook账号, Telegram账号" />
+    <meta property="og:title" content="TopiVra - 全球数字账号交易平台" />
+    <meta property="og:description" content="全球数字账号安全交易平台，担保交易，即时交付，100%保障" />
+    <meta property="og:site_name" content="TopiVra" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://topivra.com" />
+    <meta property="og:image" content="https://topivra.com/og-image.png" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TopiVra - 全球数字账号交易平台" />
+    <meta name="twitter:description" content="全球数字账号安全交易平台，担保交易，即时交付，100%保障" />
+    <meta name="twitter:image" content="https://topivra.com/twitter-image.png" />
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#141820" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="TopiVra" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <!-- 品牌字体 - DM Sans（专业无衬线）+ Noto Sans SC（中文）+ Nunito（品牌Logo社区感） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Nunito:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <title>TopiVra</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

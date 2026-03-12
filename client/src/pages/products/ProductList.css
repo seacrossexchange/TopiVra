@@ -1,0 +1,487 @@
+/**
+ * ProductList - 数字账号交易平台商品页
+ * 左侧树形分类 + 右侧商品网格
+ */
+
+/* ========== 整体布局 ========== */
+.pl-wrap {
+  display: flex;
+  gap: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  align-items: flex-start;
+}
+
+/* ========== 左侧分类树 Sidebar ========== */
+.pl-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: sticky;
+  top: 72px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.pl-sidebar::-webkit-scrollbar { width: 4px; }
+.pl-sidebar::-webkit-scrollbar-thumb { background: var(--color-border-dark); border-radius: 4px; }
+
+.pl-tree-header {
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.pl-tree-root {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
+
+.pl-tree-item {
+  margin: 0;
+}
+
+/* 父级链接行 */
+.pl-tree-branch {
+  display: flex;
+  align-items: center;
+}
+
+.pl-tree-toggle {
+  width: 28px;
+  height: 32px;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  font-size: 10px;
+  transition: color 0.15s;
+  padding: 0;
+}
+
+.pl-tree-toggle:hover { color: var(--color-primary); }
+
+.pl-tree-arrow {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.pl-tree-toggle.open .pl-tree-arrow {
+  transform: rotate(90deg);
+}
+
+.pl-tree-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  padding: 7px 12px 7px 4px;
+  font-size: 13.5px;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.pl-tree-link:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-primary);
+}
+
+.pl-tree-link.active {
+  color: var(--color-primary);
+  font-weight: 600;
+  background: var(--color-primary-light);
+}
+
+/* 全部商品链接（无 toggle） */
+.pl-tree-link-all {
+  padding-left: 16px;
+}
+
+.pl-tree-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+}
+
+.pl-tree-link.active .pl-tree-icon,
+.pl-tree-link:hover .pl-tree-icon {
+  color: var(--color-primary);
+}
+
+.pl-tree-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pl-tree-count {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-secondary);
+  border-radius: 10px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+/* 子分类 */
+.pl-tree-children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease;
+}
+
+.pl-tree-children.open {
+  max-height: 400px;
+}
+
+.pl-tree-child {
+  margin: 0;
+}
+
+.pl-tree-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 36px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.pl-tree-sub:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-primary);
+}
+
+.pl-tree-sub.active {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  font-weight: 500;
+}
+
+.pl-tree-line {
+  width: 1px;
+  height: 14px;
+  background: var(--color-border);
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+
+/* ========== 右侧内容区 ========== */
+.pl-content {
+  flex: 1;
+  min-width: 0;
+  padding-left: 20px;
+}
+
+.pl-breadcrumb {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+.pl-breadcrumb a {
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+}
+
+.pl-breadcrumb a:hover { color: var(--color-primary); }
+
+.pl-section-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: var(--color-text-primary) !important;
+  margin: 0 0 14px !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* 国家药丸 */
+.pl-country-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.pl-country-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.pl-country-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pl-country-pill.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.pl-country-pill em {
+  font-style: normal;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* 工具栏 */
+.pl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.pl-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pl-search {
+  width: 240px;
+}
+
+.pl-result-count {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+/* ========== 商品网格 ========== */
+.pl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+/* ========== 商品卡片 ========== */
+.pl-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.pl-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px rgba(0, 102, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.pl-card-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 0 0 6px 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.pl-card-img-wrap {
+  position: relative;
+  background: var(--color-bg-secondary);
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pl-card-platform-icon {
+  font-size: 48px;
+  color: var(--color-text-tertiary);
+  opacity: 0.3;
+}
+
+.pl-card-body {
+  padding: 12px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pl-card-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.pl-card-tag {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.pl-card-tag-country {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.pl-card-tag-type {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.pl-card-title {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--color-text-primary) !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pl-card-desc {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.pl-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.pl-card-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.pl-card-stock {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.pl-card-btn {
+  margin-top: 10px;
+  width: 100%;
+  height: 34px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+}
+
+/* 空状态 */
+.pl-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--color-text-tertiary);
+}
+
+/* 分页 */
+.pl-pagination {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+/* 骨架屏 */
+.pl-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 900px) {
+  .pl-wrap {
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .pl-sidebar {
+    width: 100%;
+    position: static;
+    max-height: none;
+  }
+
+  .pl-content {
+    padding-left: 0;
+  }
+
+  .pl-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pl-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .pl-search { width: 100%; }
+}

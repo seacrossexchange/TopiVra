@@ -1,0 +1,130 @@
+/* 博客列表页面样式 */
+.blog-list-page {
+  background-color: var(--color-bg-layout);
+}
+
+.blog-header h1 {
+  color: var(--color-text-primary);
+}
+
+.blog-filters .ant-input-search-large .ant-input {
+  background-color: var(--color-bg-container);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.blog-filters .ant-input-search-large .ant-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.category-tabs .ant-tag {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 4px 12px;
+  border-radius: 16px;
+}
+
+.category-tabs .ant-tag:hover {
+  opacity: 0.85;
+}
+
+.category-tabs .ant-tag.active {
+  color: #fff;
+}
+
+/* 博客卡片样式 */
+.blog-card {
+  background-color: var(--color-bg-container);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.blog-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.blog-card-cover {
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-card-cover img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.blog-card:hover .blog-card-cover img {
+  transform: scale(1.05);
+}
+
+.blog-card-cover .category-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  border-radius: 4px;
+}
+
+.blog-card .ant-card-body {
+  padding: 16px;
+}
+
+.blog-card-title {
+  color: var(--color-text-primary) !important;
+  margin-bottom: 8px !important;
+  line-height: 1.4;
+}
+
+.blog-card-excerpt {
+  color: var(--color-text-secondary) !important;
+  margin-bottom: 12px !important;
+}
+
+.blog-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-secondary);
+}
+
+.blog-card-meta .ant-space {
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+}
+
+/* 暗色主题适配 */
+[data-theme='dark'] .blog-card {
+  background-color: var(--color-bg-elevated);
+  border-color: var(--color-border-secondary);
+}
+
+[data-theme='dark'] .blog-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .blog-card-meta {
+  border-top-color: var(--color-border-secondary);
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .blog-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .blog-card-cover img {
+    height: 150px;
+  }
+
+  .blog-card-meta {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,76 @@
+/**
+ * StatusBadge 状态标签样式
+ * 使用 CSS 变量，符合语义化颜色
+ */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 状态圆点 */
+.status-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: currentColor;
+}
+
+/* ========== 颜色变体 ========== */
+
+/* 成功/完成 */
+.status-success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+/* 警告/待处理 */
+.status-warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+/* 错误/失败 */
+.status-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+/* 处理中 */
+.status-processing {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* 信息 */
+.status-info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* 默认/禁用 */
+.status-default {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+}
+
+/* ========== 尺寸变体 ========== */
+
+/* 小号 */
+.badge-small {
+  padding: 2px var(--space-xs);
+  font-size: 10px;
+}
+
+/* 默认 */
+.badge-default {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+}

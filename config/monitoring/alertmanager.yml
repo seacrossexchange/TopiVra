@@ -1,0 +1,104 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts@topivra.com'
+  smtp_auth_username: 'alerts@topivra.com'
+  smtp_auth_password: 'your-smtp-password'
+  smtp_require_tls: true
+
+# 告警路由
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default'
+  
+  routes:
+    # 严重告警立即发送
+    - match:
+        severity: critical
+      receiver: 'critical'
+      continue: true
+    
+    # 警告级别告警
+    - match:
+        severity: warning
+      receiver: 'warning'
+      continue: true
+    
+    # 信息级别告警
+    - match:
+        severity: info
+      receiver: 'info'
+
+# 接收器配置
+receivers:
+  # 默认接收器
+  - name: 'default'
+    email_configs:
+      - to: 'ops@topivra.com'
+        headers:
+          Subject: '[TopiVra] {{ .GroupLabels.alertname }}'
+        html: |
+          {{ range .Alerts }}
+          <h3>{{ .Labels.alertname }}</h3>
+          <p><strong>严重程度:</strong> {{ .Labels.severity }}</p>
+          <p><strong>实例:</strong> {{ .Labels.instance }}</p>
+          <p><strong>描述:</strong> {{ .Annotations.description }}</p>
+          <p><strong>时间:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+
+  # 严重告警接收器（邮件 + 短信）
+  - name: 'critical'
+    email_configs:
+      - to: 'ops@topivra.com,admin@topivra.com'
+        headers:
+          Subject: '[CRITICAL] TopiVra 严重告警'
+        html: |
+          <h2 style="color: red;">🚨 严重告警</h2>
+          {{ range .Alerts }}
+          <h3>{{ .Labels.alertname }}</h3>
+          <p><strong>实例:</strong> {{ .Labels.instance }}</p>
+          <p><strong>描述:</strong> {{ .Annotations.description }}</p>
+          <p><strong>时间:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+    
+    # Webhook 通知（可选，用于集成钉钉/企业微信/Slack）
+    webhook_configs:
+      - url: 'http://your-webhook-url/alert'
+        send_resolved: true
+
+  # 警告级别接收器
+  - name: 'warning'
+    email_configs:
+      - to: 'ops@topivra.com'
+        headers:
+          Subject: '[WARNING] TopiVra 警告'
+
+  # 信息级别接收器
+  - name: 'info'
+    email_configs:
+      - to: 'ops@topivra.com'
+        headers:
+          Subject: '[INFO] TopiVra 信息'
+
+# 抑制规则（避免重复告警）
+inhibit_rules:
+  # 如果服务已停止，抑制其他相关告警
+  - source_match:
+      severity: 'critical'
+      alertname: 'ServiceDown'
+    target_match:
+      severity: 'warning'
+    equal: ['instance']
+  
+  # 如果磁盘空间严重不足，抑制一般磁盘告警
+  - source_match:
+      severity: 'critical'
+      alertname: 'DiskSpaceCritical'
+    target_match:
+      severity: 'warning'
+      alertname: 'DiskSpaceLow'
+    equal: ['instance']
+

@@ -1,0 +1,47 @@
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 40px 20px;
+}
+
+.empty-state__description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-top: 16px;
+}
+
+.empty-state__action {
+  margin-top: 16px;
+  min-width: 120px;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .empty-state {
+    min-height: 300px;
+    padding: 30px 15px;
+  }
+
+  .empty-state__description {
+    font-size: 14px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

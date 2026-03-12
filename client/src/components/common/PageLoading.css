@@ -1,0 +1,12 @@
+.page-loading-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+}
+
+.page-loading-spinner-content {
+  padding: 50px;
+}

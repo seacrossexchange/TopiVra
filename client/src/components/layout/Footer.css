@@ -1,0 +1,198 @@
+/**
+ * Footer 页脚样式
+ */
+
+.footer {
+  background-color: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-2xl);
+}
+
+.footer__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr;
+  gap: var(--space-xl);
+}
+
+/* ===== Brand ===== */
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.footer__logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer__logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow:
+    0 4px 18px rgba(255,77,140,0.4),
+    0 2px 8px rgba(124,58,237,0.28),
+    0 1px 3px rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.footer__logo {
+  font-size: var(--font-size-xl);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  background: linear-gradient(120deg, #FF7B54 0%, #FF4D8C 50%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.footer__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.footer__social {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.footer__social a {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  transition: color var(--duration-fast) var(--ease-out),
+              background-color var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.footer__social a:hover {
+  color: var(--color-primary);
+  background-color: var(--color-bg-tertiary);
+  transform: translateY(-2px);
+}
+
+/* ===== Links ===== */
+.footer__links h4,
+.footer__contact h4,
+.footer__hours-col h4 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-md);
+}
+
+.footer__links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.footer__links a {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.footer__links a:hover {
+  color: var(--color-primary);
+}
+
+/* ===== Working Hours ===== */
+.footer__hours-col h4 {
+  margin-bottom: var(--space-md);
+}
+
+.footer__hours-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.footer__hours-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  gap: 8px;
+}
+
+.footer__hours-day {
+  color: var(--color-text-secondary);
+}
+
+.footer__hours-time {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+.footer__hours-closed {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
+
+.footer__hours-note {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-xs);
+  font-style: italic;
+  list-style: none;
+}
+
+/* ===== Bottom ===== */
+.footer__bottom {
+  margin-top: var(--space-xl);
+  padding: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.footer__bottom p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 900px) {
+  .footer__container {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .footer__brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer__container {
+    grid-template-columns: 1fr;
+  }
+}

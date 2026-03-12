@@ -1,0 +1,140 @@
+# ============================================================
+# TopiVra .gitignore
+# ============================================================
+
+# ==================== 环境变量和配置 ====================
+.env
+.env.local
+.env.*.local
+.env.production
+*.env
+
+# ==================== 依赖目录 ====================
+node_modules/
+*/node_modules/
+**/node_modules/
+
+# ==================== 构建输出 ====================
+dist/
+build/
+*/dist/
+*/build/
+server/dist/
+client/dist/
+.next/
+out/
+
+# ==================== 日志文件 ====================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+server/logs/
+*.log.txt
+startup_log.txt
+startup_prod_log.txt
+
+# ==================== 临时文件 ====================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==================== 编辑器和 IDE ====================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+.history/
+
+# ==================== 测试覆盖率 ====================
+coverage/
+client/coverage/
+server/coverage/
+*.lcov
+.nyc_output/
+.coverage/
+
+# ==================== 数据库 ====================
+*.sqlite
+*.sqlite3
+*.db
+*.sql.backup
+prisma/migrations/
+
+# ==================== 上传文件 ====================
+server/uploads/*
+!server/uploads/.gitkeep
+uploads/
+
+# ==================== 备份文件 ====================
+*.backup
+*.bak
+*.old
+backup/
+backups/
+*-backup-*/
+
+# ==================== 压缩文件 ====================
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+topivra-full.tar.gz
+topivra-deploy.tar.gz
+*.tar.bz2
+
+# ==================== Docker ====================
+docker-compose.override.yml
+
+# ==================== 系统文件 ====================
+.cache/
+.npm/
+.yarn/
+.pnpm-store/
+
+# ==================== 证书和密钥 ====================
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+
+# ==================== 配置文件 ====================
+deploy-config.txt
+*.local.yml
+*.local.yaml
+
+# ==================== 测试文件 ====================
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ==================== 其他 ====================
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.turbo/
+.vercel/
+.netlify/
+exclude.txt
+*.swp
+*.swo
+
+# ==================== 保留的文件 ====================
+!.gitkeep
+!.env.example
+!.env.production.example

@@ -1,0 +1,65 @@
+/**
+ * Login 页面样式
+ */
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+[data-theme="dark"] .login-container {
+  background: linear-gradient(135deg, #4a5bb8 0%, #5a3d82 100%);
+}
+
+.login-card {
+  width: 400px;
+  box-shadow: var(--shadow-lg);
+  background: var(--color-bg-elevated);
+}
+
+.login-card .ant-card-body {
+  padding: 32px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-title {
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  color: var(--color-text-secondary);
+}
+
+.login-form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .login-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 16px;
+  }
+}

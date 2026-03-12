@@ -1,0 +1,47 @@
+/**
+ * 政策页面通用样式 (Terms, Privacy, Refund)
+ * 支持暗色主题
+ */
+
+.policy-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.policy-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+}
+
+.policy-card .ant-card-body {
+  padding: 32px;
+}
+
+.policy-title {
+  text-align: center;
+  margin-bottom: 32px;
+  color: var(--color-text-primary);
+}
+
+.policy-section-title {
+  color: var(--color-text-primary);
+  margin-top: 24px;
+}
+
+.policy-paragraph {
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+}
+
+.policy-update-info {
+  color: var(--color-text-tertiary);
+  margin-top: 32px;
+}
+
+/* 暗色主题适配 */
+[data-theme="dark"] .policy-card {
+  background: var(--color-bg-card);
+  border-color: var(--color-border);
+}

@@ -1,0 +1,339 @@
+/**
+ * Static 页面共享样式
+ */
+
+/* 容器 */
+.static-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.static-container-wide {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* 面包屑 */
+.static-breadcrumb {
+  margin-bottom: 24px;
+}
+
+/* 页面标题 */
+.static-title {
+  text-align: center;
+  margin-bottom: 32px;
+  color: var(--color-text-primary);
+}
+
+.static-subtitle {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* 内容区 */
+.static-content {
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+}
+
+.static-content h2 {
+  color: var(--color-text-primary);
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.static-content h3 {
+  color: var(--color-text-primary);
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.static-content p {
+  margin-bottom: 16px;
+}
+
+.static-content ul,
+.static-content ol {
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+.static-content li {
+  margin-bottom: 8px;
+}
+
+/* 更新时间 */
+.static-update-time {
+  margin-top: 32px;
+}
+
+/* Hero 区域 */
+.static-hero {
+  background: var(--color-bg-elevated);
+  border-radius: 16px;
+  padding: 40px 24px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.static-hero-title {
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+  font-size: 2rem;
+}
+
+.static-hero-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  max-width: 600px;
+  margin: 0 auto 24px;
+}
+
+/* 统计卡片 */
+.static-stats-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.static-stats-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.static-stats-label {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* 特性卡片 */
+.static-feature-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  height: 100%;
+}
+
+.static-feature-icon {
+  font-size: 24px;
+  color: var(--color-primary);
+  margin-bottom: 12px;
+}
+
+.static-feature-title {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.static-feature-desc {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 平台标签 */
+.static-platform-tag {
+  display: inline-block;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin: 4px;
+}
+
+/* 联系卡片 */
+.static-contact-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.static-contact-icon {
+  font-size: 36px;
+  color: var(--color-primary);
+}
+
+.static-contact-title {
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.static-contact-desc {
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-size: 13px;
+}
+
+.static-contact-link {
+  display: inline-block;
+  margin-top: auto;
+  color: var(--color-primary);
+}
+
+/* 表单 */
+.static-form-container {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.static-form-title {
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+}
+
+.static-form-label {
+  color: var(--color-text-secondary);
+}
+
+.static-form-input {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.static-form-textarea {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  resize: vertical;
+}
+
+.static-form-button {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  height: 40px;
+}
+
+/* FAQ */
+.static-faq-title {
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+}
+
+.static-faq-item-label {
+  color: var(--color-text-primary);
+}
+
+.static-faq-item-content {
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* 分类标签 */
+.static-category-tag {
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.static-category-tag.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* 博客卡片 */
+.static-blog-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+
+.static-blog-card:hover {
+  border-color: var(--color-primary);
+}
+
+.static-blog-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.static-blog-category {
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.static-blog-date {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.static-blog-read-time {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.static-blog-title {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.static-blog-desc {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.static-blog-read-more {
+  color: var(--color-primary);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 分类筛选区 */
+.static-category-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+/* 信任标签 */
+.static-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-primary-bg);
+  border-radius: 20px;
+  padding: 6px 12px;
+}
+
+/* Dark theme */
+[data-theme="dark"] .static-hero {
+  background: var(--color-bg-elevated);
+}
+
+[data-theme="dark"] .static-stats-card,
+[data-theme="dark"] .static-feature-card,
+[data-theme="dark"] .static-contact-card,
+[data-theme="dark"] .static-form-container,
+[data-theme="dark"] .static-blog-card {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border);
+}

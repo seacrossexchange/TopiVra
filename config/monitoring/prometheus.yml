@@ -1,0 +1,83 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'topivra'
+    environment: 'production'
+
+# 告警规则文件
+rule_files:
+  - 'alerts.yml'
+
+# 告警管理器配置
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# 抓取配置
+scrape_configs:
+  # Prometheus 自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter - 系统指标
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'topivra-server'
+
+  # cAdvisor - 容器指标
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # MySQL Exporter
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+        labels:
+          instance: 'topivra-mysql'
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          instance: 'topivra-redis'
+
+  # NestJS 应用指标（如果已集成）
+  - job_name: 'nestjs'
+    static_configs:
+      - targets: ['server:3001']
+        labels:
+          instance: 'topivra-api'
+    metrics_path: '/metrics'
+
+  # Nginx 指标（如果已配置 stub_status）
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:80']
+        labels:
+          instance: 'topivra-nginx'
+    metrics_path: '/nginx_status'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

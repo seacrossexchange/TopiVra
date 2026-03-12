@@ -1,0 +1,75 @@
+/**
+ * PriceTag 价格展示样式
+ * 使用 CSS 变量，支持多尺寸
+ */
+
+.price-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* 当前价格 */
+.price-tag__current {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 原价（划线） */
+.price-tag__original {
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.line-through {
+  text-decoration: line-through;
+}
+
+/* 折扣标签 */
+.price-tag__discount {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-xs);
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-xs);
+}
+
+/* ========== 尺寸变体 ========== */
+
+/* 小号 */
+.price-tag-small .price-tag__current {
+  font-size: var(--font-size-sm);
+}
+
+.price-tag-small .price-tag__original {
+  font-size: var(--font-size-xs);
+}
+
+/* 中号（默认） */
+.price-tag-medium .price-tag__current {
+  font-size: var(--font-size-lg);
+}
+
+.price-tag-medium .price-tag__original {
+  font-size: var(--font-size-sm);
+}
+
+/* 大号 */
+.price-tag-large .price-tag__current {
+  font-size: var(--font-size-xl);
+}
+
+.price-tag-large .price-tag__original {
+  font-size: var(--font-size-base);
+}
+
+/* 划线样式（用于显示原价） */
+.price-tag--struck .price-tag__current {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}

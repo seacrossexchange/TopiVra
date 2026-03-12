@@ -1,0 +1,126 @@
+/**
+ * StatCard 数据统计卡片样式
+ * 使用 CSS 变量，支持骨架屏加载态
+ */
+
+.stat-card {
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-normal) var(--ease-out);
+}
+
+/* 可点击状态 */
+.stat-card--clickable {
+  cursor: pointer;
+}
+
+.stat-card--clickable:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card--clickable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ========== 头部 ========== */
+.stat-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.stat-card__title {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.stat-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+/* ========== 主体 ========== */
+.stat-card__body {
+  margin-bottom: var(--space-xs);
+}
+
+.stat-card__value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.stat-card__prefix {
+  font-size: var(--font-size-lg);
+  margin-right: var(--space-xs);
+}
+
+.stat-card__suffix {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+  margin-left: var(--space-xs);
+}
+
+/* ========== 底部趋势 ========== */
+.stat-card__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.stat-card__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-card__trend-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 趋势颜色 */
+.stat-card__trend--up .stat-card__trend-value {
+  color: var(--color-success);
+}
+
+.stat-card__trend--down .stat-card__trend-value {
+  color: var(--color-error);
+}
+
+.stat-card__trend--flat .stat-card__trend-value {
+  color: var(--color-text-tertiary);
+}
+
+.stat-card__trend-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+  .stat-card {
+    padding: var(--space-md);
+  }
+
+  .stat-card__value {
+    font-size: var(--font-size-xl);
+  }
+
+  .stat-card__icon {
+    width: 36px;
+    height: 36px;
+  }
+}

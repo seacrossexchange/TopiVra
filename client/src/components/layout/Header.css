@@ -1,0 +1,272 @@
+/**
+ * Header 组件样式 - 全部使用 CSS 变量，自动跟随主题
+ */
+
+.header {
+  background: var(--color-bg-secondary);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 16px;
+  height: 60px !important;
+  line-height: 60px !important;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* ===== Logo 区域 ===== */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.header-logo:hover {
+  text-decoration: none;
+  opacity: 0.88;
+}
+
+.header-logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow:
+    0 4px 18px rgba(255,77,140,0.45),
+    0 2px 8px rgba(124,58,237,0.3),
+    0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease;
+  overflow: visible;
+}
+
+.header-logo:hover .header-logo-mark {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow:
+    0 6px 24px rgba(255,77,140,0.65),
+    0 3px 12px rgba(124,58,237,0.45),
+    0 1px 4px rgba(0,0,0,0.18);
+}
+
+.header-logo-name {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  background: linear-gradient(120deg, #FF7B54 0%, #FF4D8C 50%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+/* ===== Logo 后社区统计 ===== */
+.header-community-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 16px;
+  font-size: 12.5px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.header-community-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
+  animation: hdr-pulse 2.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes hdr-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.75); }
+}
+
+.header-community-num {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .header-community-stat {
+    display: none;
+  }
+}
+
+/* ===== 导航菜单 ===== */
+.header-menu {
+  flex: 1;
+  border: none !important;
+  margin-left: 24px;
+  min-width: 0;
+  background: transparent !important;
+  line-height: 60px !important;
+}
+
+.header-menu .ant-menu-item a,
+.header-menu .ant-menu-item span {
+  color: var(--color-text-secondary) !important;
+  font-size: 13.5px;
+  transition: color 0.15s;
+}
+
+.header-menu .ant-menu-item:hover a,
+.header-menu .ant-menu-item:hover span {
+  color: var(--color-text-primary) !important;
+}
+
+.header-menu .ant-menu-item-selected a,
+.header-menu .ant-menu-item-selected span {
+  color: var(--color-primary) !important;
+}
+
+.header-menu .ant-menu-item-selected::after {
+  border-bottom-color: var(--color-primary) !important;
+}
+
+/* ===== 用户头像区 ===== */
+.header-user {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 8px;
+  border-radius: var(--radius-lg);
+  transition: background 0.15s;
+  color: var(--color-text-primary);
+}
+
+.header-user:hover {
+  background: var(--color-bg-hover);
+}
+
+.header-avatar {
+  background-color: var(--color-primary) !important;
+}
+
+/* ===== 图标按钮适配 ===== */
+.header .ant-btn-text {
+  color: var(--color-text-secondary) !important;
+}
+
+.header .ant-btn-text:hover {
+  color: var(--color-text-primary) !important;
+  background: var(--color-bg-hover) !important;
+}
+
+/* ===== 主题切换按钮 ===== */
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-lg);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: color 0.15s, background 0.15s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-hover);
+  transform: rotate(20deg) scale(1.1);
+}
+
+.theme-toggle-btn:active {
+  transform: rotate(0deg) scale(0.92);
+}
+
+/* ===== 申请卖家按钮 ===== */
+.header .ant-btn-default {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+  background: transparent !important;
+}
+
+.header .ant-btn-default:hover {
+  border-color: var(--color-primary-hover) !important;
+  color: var(--color-primary-hover) !important;
+  background: var(--color-primary-light) !important;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 12px;
+  }
+
+  .header-logo-name {
+    font-size: 18px;
+  }
+
+  .header-menu {
+    display: none;
+  }
+}
+
+/* ===== 自定义导航链接 ===== */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  margin-left: 24px;
+  min-width: 0;
+}
+
+.header-nav-item {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.header-nav-item:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-hover);
+  text-decoration: none;
+}
+
+.header-nav-item--active {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.header-nav-item--active:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+@media (max-width: 768px) {
+  .header-nav {
+    display: none;
+  }
+}

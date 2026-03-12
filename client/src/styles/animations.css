@@ -1,0 +1,283 @@
+/**
+ * TopiVra C2C 微交互动效
+ * 使用 CSS @keyframes，避免 JS 动画
+ * 尊重 prefers-reduced-motion 设置
+ */
+
+/* ========== 按钮点击动效 ========== */
+.btn-press {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+/* ========== 心形收藏动效 ========== */
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  75% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-heart {
+  animation: heartBeat 0.4s var(--ease-bounce);
+}
+
+/* ========== 通知铃铛摇晃动效 ========== */
+@keyframes bellShake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: rotate(-10deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: rotate(10deg);
+  }
+}
+
+.animate-bell {
+  animation: bellShake 0.6s ease-in-out;
+  transform-origin: top center;
+}
+
+/* ========== 弹跳入场动效 ========== */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.4s var(--ease-out);
+}
+
+/* ========== 淡入淡出 ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--duration-normal) var(--ease-out);
+}
+
+.animate-fade-out {
+  animation: fadeOut var(--duration-normal) var(--ease-in);
+}
+
+/* ========== 滑入动效 ========== */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideInUp var(--duration-normal) var(--ease-out);
+}
+
+.animate-slide-down {
+  animation: slideInDown var(--duration-normal) var(--ease-out);
+}
+
+.animate-slide-left {
+  animation: slideInLeft var(--duration-normal) var(--ease-out);
+}
+
+.animate-slide-right {
+  animation: slideInRight var(--duration-normal) var(--ease-out);
+}
+
+/* ========== 缩放动效 ========== */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--duration-normal) var(--ease-out);
+}
+
+.animate-scale-out {
+  animation: scaleOut var(--duration-normal) var(--ease-in);
+}
+
+/* ========== 脉冲动效（用于加载状态） ========== */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+/* ========== 旋转动效 ========== */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ========== 骨架屏闪烁 ========== */
+@keyframes skeleton {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 25%,
+    var(--color-bg-tertiary) 50%,
+    var(--color-bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton 1.5s ease-in-out infinite;
+}
+
+/* ========== 悬停放大 ========== */
+.hover-scale {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* ========== 悬停上浮 ========== */
+.hover-lift {
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ========== 减少动效偏好 ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse,
+  .animate-spin,
+  .skeleton {
+    animation: none !important;
+  }
+}

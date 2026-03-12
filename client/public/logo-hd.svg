@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF9A5C"/>
+      <stop offset="48%" stop-color="#FF4D8C"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="tg" x1="0" y1="0" x2="160" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="55%" stop-color="#FFF3DC"/>
+      <stop offset="100%" stop-color="#FFD98A"/>
+    </linearGradient>
+    <filter id="ts" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#3B0764" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="112" ry="112" fill="url(#bg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="112" ry="112" fill="url(#gloss)"/>
+  <rect x="20" y="20" width="472" height="472" rx="108" ry="108" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
+  <g filter="url(#ts)">
+    <path d="M 96 148 L 96 212 Q 96 232 116 232 L 228 232 L 228 372 Q 228 392 248 392 L 264 392 Q 284 392 284 372 L 284 232 L 396 232 Q 416 232 416 212 L 416 148 Q 416 128 396 128 L 116 128 Q 96 128 96 148 Z" fill="url(#tg)"/>
+  </g>
+</svg>
+
+

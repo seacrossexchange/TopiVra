@@ -1,0 +1,141 @@
+# ============================================================
+# TopiVra Monitoring System
+# ============================================================
+# Purpose: System metrics and performance monitoring
+# Usage: START-MONITORING.bat or docker-compose -f docker-compose.monitoring.yml up
+# 
+# Services:
+# - Prometheus (9090) - Metrics collection
+# - Grafana (3030) - Visualization dashboards
+# - AlertManager (9093) - Alert management
+# - Node Exporter (9100) - System metrics
+# - cAdvisor (8080) - Container metrics
+# - Redis Exporter (9121) - Redis metrics
+# - MySQL Exporter (9104) - MySQL metrics
+# 
+# Access: http://localhost:3030 (admin/admin)
+# ============================================================
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: topivra-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - topivra-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: topivra-grafana
+    restart: always
+    ports:
+      - "3030:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_SERVER_ROOT_URL=http://localhost:3030
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - topivra-network
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: topivra-alertmanager
+    restart: always
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - topivra-network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: topivra-node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - topivra-network
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: topivra-cadvisor
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - topivra-network
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: topivra-redis-exporter
+    restart: always
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis:6379
+    networks:
+      - topivra-network
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: topivra-mysql-exporter
+    restart: always
+    ports:
+      - "9104:9104"
+    environment:
+      - DATA_SOURCE_NAME=root:root@(mysql:3306)/topivra
+    networks:
+      - topivra-network
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+
+networks:
+  topivra-network:
+    name: topivra-network
+    external: true
+

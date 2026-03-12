@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l \"Winston\\\\|Logger\")",
+      "Bash(npm install @nestjs/terminus)",
+      "Bash(test -f .github/workflows/ci.yml)",
+      "Bash(test -f .github/workflows/deploy.yml)",
+      "Bash(wc -l /c/Users/cross/Desktop/topter/topter-c2c/client/src/components/**/*.tsx)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx tsc -p tsconfig.app.json --noEmit)",
+      "Bash(npx prisma migrate dev --name add-refund-fields)",
+      "Bash(c:/Users/cross/Desktop/topter/topter-c2c/scripts/backup.sh:*)",
+      "Bash(c:/Users/cross/Desktop/topter/topter-c2c/scripts/deploy.sh:*)",
+      "Bash(c:/Users/cross/Desktop/topter/topter-c2c/server/prisma/migrations/20260304_add_refund_fields/migration.sql:*)",
+      "Read(//mnt/c/Users/cross/Desktop/topter1/topter/**)",
+      "Bash(docker-compose ps)",
+      "Bash(curl -s http://localhost:3001/api/v1/products)",
+      "Bash(docker exec tokbazaar-server curl -s http://localhost:3001/api/v1/products)",
+      "Bash(docker exec tokbazaar-server curl -s -X POST http://localhost:3001/api/v1/auth/login -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"seller@topter.com\"\",\"\"password\"\":\"\"Seller123!\"\"}')",
+      "Bash(docker exec tokbazaar-server curl -s -X POST http://localhost:3001/api/v1/auth/login -H \"Content-Type: application/json\" -d \"{\"\"email\"\":\"\"seller@topter.com\"\",\"\"password\"\":\"\"Seller123!\"\"}\")",
+      "Bash(ls -la *.md)",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File ./scripts/cleanup-docs.ps1)",
+      "Bash(grep -E \"\\\\.\\(ts|js\\)$\")",
+      "Bash(npm run build)",
+      "Bash(ls -d */)",
+      "Bash(\"c:\\\\Users\\\\cross\\\\Desktop\\\\TopiVra\\\\TEAM-ROLES-PLAN.md\":*)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}

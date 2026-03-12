@@ -67,9 +67,9 @@ bash scripts/deploy/health-check.sh
 ## 📚 文档
 
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 快速部署指南（推荐从这里开始）
-- [完整部署文档](./docs/COMPLETE-DEPLOYMENT-GUIDE.md) - 详细部署步骤
-- [开发文档](./docs/DEVELOPMENT.md) - 开发环境配置
-- [API 文档](./docs/API.md) - 接口文档
+- [完整部署文档](./docs/deployment-guide.md) - 详细部署步骤
+- [开发文档](./docs/development.md) - 开发环境配置
+- [API 文档](./docs/api.md) - 接口文档
 
 ---
 

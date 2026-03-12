@@ -24,7 +24,10 @@
       "Bash(npm run build)",
       "Bash(ls -d */)",
       "Bash(\"c:\\\\Users\\\\cross\\\\Desktop\\\\TopiVra\\\\TEAM-ROLES-PLAN.md\":*)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(mv COMPLETE-DEPLOYMENT-GUIDE.md deployment-guide.md)",
+      "Bash(mv DEVELOPMENT.md development.md)",
+      "Bash(mv API.md api.md)"
     ]
   }
 }

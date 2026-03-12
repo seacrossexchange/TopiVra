@@ -229,7 +229,7 @@ export default function ProductList() {
                     type="button"
                     className={`pl-tree-toggle${isOpen ? ' open' : ''}`}
                     onClick={() => toggleNode(node.key)}
-                    aria-expanded={isOpen}
+                    aria-expanded={isOpen ? 'true' : 'false'}
                   >
                     <span className="pl-tree-arrow">▶</span>
                   </button>
@@ -336,7 +336,7 @@ export default function ProductList() {
                         src={product.images[0]}
                         alt={product.title}
                         loading="lazy"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        className="pl-card-img"
                       />
                     ) : (
                       <span className="pl-card-platform-icon">

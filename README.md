@@ -24,23 +24,10 @@
 TopiVra/
 ├── client/              # React 前端应用
 ├── server/              # NestJS 后端应用
-├── e2e/                 # Playwright 端对端测试
-├── config/              # 配置文件（集中管理）
-│   ├── docker-compose.yml
-│   ├── docker-compose.prod.yml
-│   ├── docker-compose.monitoring.yml
-│   ├── nginx/           # Nginx 配置
-│   ├── k8s/             # Kubernetes 配置
-│   └── monitoring/      # Prometheus / Alertmanager
-├── scripts/             # 运维脚本
-│   ├── deploy/          # 部署脚本
-│   └── setup/           # 初始化脚本
+├── config/              # Docker 配置
+├── scripts/             # 部署脚本
 ├── docs/                # 文档
-│   ├── COMPLETE-DEPLOYMENT-GUIDE.md
-│   ├── ENV-DEVELOPMENT-TEMPLATE.md
-│   ├── ENV-PRODUCTION-TEMPLATE.md
-│   └── reports/         # 审计报告
-└── gen-keys.ps1         # 密钥生成脚本
+└── DEPLOYMENT.md        # 部署指南
 ```
 
 ---
@@ -77,36 +64,12 @@ bash scripts/deploy/health-check.sh
 
 ---
 
-## 部署文档
+## 📚 文档
 
-详细部署指南请参考：
-
-- **完整部署指南**：[docs/COMPLETE-DEPLOYMENT-GUIDE.md](./docs/COMPLETE-DEPLOYMENT-GUIDE.md)
-- **开发环境配置**：[docs/ENV-DEVELOPMENT-TEMPLATE.md](./docs/ENV-DEVELOPMENT-TEMPLATE.md)
-- **生产环境配置**：[docs/ENV-PRODUCTION-TEMPLATE.md](./docs/ENV-PRODUCTION-TEMPLATE.md)
-- **部署工程师审核**：[docs/DEPLOYMENT-ENGINEER-AUDIT.md](./docs/DEPLOYMENT-ENGINEER-AUDIT.md)
-
-### 常用部署命令
-
-```bash
-# 查看服务状态
-docker compose -f config/docker-compose.yml ps
-
-# 查看日志
-docker compose -f config/docker-compose.yml logs -f server
-
-# 备份数据
-bash scripts/deploy/backup.sh
-
-# 恢复数据
-bash scripts/deploy/restore.sh backups/mysql_backup_*.sql
-
-# 健康检查
-bash scripts/deploy/health-check.sh
-
-# 诊断系统
-bash scripts/deploy/diagnose.sh
-```
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 快速部署指南（推荐从这里开始）
+- [完整部署文档](./docs/COMPLETE-DEPLOYMENT-GUIDE.md) - 详细部署步骤
+- [开发文档](./docs/DEVELOPMENT.md) - 开发环境配置
+- [API 文档](./docs/API.md) - 接口文档
 
 ---
 
@@ -162,32 +125,13 @@ bash scripts/deploy/diagnose.sh
 
 ```bash
 # 查看服务状态
-docker-compose -f docker-compose.prod.yml ps
+docker-compose -f config/docker-compose.yml ps
 
 # 查看日志
-docker-compose -f docker-compose.prod.yml logs -f server
+docker-compose -f config/docker-compose.yml logs -f
 
-# 数据库备份
-bash scripts/backup-enhanced.sh
-
-# 防火墙配置
-bash scripts/setup-firewall.sh
-
-# SSL 证书配置
-bash scripts/ssl-setup.sh
-```
-
----
-
-## 域名 & SSL
-
-域名：`topivra.com`
-
-```
-Cloudflare DNS:
-  A  @    156.226.168.206  已代理
-  A  www  156.226.168.206  已代理
-SSL 模式：Flexible
+# 重启服务
+docker-compose -f config/docker-compose.yml restart
 ```
 
 ---
@@ -198,4 +142,4 @@ SSL 模式：Flexible
 
 ---
 
-**最后更新**：2026-03-11
+**最后更新**：2026-03-12

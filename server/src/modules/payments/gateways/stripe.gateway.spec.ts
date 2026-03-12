@@ -176,11 +176,8 @@ describe('StripeGateway', () => {
     });
 
     it('应该正确转换欧元到分', () => {
-      const cents = (gateway as any).convertToCents(50.50, 'EUR');
+      const cents = (gateway as any).convertToCents(50.5, 'EUR');
       expect(cents).toBe(5050);
     });
   });
 });
-
-
-

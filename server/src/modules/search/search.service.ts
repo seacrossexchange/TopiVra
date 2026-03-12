@@ -179,6 +179,67 @@ export class SearchService {
 
   // ==================== 商品搜索 ====================
 
+  /**
+   * 计算搜索相关性评分
+   * 评分规则：
+   * - 标题完全匹配: +100
+   * - 标题包含关键词: +50
+   * - 描述包含关键词: +20
+   * - 销量加成: +销量/10
+   * - 评分加成: +评分*5
+   * - 最近更新: +时间权重(0-10)
+   */
+  private calculateRelevanceScore(
+    product: any,
+    keyword: string,
+  ): number {
+    let score = 0;
+    const lowerKeyword = keyword.toLowerCase();
+    const lowerTitle = (product.title || '').toLowerCase();
+    const lowerDesc = (product.description || '').toLowerCase();
+
+    // 标题匹配评分
+    if (lowerTitle === lowerKeyword) {
+      score += 100; // 完全匹配
+    } else if (lowerTitle.startsWith(lowerKeyword)) {
+      score += 80; // 开头匹配
+    } else if (lowerTitle.includes(lowerKeyword)) {
+      score += 50; // 包含匹配
+      // 关键词在标题中的位置越靠前，分数越高
+      const position = lowerTitle.indexOf(lowerKeyword);
+      score += Math.max(0, 20 - position);
+    }
+
+    // 描述匹配评分
+    if (lowerDesc.includes(lowerKeyword)) {
+      score += 20;
+    }
+
+    // 销量加成（假设有 sales 字段）
+    if (product.sales) {
+      score += Math.min(50, product.sales / 10);
+    }
+
+    // 评分加成（假设有 rating 字段）
+    if (product.rating) {
+      score += product.rating * 5;
+    }
+
+    // 时间权重（最近更新的商品加分）
+    const daysSinceUpdate = Math.floor(
+      (Date.now() - new Date(product.updatedAt).getTime()) / (1000 * 60 * 60 * 24),
+    );
+    const timeScore = Math.max(0, 10 - daysSinceUpdate / 10);
+    score += timeScore;
+
+    // 库存状态（有库存加分）
+    if (product.stock > 0) {
+      score += 10;
+    }
+
+    return score;
+  }
+
   async searchProducts(keyword: string, page: number = 1, limit: number = 10) {
     // 生成缓存 key
     const cacheKey = this.generateCacheKey(
@@ -204,44 +265,53 @@ export class SearchService {
     // 记录搜索关键词
     await this.recordSearchKeyword(keyword);
 
-    const skip = (page - 1) * limit;
+    // 分词搜索：将关键词按空格分割
+    const keywords = keyword.trim().split(/\s+/);
+    
+    // 构建搜索条件
     const where = {
       status: 'ON_SALE' as const,
-      OR: [
-        { title: { contains: keyword } },
-        { description: { contains: keyword } },
-      ],
+      OR: keywords.flatMap(kw => [
+        { title: { contains: kw } },
+        { description: { contains: kw } },
+      ]),
     };
 
-    const [items, total] = await Promise.all([
-      this.prisma.product.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          category: { select: { id: true, name: true } },
-          seller: {
-            select: {
-              id: true,
-              sellerProfile: {
-                select: { id: true, shopName: true },
-              },
+    // 获取更多结果用于排序（获取前 100 条）
+    const allItems = await this.prisma.product.findMany({
+      where,
+      take: 100,
+      include: {
+        category: { select: { id: true, name: true } },
+        seller: {
+          select: {
+            id: true,
+            sellerProfile: {
+              select: { id: true, shopName: true, rating: true },
             },
           },
         },
-      }),
-      this.prisma.product.count({ where }),
-    ]);
+      },
+    });
 
-    // 转换数据格式
-    const formattedItems = items.map((item) => ({
+    // 计算相关性评分并排序
+    const itemsWithScore = allItems.map((item) => ({
       ...item,
+      relevanceScore: this.calculateRelevanceScore(item, keyword),
       shopName: item.seller?.sellerProfile?.shopName || null,
+      sellerRating: item.seller?.sellerProfile?.rating || 0,
     }));
 
+    // 按相关性评分排序
+    itemsWithScore.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+    // 分页
+    const skip = (page - 1) * limit;
+    const paginatedItems = itemsWithScore.slice(skip, skip + limit);
+    const total = itemsWithScore.length;
+
     const result = {
-      items: formattedItems,
+      items: paginatedItems,
       total,
       page,
       limit,

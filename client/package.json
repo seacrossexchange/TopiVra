@@ -34,7 +34,7 @@
     "socket.io-client": "^4.8.3",
     "web-vitals": "^5.1.0",
     "zod": "^3.25.76",
-    "zustand": "^4.5.7"
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

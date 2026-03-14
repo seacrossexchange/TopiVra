@@ -173,24 +173,26 @@ else {
 
 Write-Host ""
 
-# ==================== 7. Delivery Documentation ====================
-Write-Host "[7/8] Verifying delivery documentation..." -ForegroundColor Cyan
+# ==================== 7. Core Documentation ====================
+Write-Host "[7/8] Verifying core documentation..." -ForegroundColor Cyan
 Write-Host ""
 
-$deliveryDocs = @(
-    "FINAL-DELIVERY-REPORT.md",
-    "FIX-EXECUTION-SUMMARY.md",
-    "DELIVERY-CHECKLIST.md",
-    "QUICK-REFERENCE.md",
-    "OPTIMIZATION-COMPLETE.md"
+$coreDocs = @(
+    "README.md",
+    "DEPLOYMENT.md",
+    "LICENSE",
+    "docs\README.md",
+    "docs\deployment-guide.md",
+    "docs\DEVELOPMENT.md",
+    "docs\API.md"
 )
 
-foreach ($doc in $deliveryDocs) {
+foreach ($doc in $coreDocs) {
     if (Test-Path $doc) {
-        Write-TestResult "Delivery doc $doc" $true "created"
+        Write-TestResult "Core doc $doc" $true "exists"
     }
     else {
-        Write-TestResult "Delivery doc $doc" $false "missing"
+        Write-TestResult "Core doc $doc" $false "missing"
     }
 }
 

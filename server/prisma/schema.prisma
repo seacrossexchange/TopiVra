@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==================== 用户与权限 ====================
+// ==================== 用户与权�?====================
 
 model User {
   id           String  @id @default(uuid())
@@ -46,6 +46,16 @@ model User {
   lastLoginIp      String?   @map("last_login_ip")
   loginAttempts    Int       @default(0) @map("login_attempts")
   lockedUntil      DateTime? @map("locked_until")
+
+  // 会员系统
+  membershipLevel Int     @default(0) @map("membership_level")
+  totalSpent      Decimal @default(0.00) @map("total_spent") @db.Decimal(12, 2)
+  balance         Decimal @default(0.00) @db.Decimal(12, 2)
+
+  // 推荐系统
+  referralCode     String?  @unique @map("referral_code")
+  referredBy       String?  @map("referred_by")
+  referralRewarded Boolean  @default(false) @map("referral_rewarded")
 
   // 时间戳
   createdAt DateTime @default(now()) @map("created_at")
@@ -193,28 +203,27 @@ model Category {
   children     Category[]            @relation("CategoryHierarchy")
   products     Product[]
   blogs        Blog[]
-  translations CategoryTranslation[]
+  //   translations CategoryTranslation[]
 
   @@map("categories")
 }
 
-// 分类多语言表
-model CategoryTranslation {
-  id          String   @id @default(uuid())
-  categoryId  String   @map("category_id")
-  language    String   @db.VarChar(10)
-  name        String   @db.VarChar(100)
-  description String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@unique([categoryId, language])
-  @@index([categoryId])
-  @@index([language])
-  @@map("category_translations")
-}
+// 分类多语言�?model CategoryTranslation {
+//   id          String   @id @default(uuid())
+//   categoryId  String   @map("category_id")
+//   language    String   @db.VarChar(10)
+//   name        String   @db.VarChar(100)
+//   description String?  @db.Text
+//   createdAt   DateTime @default(now()) @map("created_at")
+//   updatedAt   DateTime @updatedAt @map("updated_at")
+// 
+//   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+// 
+//   @@unique([categoryId, language])
+//   @@index([categoryId])
+//   @@index([language])
+//   @@map("category_translations")
+// }
 
 // ==================== 商品 ====================
 
@@ -265,8 +274,10 @@ model Product {
   metaDescription String? @map("meta_description")
 
   // 统计
-  viewCount     Int @default(0) @map("view_count")
-  favoriteCount Int @default(0) @map("favorite_count")
+  viewCount     Int     @default(0) @map("view_count")
+  favoriteCount Int     @default(0) @map("favorite_count")
+  reviewCount   Int     @default(0) @map("review_count")
+  rating        Decimal @default(0) @db.Decimal(2, 1)
 
   // 促销信息
   promotionLabel String?   @map("promotion_label")
@@ -284,7 +295,7 @@ model Product {
   favorites    Favorite[]
   cartItems    CartItem[]
   inventories  ProductInventory[]
-  translations ProductTranslation[]
+  //   translations ProductTranslation[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -298,25 +309,24 @@ model Product {
   @@map("products")
 }
 
-// 商品多语言表
-model ProductTranslation {
-  id          String   @id @default(uuid())
-  productId   String   @map("product_id")
-  language    String   @db.VarChar(10)
-  title       String   @db.VarChar(200)
-  description String   @db.Text
-  metaTitle       String? @map("meta_title") @db.VarChar(200)
-  metaDescription String? @map("meta_description") @db.VarChar(500)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([productId, language])
-  @@index([productId])
-  @@index([language])
-  @@map("product_translations")
-}
+// 商品多语言�?model ProductTranslation {
+//   id          String   @id @default(uuid())
+//   productId   String   @map("product_id")
+//   language    String   @db.VarChar(10)
+//   title       String   @db.VarChar(200)
+//   description String   @db.Text
+//   metaTitle       String? @map("meta_title") @db.VarChar(200)
+//   metaDescription String? @map("meta_description") @db.VarChar(500)
+//   createdAt   DateTime @default(now()) @map("created_at")
+//   updatedAt   DateTime @updatedAt @map("updated_at")
+// 
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+// 
+//   @@unique([productId, language])
+//   @@index([productId])
+//   @@index([language])
+//   @@map("product_translations")
+// }
 
 enum ProductStatus {
   DRAFT
@@ -542,11 +552,10 @@ model ProductInventory {
 enum InventoryStatus {
   AVAILABLE // 可用
   RESERVED // 预留（订单创建但未支付）
-  SOLD // 已售出
-  INVALID // 失效
+  SOLD // 已售�?  INVALID // 失效
 }
 
-// ==================== 购物车 ====================
+// ==================== 购物�?====================
 
 model CartItem {
   id        String   @id @default(uuid())
@@ -751,6 +760,19 @@ enum WithdrawalStatus {
 
 // ==================== 卖家资金流水 ====================
 
+model Transaction {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  type        String
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([type])
+  @@map("transactions")
+}
+
 model SellerTransaction {
   id           String          @id @default(uuid())
   sellerId     String          @map("seller_id")
@@ -782,7 +804,7 @@ enum TransactionType {
   ADJUSTMENT
 }
 
-// ==================== 退款系统 ====================
+// ==================== 退款系�?====================
 
 model RefundRequest {
   id          String  @id @default(uuid())
@@ -796,8 +818,7 @@ model RefundRequest {
   refundType  String  @default("REFUND_ONLY") @map("refund_type") // REFUND_ONLY, RETURN_REFUND
   reason      String  @db.Text
   description String? @db.Text
-  evidence    Json? // 退款凭证图片
-
+  evidence    Json? // 退款凭证图�?
   // 金额
   refundAmount Decimal @map("refund_amount") @db.Decimal(10, 2)
   currency     String  @default("USD")
@@ -843,14 +864,14 @@ model RefundRequest {
 }
 
 enum RefundStatus {
-  PENDING // 待卖家响应
-  SELLER_AGREED // 卖家同意
-  SELLER_REJECTED // 卖家拒绝
-  DISPUTED // 平台介入
-  PROCESSING // 处理中
-  COMPLETED // 已完成
-  REJECTED // 已拒绝
-  CANCELLED // 已取消
+  PENDING
+  SELLER_AGREED
+  SELLER_REJECTED
+  DISPUTED
+  PROCESSING
+  COMPLETED
+  REJECTED
+  CANCELLED
 }
 
 // ==================== 系统配置 ====================
@@ -907,7 +928,7 @@ model Blog {
   comments     BlogComment[]
   likes        BlogLike[]
   views        BlogView[]
-  translations BlogTranslation[]
+  //   translations BlogTranslation[]
 
   @@index([authorId])
   @@index([categoryId])
@@ -917,26 +938,25 @@ model Blog {
   @@map("blogs")
 }
 
-// 博客多语言表
-model BlogTranslation {
-  id              String   @id @default(uuid())
-  blogId          String   @map("blog_id")
-  language        String   @db.VarChar(10)
-  title           String   @db.VarChar(200)
-  excerpt         String?  @db.Text
-  content         String   @db.Text
-  metaTitle       String?  @map("meta_title") @db.VarChar(200)
-  metaDescription String?  @map("meta_description") @db.VarChar(500)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
-  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
-
-  @@unique([blogId, language])
-  @@index([blogId])
-  @@index([language])
-  @@map("blog_translations")
-}
+// 博客多语言�?model BlogTranslation {
+//   id              String   @id @default(uuid())
+//   blogId          String   @map("blog_id")
+//   language        String   @db.VarChar(10)
+//   title           String   @db.VarChar(200)
+//   excerpt         String?  @db.Text
+//   content         String   @db.Text
+//   metaTitle       String?  @map("meta_title") @db.VarChar(200)
+//   metaDescription String?  @map("meta_description") @db.VarChar(500)
+//   createdAt       DateTime @default(now()) @map("created_at")
+//   updatedAt       DateTime @updatedAt @map("updated_at")
+// 
+//   blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+// 
+//   @@unique([blogId, language])
+//   @@index([blogId])
+//   @@index([language])
+//   @@map("blog_translations")
+// }
 
 enum BlogStatus {
   DRAFT
@@ -950,7 +970,7 @@ enum ContentType {
   RICH_TEXT
 }
 
-// 标签表
+// 标签系统
 model Tag {
   id          String  @id @default(uuid())
   name        String  @unique @db.VarChar(50)
@@ -989,8 +1009,7 @@ model BlogComment {
   id       String  @id @default(uuid())
   blogId   String  @map("blog_id")
   userId   String  @map("user_id")
-  parentId String? @map("parent_id") // 父评论ID，支持嵌套回复
-
+  parentId String? @map("parent_id") // 父评论ID，支持嵌套回�?
   content    String  @db.Text
   isApproved Boolean @default(true) @map("is_approved")
   likeCount  Int     @default(0) @map("like_count")
@@ -1024,6 +1043,138 @@ model BlogLike {
   @@index([blogId])
   @@index([userId])
   @@map("blog_likes")
+}
+
+// ==================== 会员系统 ====================
+
+model MembershipTier {
+  id          String  @id @default(uuid())
+  level       Int     @unique
+  name        String
+  nameEn      String  @map("name_en")
+  minSpent    Decimal @map("min_spent") @db.Decimal(12, 2)
+  discount    Decimal @db.Decimal(4, 2)
+  pointsRate  Decimal @map("points_rate") @db.Decimal(4, 2)
+  benefits    Json
+  isActive    Boolean @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("membership_tiers")
+}
+
+model UserPoints {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  points      Int      @default(0)
+  totalEarned Int      @default(0) @map("total_earned")
+  totalUsed   Int      @default(0) @map("total_used")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId])
+  @@index([userId])
+  @@map("user_points")
+}
+
+model PointsTransaction {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  points      Int
+  type        PointsType
+  reason      String
+  orderId     String?  @map("order_id")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("points_transactions")
+}
+
+enum PointsType {
+  EARN
+  SPEND
+  EXPIRE
+  REFUND
+}
+
+// ==================== 优惠券系统 ====================
+
+model Coupon {
+  id          String      @id @default(uuid())
+  code        String      @unique
+  name        String
+  nameEn      String      @map("name_en")
+  type        CouponType
+  discount    Decimal     @db.Decimal(12, 2)
+  minAmount   Decimal     @default(0) @map("min_amount") @db.Decimal(12, 2)
+  maxDiscount Decimal?    @map("max_discount") @db.Decimal(12, 2)
+  totalLimit  Int         @map("total_limit")
+  usedCount   Int         @default(0) @map("used_count")
+  userLimit   Int         @default(1) @map("user_limit")
+  startAt     DateTime    @map("start_at")
+  endAt       DateTime    @map("end_at")
+  isActive    Boolean     @default(true) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  userCoupons UserCoupon[]
+
+  @@index([code])
+  @@index([isActive])
+  @@map("coupons")
+}
+
+enum CouponType {
+  FIXED
+  PERCENT
+}
+
+model UserCoupon {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  couponId  String           @map("coupon_id")
+  status    UserCouponStatus @default(UNUSED)
+  orderId   String?          @map("order_id")
+  usedAt    DateTime?        @map("used_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  coupon Coupon @relation(fields: [couponId], references: [id])
+
+  @@index([userId])
+  @@index([couponId])
+  @@index([status])
+  @@map("user_coupons")
+}
+
+enum UserCouponStatus {
+  UNUSED
+  USED
+  EXPIRED
+}
+
+// ==================== 推荐记录 ====================
+
+model ReferralRecord {
+  id          String   @id @default(uuid())
+  referrerId  String   @map("referrer_id")
+  refereeId   String   @map("referee_id")
+  reward      Decimal  @default(0) @db.Decimal(12, 2)
+  status      ReferralStatus @default(PENDING)
+  createdAt   DateTime @default(now()) @map("created_at")
+  rewardedAt  DateTime? @map("rewarded_at")
+
+  @@index([referrerId])
+  @@index([refereeId])
+  @@map("referral_records")
+}
+
+enum ReferralStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
 
 // 博客浏览记录（防刷）
@@ -1127,7 +1278,7 @@ model Conversation {
   @@map("conversations")
 }
 
-// ==================== 卖家信用分系统 ====================
+// ==================== 卖家信用分系�?====================
 
 model SellerCredit {
   id       String @id @default(uuid())
@@ -1135,28 +1286,33 @@ model SellerCredit {
 
   // 基础信用分
   creditScore Int         @default(100) @map("credit_score") // 初始100分，满分200
-  creditLevel CreditLevel @default(NORMAL)
+  creditLevel CreditLevel @default(POOR)
 
   // 评分明细
+
   positivePoints Int @default(0) @map("positive_points") // 正面积分
   negativePoints Int @default(0) @map("negative_points") // 负面积分
 
   // 统计指标
+
   totalOrders     Int @default(0) @map("total_orders")
   completedOrders Int @default(0) @map("completed_orders")
   refundedOrders  Int @default(0) @map("refunded_orders")
   disputedOrders  Int @default(0) @map("disputed_orders")
 
   // 响应指标
+
   avgResponseTime Int     @default(0) @map("avg_response_time") // 平均响应时间（分钟）
-  responseRate    Decimal @default(100.00) @map("response_rate") @db.Decimal(5, 2) // 响应率%
+  responseRate    Decimal @default(100.00) @map("response_rate") @db.Decimal(5, 2) // 响应�?
 
   // 评价指标
+
   avgRating    Decimal @default(5.0) @map("avg_rating") @db.Decimal(2, 1)
-  fiveStarRate Decimal @default(0.00) @map("five_star_rate") @db.Decimal(5, 2) // 五星好评率%
+  fiveStarRate Decimal @default(0.00) @map("five_star_rate") @db.Decimal(5, 2) // 五星好评�?
   ratingCount  Int     @default(0) @map("rating_count") // 评价数量
 
   // 违规记录
+
   violations Int @default(0) // 违规次数
   warnings   Int @default(0) // 警告次数
 
@@ -1171,11 +1327,11 @@ model SellerCredit {
 }
 
 enum CreditLevel {
-  POOR // 差：0-60分
-  NORMAL // 普通：61-100分
-  GOOD // 良好：101-140分
-  EXCELLENT // 优秀：141-180分
-  PREMIUM // 卓越：181-200分
+  POOR
+  NORMAL
+  GOOD
+  EXCELLENT
+  PREMIUM
 }
 
 // 信用分变动记录
@@ -1193,7 +1349,6 @@ model CreditTransaction {
   reviewId String? @map("review_id")
   ticketId String? @map("ticket_id")
 
-  // 变动后分数
   scoreAfter Int @map("score_after")
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -1205,21 +1360,18 @@ model CreditTransaction {
 }
 
 enum CreditChangeReason {
-  // 加分项
-  ORDER_COMPLETED // 完成订单 +2
-  FIVE_STAR_REVIEW // 五星好评 +5
-  GOOD_REVIEW // 好评（4星） +3
-  QUICK_RESPONSE // 快速响应 +1
-  LONG_TERM_SELLER // 长期经营 +10/月
-
-  // 减分项
-  ORDER_REFUNDED // 订单退款 -3
-  ORDER_DISPUTED // 订单纠纷 -5
-  BAD_REVIEW // 差评（1-2星） -5
-  SLOW_RESPONSE // 响应超时 -2
-  COMPLAINT // 被投诉 -10
-  VIOLATION // 违规处罚 -20
-  FRAUD_DETECTED // 欺诈行为 -50
+  ORDER_COMPLETED
+  FIVE_STAR_REVIEW
+  GOOD_REVIEW
+  QUICK_RESPONSE
+  LONG_TERM_SELLER
+  ORDER_REFUNDED
+  ORDER_DISPUTED
+  BAD_REVIEW
+  SLOW_RESPONSE
+  COMPLAINT
+  VIOLATION
+  FRAUD_DETECTED
 }
 
 // ==================== 风控系统 ====================
@@ -1229,11 +1381,9 @@ model RiskAssessment {
   userId String @map("user_id")
 
   // 风险类型
-  type String // ORDER, WITHDRAWAL, LOGIN 等
-
+  type String // ORDER, WITHDRAWAL, LOGIN �?
   // 风险评估结果
-  score   Int // 0-100, 越高越危险
-  level   String // LOW, MEDIUM, HIGH, CRITICAL
+  score   Int // 0-100, 越高越危�?  level   String // LOW, MEDIUM, HIGH, CRITICAL
   factors Json // 风险因素列表
 
   // 行为数据
@@ -1272,7 +1422,7 @@ model BlacklistedIp {
 model PaymentGateway {
   id        String   @id @default(cuid())
   code      String   @unique // YIPAY, MAPAY, HUPIJIAO, PAYPAL, STRIPE
-  name      String // 易支付, 码支付, 虎皮椒, PayPal, Stripe
+  name      String // 易支�? 码支�? 虎皮�? PayPal, Stripe
   enabled   Boolean  @default(false)
   config    Json // 通道配置（API密钥等）
   sort      Int      @default(0)
@@ -1306,3 +1456,58 @@ model AuditLog {
   @@index([targetType, targetId])
   @@map("audit_logs")
 }
+
+
+// ==================== 优惠券系�?====================
+
+model Coupon {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?  @db.Text
+  type        CouponType
+  value       Decimal  @db.Decimal(10, 2)
+  minPurchase Decimal? @map("min_purchase") @db.Decimal(10, 2)
+  maxDiscount Decimal? @map("max_discount") @db.Decimal(10, 2)
+  usageLimit     Int?     @map("usage_limit")
+  userUsageLimit Int?     @map("user_usage_limit")
+  usedCount      Int      @default(0) @map("used_count")
+  startDate DateTime? @map("start_date")
+  endDate   DateTime? @map("end_date")
+  applicablePlatforms  Json? @map("applicable_platforms")
+  applicableCategories Json? @map("applicable_categories")
+  status    CouponStatus @default(ACTIVE)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  usages CouponUsage[]
+  @@index([code])
+  @@index([status])
+  @@map("coupons")
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+}
+
+enum CouponStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+model CouponUsage {
+  id        String   @id @default(uuid())
+  couponId  String   @map("coupon_id")
+  userId    String   @map("user_id")
+  orderId   String   @map("order_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  @@index([couponId])
+  @@index([userId])
+  @@index([orderId])
+  @@map("coupon_usages")
+}
+
+

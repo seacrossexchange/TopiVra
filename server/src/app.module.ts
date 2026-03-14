@@ -36,6 +36,11 @@ import { SellersModule } from './modules/sellers/sellers.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
+import { CouponsModule } from './modules/coupons/coupons.module';
+import { MembershipModule } from './modules/membership/membership.module';
+import { ReferralModule } from './modules/referral/referral.module';
+import { RecommendationsModule } from './modules/recommendations/recommendations.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { RedisModule } from './common/redis/redis.module';
 import { MailModule } from './common/mail/mail.module';
 import { TotpModule } from './common/totp/totp.module';
@@ -125,6 +130,11 @@ import { MetricsModule } from './common/metrics/metrics.module';
     TicketsModule,
     UploadModule,
     WebsocketModule,
+    CouponsModule,
+    MembershipModule,
+    ReferralModule,
+    RecommendationsModule,
+    AnalyticsModule,
     // TranslationsModule, // 正在由其他 agent 处理国际化
   ],
   controllers: [AppController],

@@ -21,6 +21,9 @@ class WebSocketService {
   private reconnectDelay = 1000;
   private isConnecting = false;
   private eventListeners: Map<string, Set<EventCallback>> = new Map();
+  private reconnectTimer: NodeJS.Timeout | null = null;
+  private heartbeatInterval: NodeJS.Timeout | null = null;
+  private lastToken: string | null = null;
 
   // 获取 WebSocket URL
   private getWebSocketUrl(): string {
@@ -41,6 +44,7 @@ class WebSocketService {
         return;
       }
 
+      this.lastToken = token;
       this.isConnecting = true;
       const url = this.getWebSocketUrl();
 
@@ -50,6 +54,8 @@ class WebSocketService {
         reconnection: true,
         reconnectionAttempts: this.maxReconnectAttempts,
         reconnectionDelay: this.reconnectDelay,
+        reconnectionDelayMax: 5000,
+        timeout: 10000,
       });
 
       // 连接成功
@@ -59,6 +65,7 @@ class WebSocketService {
         }
         this.reconnectAttempts = 0;
         this.isConnecting = false;
+        this.startHeartbeat();
         resolve(true);
       });
 
@@ -68,6 +75,7 @@ class WebSocketService {
           console.error('[WebSocket] 连接错误:', error.message);
         }
         this.isConnecting = false;
+        this.scheduleReconnect();
         resolve(false);
       });
 
@@ -77,6 +85,16 @@ class WebSocketService {
           console.log('[WebSocket] 断开连接:', reason);
         }
         this.isConnecting = false;
+        this.stopHeartbeat();
+        
+        // 非主动断开时，自动重连
+        if (reason === 'io server disconnect') {
+          // 服务器主动断开，等待5秒后重连
+          this.scheduleReconnect(5000);
+        } else if (reason === 'transport close' || reason === 'transport error') {
+          // 网络问题，立即尝试重连
+          this.scheduleReconnect(1000);
+        }
       });
 
       // 重连尝试
@@ -87,18 +105,74 @@ class WebSocketService {
         this.reconnectAttempts = attempt;
       });
 
+      // 重连成功
+      this.socket.io.on('reconnect', (attempt) => {
+        if (import.meta.env.DEV) {
+          console.log(`[WebSocket] 重连成功，尝试次数: ${attempt}`);
+        }
+        this.reconnectAttempts = 0;
+        this.startHeartbeat();
+      });
+
+      // 重连失败
+      this.socket.io.on('reconnect_failed', () => {
+        if (import.meta.env.DEV) {
+          console.error('[WebSocket] 重连失败，已达最大尝试次数');
+        }
+        // 等待30秒后再次尝试
+        this.scheduleReconnect(30000);
+      });
+
       // 注册事件监听
       this.setupEventListeners();
     });
   }
 
+  // 调度重连
+  private scheduleReconnect(delay: number = 5000): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+    }
+
+    this.reconnectTimer = setTimeout(() => {
+      if (!this.socket?.connected && this.lastToken) {
+        if (import.meta.env.DEV) {
+          console.log('[WebSocket] 执行调度重连...');
+        }
+        this.connect(this.lastToken);
+      }
+    }, delay);
+  }
+
+  // 启动心跳
+  private startHeartbeat(): void {
+    this.stopHeartbeat();
+    this.heartbeatInterval = setInterval(() => {
+      this.ping();
+    }, 30000); // 每30秒发送一次心跳
+  }
+
+  // 停止心跳
+  private stopHeartbeat(): void {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+  }
+
   // 断开连接
   disconnect() {
+    this.stopHeartbeat();
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
     }
     this.eventListeners.clear();
+    this.lastToken = null;
   }
 
   // 设置事件监听

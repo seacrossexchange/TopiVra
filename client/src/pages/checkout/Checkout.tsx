@@ -179,88 +179,66 @@ export default function Checkout() {
   };
 
   const renderConfirmStep = () => (
-    <Row gutter={24}>
-      <Col xs={24} lg={16}>
-        <Card title={t('checkout.orderSummary')} className="mb-6">
-          <div className="space-y-4">
+    <div className="max-w-2xl mx-auto">
+      <Card>
+        {/* 商品列表 - 简化显示 */}
+        <div className="mb-6">
+          <Text strong className="block mb-4 text-base">{t('checkout.orderSummary')}</Text>
+          <div className="space-y-3">
             {checkoutState?.items?.map((item, index) => (
-              <div key={item.id || item.productId || index} className="flex items-center gap-4 p-4 bg-[var(--color-bg-layout)] rounded-lg">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-20 h-20 object-cover rounded"
-                  />
-                ) : (
-                  <div className="w-20 h-20 rounded bg-[var(--color-bg-tertiary)] flex items-center justify-center text-2xl">🛒</div>
-                )}
+              <div key={item.id || item.productId || index} className="flex justify-between items-center py-2">
                 <div className="flex-1">
-                  <Text strong className="block">{item.title}</Text>
-                  {item.platform && <Text type="secondary" className="text-sm">{item.platform}</Text>}
-                  <div className="flex justify-between mt-2">
-                    <Text>${item.price.toFixed(2)} × {item.quantity}</Text>
-                    <Text strong>${(item.price * item.quantity).toFixed(2)}</Text>
-                  </div>
+                  <Text className="block">{item.title}</Text>
+                  <Text type="secondary" className="text-sm">× {item.quantity}</Text>
                 </div>
+                <Text strong>${(item.price * item.quantity).toFixed(2)}</Text>
               </div>
             ))}
           </div>
-          
-          <Divider />
-          
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <Text>{t('checkout.subtotal')}</Text>
-              <Text>${totalAmount.toFixed(2)}</Text>
-            </div>
-            <div className="flex justify-between">
-              <Text>{t('checkout.discount')}</Text>
-              <Text>$0.00</Text>
-            </div>
-            <Divider className="my-2" />
-            <div className="flex justify-between">
-              <Text strong className="text-lg">{t('checkout.total')}</Text>
-              <Text strong className="text-xl text-primary">${totalAmount.toFixed(2)}</Text>
-            </div>
+        </div>
+
+        <Divider />
+
+        {/* 支付方式 - 简化显示 */}
+        <div className="mb-6">
+          <Text strong className="block mb-3 text-base">{t('checkout.paymentMethod')}</Text>
+          <div className="p-3 bg-[var(--color-bg-layout)] rounded-lg">
+            <Text strong>
+              {checkoutState?.paymentMethod === 'usdt' && '🪙 USDT (TRC20)'}
+              {checkoutState?.paymentMethod === 'balance' && '💰 ' + t('cart.balance')}
+              {checkoutState?.paymentMethod === 'paypal' && '📘 PayPal'}
+              {checkoutState?.paymentMethod === 'stripe' && '💳 Stripe'}
+            </Text>
           </div>
-        </Card>
-      </Col>
+        </div>
 
-      <Col xs={24} lg={8}>
-        <Card title={t('checkout.paymentMethod')} className="sticky top-6">
-          <Space direction="vertical" size="large" className="w-full">
-            <div className="p-4 bg-[var(--color-bg-layout)] rounded-lg">
-              <Text strong className="block mb-2">
-                {checkoutState?.paymentMethod === 'usdt' && '🪙 USDT'}
-                {checkoutState?.paymentMethod === 'balance' && '💰 ' + t('cart.balance')}
-                {checkoutState?.paymentMethod === 'paypal' && '📘 PayPal'}
-                {checkoutState?.paymentMethod === 'stripe' && '💳 Stripe'}
-              </Text>
-              <Text type="secondary" className="text-sm">
-                {checkoutState?.paymentMethod === 'usdt' && t('cart.usdtDesc')}
-                {checkoutState?.paymentMethod === 'balance' && t('cart.balanceDesc')}
-                {checkoutState?.paymentMethod === 'paypal' && t('cart.paypalDesc')}
-                {checkoutState?.paymentMethod === 'stripe' && t('cart.stripeDesc')}
-              </Text>
-            </div>
+        <Divider />
 
-            <Button
-              type="primary"
-              size="large"
-              block
-              loading={loading}
-              onClick={handleCreateOrder}
-            >
-              {t('checkout.confirmOrder')} - ${totalAmount.toFixed(2)}
-            </Button>
+        {/* 金额汇总 - 简化显示 */}
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between text-base">
+            <Text>{t('checkout.total')}</Text>
+            <Text strong className="text-2xl text-primary">${totalAmount.toFixed(2)}</Text>
+          </div>
+        </div>
 
-            <Button block onClick={() => navigate('/cart')}>
-              {t('checkout.backToCart')}
-            </Button>
-          </Space>
-        </Card>
-      </Col>
-    </Row>
+        {/* 操作按钮 */}
+        <Space direction="vertical" size="middle" className="w-full">
+          <Button
+            type="primary"
+            size="large"
+            block
+            loading={loading}
+            onClick={handleCreateOrder}
+          >
+            {t('checkout.confirmOrder')}
+          </Button>
+          <Button block onClick={() => navigate('/cart')}>
+            {t('checkout.backToCart')}
+          </Button>
+        </Space>
+      </Card>
+    </div>
   );
 
   const renderPaymentStep = () => (

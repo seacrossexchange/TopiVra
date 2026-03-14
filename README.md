@@ -55,16 +55,6 @@
 | 部署 | Docker Compose + Nginx |
 | 监控 | Prometheus + Grafana + Sentry |
 
-### 核心业务流程
-
-```
-用户支付 → 支付网关回调 → 更新订单状态 → 自动发货服务
-    ↓
-FIFO 分配库存 → 推送凭证给买家 → WebSocket 实时通知
-    ↓
-SSE 实时进度流 → 前端进度条更新 → 发货完成
-```
-
 ---
 
 ## 🚀 快速开始
@@ -103,19 +93,24 @@ bash scripts/deploy/health-check.sh
 
 ---
 
-## 📖 文档
+## 📖 文档导航
 
-### 快速开始
-- **[部署指南](./DEPLOYMENT.md)** - 5 分钟快速部署
-- **[开发指南](./docs/DEVELOPMENT.md)** - 本地开发环境配置
+### 核心文档
+- **[系统架构](./ARCHITECTURE.md)** - 技术架构与设计
+- **[产品概览](./PRODUCT-OVERVIEW.md)** - 产品功能与规划
+- **[项目结构](./PROJECT-STRUCTURE.md)** - 目录结构说明
+- **[交付总结](./DELIVERY.md)** - 项目交付清单
 
-### 详细文档
-- **[完整部署指南](./docs/deployment-guide.md)** - 生产环境部署详解
+### 快速上手
+- **[快速部署](./DEPLOYMENT.md)** - 5 分钟快速部署指南
+
+### 开发文档
+- **[开发指南](./docs/DEVELOPMENT.md)** - 环境搭建、代码规范、测试
 - **[API 文档](./docs/API.md)** - RESTful API 接口说明
-- **[数据库设计](./docs/database-schema.md)** - 数据库表结构
-- **[故障排查](./docs/troubleshooting.md)** - 常见问题解决方案
 
-查看 [docs/README.md](./docs/README.md) 了解完整文档列表。
+### 运维文档
+- **[完整部署指南](./docs/deployment-guide.md)** - 生产环境部署详解
+- **[故障排查](./docs/troubleshooting.md)** - 常见问题解决方案
 
 ---
 
@@ -143,7 +138,6 @@ bash scripts/deploy/health-check.sh
 
 - **版本**: v1.0.0
 - **状态**: ✅ 生产环境就绪
-- **评分**: 8.6/10 (优秀)
 - **测试覆盖率**: 75%+
 - **文档完整度**: 95%+
 
@@ -158,12 +152,6 @@ bash scripts/deploy/health-check.sh
 ## 📄 许可证
 
 [MIT License](./LICENSE)
-
----
-
-## 📞 技术支持
-
-遇到问题？查看 [故障排查文档](./docs/troubleshooting.md) 或提交 Issue。
 
 ---
 

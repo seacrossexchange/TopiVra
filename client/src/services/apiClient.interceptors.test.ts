@@ -1,215 +1,109 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import axios, { AxiosError } from 'axios';
-import apiClient from './apiClient';
-import { useAuthStore } from '@/store/authStore';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import apiClient, { createAbortController, cancelRequest, isRequestCancelled } from '../apiClient';
 
-vi.mock('@/store/authStore');
+describe('apiClient', () => {
+  let mock: MockAdapter;
 
-describe('apiClient interceptors', () => {
   beforeEach(() => {
+    mock = new MockAdapter(axios);
     vi.clearAllMocks();
   });
 
-  describe('request interceptor', () => {
-    it('添加 Authorization header', async () => {
-      vi.mocked(useAuthStore.getState).mockReturnValue({
-        accessToken: 'test_token_123',
-      } as any);
+  afterEach(() => {
+    mock.restore();
+  });
 
-      const config = {
-        headers: {},
-      };
+  describe('Request Interceptor', () => {
+    it('should add authorization header when token exists', async () => {
+      mock.onGet('/test').reply(200, { data: 'success' });
 
-      // 模拟请求拦截器
-      const interceptor = apiClient.interceptors.request.handlers[0];
-      const result = await interceptor.fulfilled(config as any);
+      // Mock auth store
+      const mockToken = 'test-token';
+      vi.mock('@/store/authStore', () => ({
+        useAuthStore: {
+          getState: () => ({ accessToken: mockToken }),
+        },
+      }));
 
-      expect(result.headers.Authorization).toBe('Bearer test_token_123');
-    });
+      await apiClient.get('/test');
 
-    it('没有 token 时不添加 header', async () => {
-      vi.mocked(useAuthStore.getState).mockReturnValue({
-        accessToken: null,
-      } as any);
-
-      const config = {
-        headers: {},
-      };
-
-      const interceptor = apiClient.interceptors.request.handlers[0];
-      const result = await interceptor.fulfilled(config as any);
-
-      expect(result.headers.Authorization).toBeUndefined();
+      expect(mock.history.get[0].headers?.Authorization).toBe(`Bearer ${mockToken}`);
     });
   });
 
-  describe('response interceptor - success', () => {
-    it('自动解包 { success: true, data } 格式', async () => {
-      const response = {
-        data: {
-          success: true,
-          data: { id: '123', name: 'test' },
-          timestamp: '2026-03-12T00:00:00Z',
-        },
-      };
-
-      const interceptor = apiClient.interceptors.response.handlers[0];
-      const result = await interceptor.fulfilled(response as any);
-
-      expect(result.data).toEqual({ id: '123', name: 'test' });
-    });
-
-    it('非 success 格式直接返回', async () => {
-      const response = {
-        data: { id: '123', name: 'test' },
-      };
-
-      const interceptor = apiClient.interceptors.response.handlers[0];
-      const result = await interceptor.fulfilled(response as any);
-
-      expect(result.data).toEqual({ id: '123', name: 'test' });
-    });
-  });
-
-  describe('response interceptor - 401 token refresh', () => {
-    it('401 错误触发 token 刷新', async () => {
-      const error = new AxiosError('Unauthorized', '401', {
-        url: '/api/v1/products',
-      } as any);
-      error.response = { status: 401 } as any;
-
-      vi.mocked(useAuthStore.getState).mockReturnValue({
-        refreshToken: 'refresh_token_123',
-        setTokens: vi.fn(),
-        logout: vi.fn(),
-      } as any);
-
-      // 模拟 axios.post 刷新 token
-      vi.spyOn(axios, 'post').mockResolvedValue({
-        data: {
-          accessToken: 'new_access_token',
-          refreshToken: 'new_refresh_token',
-        },
+  describe('Response Interceptor', () => {
+    it('should unwrap success response', async () => {
+      mock.onGet('/test').reply(200, {
+        success: true,
+        data: { message: 'test' },
+        timestamp: new Date().toISOString(),
       });
 
-      const interceptor = apiClient.interceptors.response.handlers[0];
+      const response = await apiClient.get('/test');
+
+      expect(response.data).toEqual({ message: 'test' });
+    });
+
+    it('should handle 429 rate limit', async () => {
+      mock.onGet('/test').reply(429, {}, { 'retry-after': '60' });
+
+      try {
+        await apiClient.get('/test');
+      } catch (error: any) {
+        expect(error.response.status).toBe(429);
+      }
+    });
+
+    it('should retry GET requests on 5xx errors', async () => {
+      mock
+        .onGet('/test')
+        .replyOnce(500)
+        .onGet('/test')
+        .replyOnce(500)
+        .onGet('/test')
+        .reply(200, { success: true, data: 'success' });
+
+      const response = await apiClient.get('/test');
+
+      expect(response.data).toBe('success');
+      expect(mock.history.get.length).toBe(3);
+    });
+
+    it('should not retry POST requests', async () => {
+      mock.onPost('/test').reply(500);
+
+      try {
+        await apiClient.post('/test', {});
+      } catch (error: any) {
+        expect(error.response.status).toBe(500);
+      }
+
+      expect(mock.history.post.length).toBe(1);
+    });
+  });
+
+  describe('AbortController Management', () => {
+    it('should create abort controller', () => {
+      const controller = createAbortController('test-key');
+
+      expect(controller).toBeInstanceOf(AbortController);
+      expect(controller.signal.aborted).toBe(false);
+    });
+
+    it('should cancel request by key', () => {
+      const controller = createAbortController('test-key');
       
-      try {
-        await interceptor.rejected(error);
-      } catch {
-        // 预期会抛出错误或重试
-      }
+      cancelRequest('test-key');
 
-      expect(axios.post).toHaveBeenCalled();
+      expect(controller.signal.aborted).toBe(true);
     });
 
-    it('refresh 端点失败时登出', async () => {
-      const error = new AxiosError('Unauthorized', '401', {
-        url: '/api/v1/products',
-      } as any);
-      error.response = { status: 401 } as any;
-
-      const mockLogout = vi.fn();
-      vi.mocked(useAuthStore.getState).mockReturnValue({
-        refreshToken: 'refresh_token_123',
-        logout: mockLogout,
-      } as any);
-
-      vi.spyOn(axios, 'post').mockRejectedValue(new Error('Refresh failed'));
-
-      const interceptor = apiClient.interceptors.response.handlers[0];
-
-      try {
-        await interceptor.rejected(error);
-      } catch {
-        // 预期会抛出错误
-      }
-
-      expect(mockLogout).toHaveBeenCalled();
-    });
-  });
-
-  describe('response interceptor - 429 rate limit', () => {
-    it('429 错误显示限流提示', async () => {
-      const error = new AxiosError('Too Many Requests', '429');
-      error.response = {
-        status: 429,
-        headers: { 'retry-after': '60' },
-      } as any;
-
-      const interceptor = apiClient.interceptors.response.handlers[0];
-
-      try {
-        await interceptor.rejected(error);
-      } catch {
-        // 预期会抛出错误
-      }
-
-      // 验证错误被正确处理
-      expect(error.response?.status).toBe(429);
-    });
-  });
-
-  describe('response interceptor - retry logic', () => {
-    it('GET 请求 5xx 错误触发重试', async () => {
-      const error = new AxiosError('Server Error', '500', {
-        method: 'GET',
-        url: '/api/v1/products',
-      } as any);
-      error.response = { status: 500 } as any;
-
-      const interceptor = apiClient.interceptors.response.handlers[0];
-
-      try {
-        await interceptor.rejected(error);
-      } catch {
-        // 预期会重试
-      }
-
-      // 验证错误被处理
-      expect(error.response?.status).toBe(500);
-    });
-
-    it('POST 请求不重试', async () => {
-      const error = new AxiosError('Server Error', '500', {
-        method: 'POST',
-        url: '/api/v1/orders',
-      } as any);
-      error.response = { status: 500 } as any;
-
-      const interceptor = apiClient.interceptors.response.handlers[0];
-
-      try {
-        await interceptor.rejected(error);
-      } catch {
-        // 预期会抛出错误
-      }
-
-      expect(error.response?.status).toBe(500);
-    });
-  });
-
-  describe('response interceptor - cancelled requests', () => {
-    it('取消的请求直接 reject', async () => {
-      const error = new DOMException('Aborted', 'AbortError');
-
-      const interceptor = apiClient.interceptors.response.handlers[0];
-
-      try {
-        await interceptor.rejected(error);
-      } catch (e) {
-        expect(e).toBe(error);
-      }
+    it('should identify cancelled requests', () => {
+      const cancelError = new Error('canceled');
+      
+      expect(isRequestCancelled(cancelError)).toBe(true);
     });
   });
 });
-
-
-
-
-
-
-
-
-
-

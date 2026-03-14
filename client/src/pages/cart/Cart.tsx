@@ -24,6 +24,8 @@ import { cartService } from '@/services/cart';
 import { useAuthStore } from '@/store/authStore';
 import { EmptyState } from '@/components/common/EmptyState';
 import { SkeletonCard } from '@/components/common/SkeletonCard';
+import CartRecommendations from '@/components/cart/CartRecommendations';
+import CouponSelector from '@/components/cart/CouponSelector';
 
 const { Title, Text } = Typography;
 
@@ -57,6 +59,7 @@ export default function Cart() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const [paymentMethod, setPaymentMethod] = useState('balance');
+  const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -201,6 +204,20 @@ export default function Cart() {
     0
   );
 
+  const calculateCouponDiscount = () => {
+    if (!selectedCoupon) return 0;
+    
+    if (selectedCoupon.type === 'PERCENTAGE') {
+      let discount = (totalAmount * selectedCoupon.value) / 100;
+      if (selectedCoupon.maxDiscount && discount > selectedCoupon.maxDiscount) {
+        discount = selectedCoupon.maxDiscount;
+      }
+      return discount;
+    } else {
+      return Math.min(selectedCoupon.value, totalAmount);
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-[var(--color-bg-layout)] min-h-screen py-6 px-5">
@@ -252,30 +269,44 @@ export default function Cart() {
                   pagination={false}
                 />
               </Card>
+
+              {/* 购物车推荐商品 */}
+              {cartItems.length > 0 && <CartRecommendations cartItems={cartItems} />}
             </Col>
 
             <Col xs={24} lg={8}>
-              <Card title={t('cart.orderSummary')} className="sticky top-6">
-                <Space direction="vertical" size="large" className="w-full">
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                <Card title={t('cart.orderSummary')}>
                   <div>
                     <div className="flex justify-between mb-2">
                       <Text>{t('cart.totalAmount')}</Text>
                       <Text>${totalAmount.toFixed(2)}</Text>
                     </div>
-                    <div className="flex justify-between mb-2">
-                      <Text>{t('cart.discount')}</Text>
-                      <Text>-$0.00</Text>
-                    </div>
+                    {selectedCoupon && (
+                      <div className="flex justify-between mb-2">
+                        <Text>{t('cart.couponDiscount', '优惠券')}</Text>
+                        <Text style={{ color: '#52c41a' }}>-${calculateCouponDiscount().toFixed(2)}</Text>
+                      </div>
+                    )}
                     <div className="border-t border-[var(--color-border-secondary)] pt-3 mt-3 flex justify-between">
                       <Text strong className="text-base">
                         {t('cart.total')}
                       </Text>
                       <Text strong className="text-xl text-primary">
-                        ${totalAmount.toFixed(2)}
+                        ${(totalAmount - calculateCouponDiscount()).toFixed(2)}
                       </Text>
                     </div>
                   </div>
+                </Card>
 
+                {/* 优惠券选择器 */}
+                <CouponSelector
+                  orderAmount={totalAmount}
+                  onSelect={(coupon) => setSelectedCoupon(coupon)}
+                  selectedCoupon={selectedCoupon}
+                />
+
+                <Card title={t('cart.selectPayment')}>
                   {/* Payment Method Selection */}
                   <div>
                     <Text strong className="block mb-3">
@@ -341,7 +372,7 @@ export default function Cart() {
                     block
                     onClick={handleCheckout}
                   >
-                    {t('cart.checkout')} ({t('cart.itemsCount', { count: cartItems.length })})
+                    {t('cart.checkout')} - ${(totalAmount - calculateCouponDiscount()).toFixed(2)}
                   </Button>
 
                   <Button block onClick={() => navigate('/products')}>

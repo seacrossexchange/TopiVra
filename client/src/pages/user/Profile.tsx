@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import type { UploadProps } from 'antd';
 import apiClient from '@/services/apiClient';
+import MembershipCard from '@/components/common/MembershipCard';
+import ReferralCard from '@/components/user/ReferralCard';
 import './Profile.css';
 
 export default function Profile() {
@@ -188,6 +190,17 @@ export default function Profile() {
             </Button>
           </Form.Item>
         </Form>
+      ),
+    },
+    {
+      key: 'membership',
+      label: t('user.membership', '会员中心'),
+      children: (
+        <div>
+          <MembershipCard />
+          <Divider />
+          <ReferralCard />
+        </div>
       ),
     },
     {

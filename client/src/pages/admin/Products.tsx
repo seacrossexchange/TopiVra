@@ -252,6 +252,8 @@ export default function Products() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [batchLoading, setBatchLoading] = useState(false);
   const pageSize = 20;
 
   const fetchProducts = useCallback(async () => {
@@ -312,6 +314,57 @@ export default function Products() {
     } catch {
       message.error(t('common.error', '操作失败'));
     }
+  };
+
+  // 批量审核
+  const handleBatchAudit = async (approved: boolean) => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请先选择要审核的商品');
+      return;
+    }
+
+    const pendingProducts = products.filter(
+      p => selectedRowKeys.includes(p.id) && p.status === 'PENDING'
+    );
+
+    if (pendingProducts.length === 0) {
+      message.warning('所选商品中没有待审核的商品');
+      return;
+    }
+
+    Modal.confirm({
+      title: approved ? '批量通过审核' : '批量拒绝审核',
+      content: `确定要${approved ? '通过' : '拒绝'} ${pendingProducts.length} 个商品的审核吗？`,
+      okText: '确定',
+      cancelText: '取消',
+      onOk: async () => {
+        setBatchLoading(true);
+        try {
+          const response = await fetch('/api/products/admin/batch-audit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify({
+              ids: pendingProducts.map(p => p.id),
+              status: approved ? 'APPROVED' : 'REJECTED',
+              rejectReason: approved ? undefined : '批量拒绝',
+            }),
+          });
+
+          if (!response.ok) throw new Error('批量审核失败');
+
+          message.success(`成功${approved ? '通过' : '拒绝'} ${pendingProducts.length} 个商品`);
+          setSelectedRowKeys([]);
+          fetchProducts();
+        } catch (error) {
+          message.error('批量审核失败，请重试');
+        } finally {
+          setBatchLoading(false);
+        }
+      },
+    });
   };
 
   const columns: ColumnsType<Product> = [
@@ -400,6 +453,16 @@ export default function Products() {
     },
   ];
 
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedKeys: React.Key[]) => {
+      setSelectedRowKeys(selectedKeys);
+    },
+    getCheckboxProps: (record: Product) => ({
+      disabled: record.status !== 'PENDING',
+    }),
+  };
+
   const productAuditTab = (
     <Card style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: 14 }}>
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
@@ -433,11 +496,52 @@ export default function Products() {
           {t('common.search')}
         </Button>
       </div>
+
+      {/* 批量操作栏 */}
+      {selectedRowKeys.length > 0 && (
+        <div style={{
+          marginBottom: 16,
+          padding: '12px 16px',
+          background: 'var(--color-primary-light)',
+          border: '1px solid rgba(var(--color-primary-rgb), 0.3)',
+          borderRadius: 8,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <span style={{ color: 'var(--color-text-primary)' }}>
+            已选择 <strong style={{ color: 'var(--color-primary)' }}>{selectedRowKeys.length}</strong> 个商品
+          </span>
+          <Space>
+            <Button
+              type="primary"
+              icon={<CheckCircleOutlined />}
+              loading={batchLoading}
+              onClick={() => handleBatchAudit(true)}
+            >
+              批量通过
+            </Button>
+            <Button
+              danger
+              icon={<CloseCircleOutlined />}
+              loading={batchLoading}
+              onClick={() => handleBatchAudit(false)}
+            >
+              批量拒绝
+            </Button>
+            <Button onClick={() => setSelectedRowKeys([])}>
+              取消选择
+            </Button>
+          </Space>
+        </div>
+      )}
+
       <Table
         columns={columns}
         dataSource={products}
         rowKey="id"
         loading={loading}
+        rowSelection={rowSelection}
         pagination={{
           current: currentPage,
           pageSize,

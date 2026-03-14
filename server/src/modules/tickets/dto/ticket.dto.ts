@@ -1,21 +1,28 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsEnum,
-  IsBoolean,
-  IsUUID,
-  MaxLength,
-  IsArray,
-} from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsNumber, IsArray, IsBoolean } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum TicketType {
-  PRODUCT = 'PRODUCT',
-  ORDER = 'ORDER',
-  PAYMENT = 'PAYMENT',
-  ACCOUNT = 'ACCOUNT',
-  OTHER = 'OTHER',
+  REFUND = 'REFUND',
+  DM = 'DM',
+  SUPPORT = 'SUPPORT',
+  COMPLAINT = 'COMPLAINT',
+}
+
+export enum TicketStatus {
+  PENDING = 'PENDING',
+  SELLER_REVIEWING = 'SELLER_REVIEWING',
+  SELLER_AGREED = 'SELLER_AGREED',
+  SELLER_REJECTED = 'SELLER_REJECTED',
+  SELLER_OFFERED_REPLACEMENT = 'SELLER_OFFERED_REPLACEMENT', // 卖家提供换货
+  BUYER_ACCEPTED_REPLACEMENT = 'BUYER_ACCEPTED_REPLACEMENT', // 买家接受换货
+  BUYER_REJECTED_REPLACEMENT = 'BUYER_REJECTED_REPLACEMENT', // 买家拒绝换货
+  REPLACEMENT_DELIVERED = 'REPLACEMENT_DELIVERED', // 换货已发货
+  ADMIN_REVIEWING = 'ADMIN_REVIEWING',
+  ADMIN_APPROVED = 'ADMIN_APPROVED',
+  ADMIN_REJECTED = 'ADMIN_REJECTED',
+  COMPLETED = 'COMPLETED',
+  CLOSED = 'CLOSED',
+  CANCELLED = 'CANCELLED',
 }
 
 export enum TicketPriority {
@@ -25,96 +32,147 @@ export enum TicketPriority {
   URGENT = 'URGENT',
 }
 
-export enum TicketStatus {
-  OPEN = 'OPEN',
-  IN_PROGRESS = 'IN_PROGRESS',
-  WAITING = 'WAITING',
-  RESOLVED = 'RESOLVED',
-  CLOSED = 'CLOSED',
+export enum SenderRole {
+  BUYER = 'BUYER',
+  SELLER = 'SELLER',
+  ADMIN = 'ADMIN',
+  SYSTEM = 'SYSTEM',
 }
 
-export class CreateTicketDto {
-  @ApiProperty({ description: '工单标题', maxLength: 200 })
+// 创建退款工单
+export class CreateRefundTicketDto {
   @IsString()
-  @IsNotEmpty({ message: '工单标题不能为空' })
-  @MaxLength(200)
-  subject!: string;
+  orderId: string;
 
-  @ApiProperty({ description: '工单类型', enum: TicketType })
-  @IsEnum(TicketType, { message: '工单类型无效' })
-  type!: TicketType;
-
-  @ApiProperty({ description: '工单内容' })
   @IsString()
-  @IsNotEmpty({ message: '工单内容不能为空' })
-  content!: string;
+  refundReason: string;
 
-  @ApiPropertyOptional({
-    description: '工单优先级',
-    enum: TicketPriority,
-    default: TicketPriority.MEDIUM,
-  })
   @IsOptional()
-  @IsEnum(TicketPriority)
-  priority?: TicketPriority;
+  @IsArray()
+  refundEvidence?: string[];
+
+  @IsOptional()
+  @IsNumber()
+  refundAmount?: number;
 }
 
-export class ReplyTicketDto {
-  @ApiProperty({ description: '回复内容' })
+// 创建私信工单
+export class CreateDMTicketDto {
   @IsString()
-  @IsNotEmpty({ message: '回复内容不能为空' })
-  content!: string;
+  sellerId: string;
 
-  @ApiPropertyOptional({ description: '是否内部备注', default: false })
+  @IsString()
+  subject: string;
+
+  @IsString()
+  content: string;
+
+  @IsOptional()
+  @IsString()
+  orderId?: string;
+}
+
+// 发送消息
+export class SendMessageDto {
+  @IsString()
+  content: string;
+
+  @IsOptional()
+  @IsArray()
+  attachments?: string[];
+
   @IsOptional()
   @IsBoolean()
   isInternal?: boolean;
-
-  @ApiPropertyOptional({ description: '附件URL列表' })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  attachments?: string[];
 }
 
-export class UpdateTicketDto extends PartialType(CreateTicketDto) {
-  @ApiPropertyOptional({ description: '工单状态', enum: TicketStatus })
-  @IsOptional()
-  @IsEnum(TicketStatus)
-  status?: TicketStatus;
+// 卖家响应退款
+export class SellerRespondDto {
+  @IsEnum(['AGREE', 'REJECT', 'OFFER_REPLACEMENT'])
+  action: 'AGREE' | 'REJECT' | 'OFFER_REPLACEMENT';
 
-  @ApiPropertyOptional({ description: '工单优先级', enum: TicketPriority })
   @IsOptional()
-  @IsEnum(TicketPriority)
-  priority?: TicketPriority;
+  @IsString()
+  response?: string;
 
-  @ApiPropertyOptional({ description: '指派人ID' })
   @IsOptional()
-  @IsUUID()
-  assigneeId?: string;
+  @IsString()
+  rejectReason?: string;
+
+  @IsOptional()
+  @IsString()
+  replacementReason?: string; // 换货说明
 }
 
-export class QueryTicketDto {
-  @ApiPropertyOptional({ description: '页码', default: 1 })
+// 买家响应换货
+export class BuyerRespondReplacementDto {
+  @IsEnum(['ACCEPT', 'REJECT'])
+  action: 'ACCEPT' | 'REJECT';
+
   @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+// 卖家发货换货商品
+export class DeliverReplacementDto {
+  @IsString()
+  deliveryInfo: string; // 新账号信息
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+}
+
+// 买家申请平台介入
+export class EscalateTicketDto {
+  @IsString()
+  reason: string;
+}
+
+// 管理员处理工单
+export class AdminProcessTicketDto {
+  @IsEnum(['APPROVE', 'REJECT'])
+  action: 'APPROVE' | 'REJECT';
+
+  @IsOptional()
+  @IsString()
+  adminResponse?: string;
+
+  @IsOptional()
+  @IsNumber()
+  refundAmount?: number;
+}
+
+// 查询工单列表
+export class TicketQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: '每页数量', default: 10 })
   @IsOptional()
-  limit?: number = 10;
+  @Type(() => Number)
+  @IsNumber()
+  limit?: number = 20;
 
-  @ApiPropertyOptional({ description: '工单状态', enum: TicketStatus })
-  @IsOptional()
-  @IsEnum(TicketStatus)
-  status?: TicketStatus;
-
-  @ApiPropertyOptional({ description: '工单优先级', enum: TicketPriority })
-  @IsOptional()
-  @IsEnum(TicketPriority)
-  priority?: TicketPriority;
-
-  @ApiPropertyOptional({ description: '工单类型', enum: TicketType })
   @IsOptional()
   @IsEnum(TicketType)
   type?: TicketType;
+
+  @IsOptional()
+  @IsEnum(TicketStatus)
+  status?: TicketStatus;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsString()
+  endDate?: string;
 }

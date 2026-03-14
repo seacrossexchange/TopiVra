@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Select, Button, Pagination, Empty } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Input, Select, Button, Pagination, Empty, Drawer } from 'antd';
+import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { productsService } from '@/services/products';
@@ -9,7 +9,9 @@ import type { Product, ProductFilters } from '@/services/products';
 import SkeletonCard from '@/components/common/SkeletonCard';
 import { useSeo } from '@/hooks/useSeo';
 import PlatformIcon from './PlatformIcon';
+import MobileFilterDrawer from '@/components/product/MobileFilterDrawer';
 import './ProductList.css';
+import './ProductListMobile.css';
 
 const { Option } = Select;
 
@@ -126,6 +128,7 @@ export default function ProductList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('latest');
   const [openNodes, setOpenNodes] = useState<Record<string, boolean>>({});
+  const [mobileFilterVisible, setMobileFilterVisible] = useState(false);
   const pageSize = 20;
 
   const buildFilters = (): ProductFilters => {
@@ -294,13 +297,35 @@ export default function ProductList() {
             />
             <span className="pl-result-count">{t('products.found', {count: totalItems})}</span>
           </div>
-          <Select value={sortBy} onChange={setSortBy} style={{ width: 130 }} size="small">
-            <Option value="latest">{t('products.latest', '最新上架')}</Option>
-            <Option value="price-asc">{t('products.priceAsc', '价格从低到高')}</Option>
-            <Option value="price-desc">{t('products.priceDesc', '价格从高到低')}</Option>
-            <Option value="popular">{t('products.popular', '销量最高')}</Option>
-          </Select>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setMobileFilterVisible(true)}
+              className="mobile-filter-btn"
+            >
+              {t('products.filter', '筛选')}
+            </Button>
+            <Select value={sortBy} onChange={setSortBy} style={{ width: 130 }} size="small">
+              <Option value="latest">{t('products.latest', '最新上架')}</Option>
+              <Option value="price-asc">{t('products.priceAsc', '价格从低到高')}</Option>
+              <Option value="price-desc">{t('products.priceDesc', '价格从高到低')}</Option>
+              <Option value="popular">{t('products.popular', '销量最高')}</Option>
+            </Select>
+          </div>
         </div>
+
+        {/* 移动端筛选抽屉 */}
+        <MobileFilterDrawer
+          visible={mobileFilterVisible}
+          onClose={() => setMobileFilterVisible(false)}
+          platforms={PLATFORM_TREE.map(p => ({ key: p.key, label: p.label }))}
+          countries={countryList}
+          selectedPlatform={selectedPlatform}
+          selectedCountry={selectedCountry}
+          onPlatformChange={(platform) => { setSelectedPlatform(platform); setSelectedSub(''); setCurrentPage(1); }}
+          onCountryChange={(country) => { setSelectedCountry(country); setCurrentPage(1); }}
+          onReset={() => { setSelectedPlatform('all'); setSelectedCountry('ALL'); setCurrentPage(1); }}
+        />
 
         {/* 商品网格 */}
         {isLoading ? (

@@ -195,9 +195,9 @@ npm run dev
 ### 7. 访问应用
 
 ```
-前端: http://localhost:5174
-后端: http://localhost:3001
-API 文档: http://localhost:3001/api/docs
+前端: http://localhost:5173
+后端: http://localhost:8000
+API 文档: http://localhost:8000/api/v1/docs
 ```
 
 ---
@@ -631,8 +631,8 @@ docker-compose -f config/docker-compose.yml restart
 ## 🔗 相关资源
 
 - **API 文档**: [API.md](./API.md)
-- **部署文档**: [DEPLOYMENT.md](./DEPLOYMENT.md)
-- **Swagger UI**: http://localhost:3001/api/docs
+- **部署文档**: [../DEPLOYMENT.md](../DEPLOYMENT.md)
+- **Swagger UI**: http://localhost:8000/api/v1/docs
 - **React 文档**: https://react.dev
 - **NestJS 文档**: https://nestjs.com
 - **Prisma 文档**: https://prisma.io

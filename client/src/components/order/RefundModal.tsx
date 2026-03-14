@@ -66,7 +66,7 @@ export default function RefundModal({
         evidence: evidenceUrls,
       });
 
-      message.success(t('refund.submitSuccess', '退款申请已提交'));
+      message.success(t('refund.submitSuccess', '退款申请已提交，我们将在24小时内审核'));
       form.resetFields();
       setFileList([]);
       onSuccess();
@@ -182,11 +182,12 @@ export default function RefundModal({
         </Form>
 
         <div className="refund-tips">
-          <h4>{t('refund.tips.title', '温馨提示')}</h4>
+          <h4>{t('refund.tips.title', '退款说明')}</h4>
           <ul>
-            <li>{t('refund.tips.tip1', '退款申请提交后，我们将尽快审核处理')}</li>
-            <li>{t('refund.tips.tip2', '审核通过后，退款金额将返还至您的账户余额')}</li>
-            <li>{t('refund.tips.tip3', '如有疑问，请联系客服')}</li>
+            <li>{t('refund.tips.tip1', '⏱ 审核时间：24小时内处理')}</li>
+            <li>{t('refund.tips.tip2', '💰 退款方式：原路返回至账户余额')}</li>
+            <li>{t('refund.tips.tip3', '📞 如有疑问：联系在线客服')}</li>
+            <li>{t('refund.tips.tip4', '⚠️ C2C交易：退款需卖家同意，平台将协调处理')}</li>
           </ul>
         </div>
       </div>

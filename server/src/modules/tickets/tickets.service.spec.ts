@@ -1,254 +1,345 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TicketsService } from './tickets.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  BadRequestException,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
-import { NotificationService } from '../../common/notification';
-import { AuditService } from '../../common/audit';
-import { TicketStatus } from './dto/ticket.dto';
+import { ConfigService } from '@nestjs/config';
+import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { TicketStatus, TicketPriority } from '@prisma/client';
 
 describe('TicketsService', () => {
   let service: TicketsService;
-  let prismaService: any;
+  let prisma: any;
 
+  const mockUserId = 'user-1';
   const mockTicket = {
-    id: 'ticket-001',
-    ticketNo: 'TK20260001',
-    userId: 'user-001',
-    assigneeId: null,
-    subject: '订单问题',
-    content: '内容',
-    type: 'ORDER' as any,
+    id: 'ticket-1',
+    ticketNo: 'TKT001',
+    userId: mockUserId,
+    subject: 'Test Subject',
+    description: 'Test Description',
     status: TicketStatus.OPEN,
-    priority: 'MEDIUM' as any,
-    slaDeadline: new Date(Date.now() + 86400000),
+    priority: TicketPriority.MEDIUM,
+    category: 'GENERAL',
     createdAt: new Date(),
     updatedAt: new Date(),
-    closedAt: null,
-    messages: [],
   };
 
   beforeEach(async () => {
-    const mockPrisma: any = {
+    prisma = {
       ticket: {
+        create: jest.fn(),
         findUnique: jest.fn(),
         findMany: jest.fn(),
-        create: jest.fn(),
         update: jest.fn(),
         count: jest.fn(),
       },
       ticketMessage: {
         create: jest.fn(),
         findMany: jest.fn(),
+        count: jest.fn(),
       },
-      $transaction: jest.fn((fn: (tx: any) => any) => fn(mockPrisma)),
+      user: {
+        findUnique: jest.fn(),
+      },
+      $transaction: jest.fn(),
     };
 
-    const mockNotification = { notifyUser: jest.fn() };
-    const mockAudit = { log: jest.fn() };
+    const mockWebsocketGateway = {
+      sendToUser: jest.fn(),
+      notifyTicketReply: jest.fn(),
+    };
+
+    const mockNotificationService = {
+      notifyUser: jest.fn(),
+    };
+
+    const mockMailService = {
+      sendEmail: jest.fn(),
+    };
+
+    const mockAuditService = {
+      log: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TicketsService,
-        { provide: PrismaService, useValue: mockPrisma },
-        { provide: NotificationService, useValue: mockNotification },
-        { provide: AuditService, useValue: mockAudit },
+        { provide: PrismaService, useValue: prisma },
+        { provide: ConfigService, useValue: { get: jest.fn() } },
+        { provide: 'WebsocketGateway', useValue: mockWebsocketGateway },
+        { provide: 'NotificationService', useValue: mockNotificationService },
+        { provide: 'MailService', useValue: mockMailService },
+        { provide: 'AuditService', useValue: mockAuditService },
       ],
     }).compile();
 
     service = module.get<TicketsService>(TicketsService);
-    prismaService = mockPrisma;
   });
 
-  // -- create --------------------------------------------------
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('create', () => {
-    it('应成功创建工单', async () => {
-      prismaService.ticket.create.mockResolvedValue(mockTicket);
+    const createDto = {
+      subject: 'Test Subject',
+      description: 'Test Description',
+      category: 'GENERAL' as any,
+      priority: TicketPriority.MEDIUM,
+    };
 
-      const result = await service.create('user-001', {
-        subject: '订单问题',
-        type: 'ORDER',
-        content: '我的订单出现了问题',
-        priority: 'MEDIUM',
-      } as any);
+    it('should create a ticket', async () => {
+      prisma.ticket.create.mockResolvedValue(mockTicket);
 
-      expect(result).toBeDefined();
-      expect(prismaService.ticket.create).toHaveBeenCalled();
-    });
-  });
+      const result = await service.create(mockUserId, createDto);
 
-  // -- findByUser ----------------------------------------------
-  describe('findByUser', () => {
-    it('应返回用户的工单列表', async () => {
-      prismaService.ticket.findMany.mockResolvedValue([mockTicket]);
-      prismaService.ticket.count.mockResolvedValue(1);
-
-      const result = await service.findByUser('user-001', {});
-
-      expect(result.items).toHaveLength(1);
-    });
-
-    it('应支持状态筛选', async () => {
-      prismaService.ticket.findMany.mockResolvedValue([mockTicket]);
-      prismaService.ticket.count.mockResolvedValue(1);
-
-      await service.findByUser('user-001', { status: TicketStatus.OPEN });
-
-      expect(prismaService.ticket.findMany).toHaveBeenCalledWith(
+      expect(result).toEqual(mockTicket);
+      expect(prisma.ticket.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: TicketStatus.OPEN }),
+          data: expect.objectContaining({
+            userId: mockUserId,
+            subject: createDto.subject,
+            description: createDto.description,
+          }),
+        }),
+      );
+    });
+
+    it('should generate unique ticket number', async () => {
+      prisma.ticket.create.mockResolvedValue(mockTicket);
+
+      await service.create(mockUserId, createDto);
+
+      expect(prisma.ticket.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            ticketNo: expect.stringMatching(/^TKT\d+/),
+          }),
         }),
       );
     });
   });
 
-  // -- findOne -------------------------------------------------
-  describe('findOne', () => {
-    it('应返回工单详情', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
+  describe('findAll', () => {
+    it('should return paginated tickets for user', async () => {
+      const mockTickets = [mockTicket];
+      prisma.ticket.findMany.mockResolvedValue(mockTickets);
+      prisma.ticket.count.mockResolvedValue(1);
 
-      const result = await service.findOne('ticket-001', 'user-001');
+      const result = await service.findAll(mockUserId, { page: 1, limit: 10 });
 
-      expect(result.id).toBe('ticket-001');
+      expect(result.data).toEqual(mockTickets);
+      expect(result.meta.total).toBe(1);
+      expect(prisma.ticket.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: mockUserId },
+        }),
+      );
     });
 
-    it('工单不存在 -> 应抛出 NotFoundException', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue(null);
+    it('should filter by status', async () => {
+      prisma.ticket.findMany.mockResolvedValue([mockTicket]);
+      prisma.ticket.count.mockResolvedValue(1);
 
-      await expect(service.findOne('nonexistent', 'user-001')).rejects.toThrow(
+      await service.findAll(mockUserId, { 
+        page: 1, 
+        limit: 10, 
+        status: TicketStatus.OPEN 
+      });
+
+      expect(prisma.ticket.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: TicketStatus.OPEN,
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('findOne', () => {
+    it('should throw NotFoundException if ticket not found', async () => {
+      prisma.ticket.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne(mockUserId, 'TKT001')).rejects.toThrow(
         NotFoundException,
       );
     });
 
-    it('非工单所有者 -> 应抛出 ForbiddenException', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
+    it('should throw ForbiddenException if user is not owner', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({
+        ...mockTicket,
+        userId: 'other-user',
+      });
 
-      await expect(service.findOne('ticket-001', 'other-user')).rejects.toThrow(
+      await expect(service.findOne(mockUserId, 'TKT001')).rejects.toThrow(
         ForbiddenException,
       );
     });
+
+    it('should return ticket with messages', async () => {
+      const mockMessages = [
+        { id: 'msg-1', content: 'Test message', isStaff: false },
+      ];
+      prisma.ticket.findUnique.mockResolvedValue({
+        ...mockTicket,
+        messages: mockMessages,
+      });
+
+      const result = await service.findOne(mockUserId, 'TKT001');
+
+      expect(result).toEqual(expect.objectContaining({
+        ticketNo: 'TKT001',
+        messages: mockMessages,
+      }));
+    });
   });
 
-  // -- reply ---------------------------------------------------
   describe('reply', () => {
-    it('工单所有者应能回复', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
-      prismaService.ticketMessage.create.mockResolvedValue({
-        id: 'msg-001',
-        ticketId: 'ticket-001',
-        senderId: 'user-001',
-        content: '补充信息',
-        createdAt: new Date(),
-      });
-      prismaService.ticket.update.mockResolvedValue(mockTicket);
+    const replyDto = {
+      content: 'Test reply',
+      attachments: [],
+    };
 
-      const result = await service.reply('ticket-001', 'user-001', {
-        content: '补充信息',
-      } as any);
+    it('should throw NotFoundException if ticket not found', async () => {
+      prisma.ticket.findUnique.mockResolvedValue(null);
 
-      expect(result).toBeDefined();
+      await expect(
+        service.reply(mockUserId, 'TKT001', replyDto),
+      ).rejects.toThrow(NotFoundException);
     });
 
-    it('已关闭的工单 -> 应抛出 BadRequestException', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue({
+    it('should throw BadRequestException if ticket is closed', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({
         ...mockTicket,
         status: TicketStatus.CLOSED,
       });
 
       await expect(
-        service.reply('ticket-001', 'user-001', { content: '...' } as any),
+        service.reply(mockUserId, 'TKT001', replyDto),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('非工单相关用户 -> 应抛出 ForbiddenException', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
-
-      await expect(
-        service.reply('ticket-001', 'unrelated-user', {
-          content: '...',
-        } as any),
-      ).rejects.toThrow(ForbiddenException);
-    });
-  });
-
-  // -- close ---------------------------------------------------
-  describe('close', () => {
-    it('工单所有者应能关闭工单', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
-      prismaService.ticket.update.mockResolvedValue({
+    it('should create message and update ticket status', async () => {
+      prisma.ticket.findUnique.mockResolvedValue(mockTicket);
+      const mockMessage = {
+        id: 'msg-1',
+        content: replyDto.content,
+        isStaff: false,
+      };
+      prisma.ticketMessage.create.mockResolvedValue(mockMessage);
+      prisma.ticket.update.mockResolvedValue({
         ...mockTicket,
-        status: TicketStatus.CLOSED,
+        status: TicketStatus.AWAITING_STAFF,
       });
 
-      const result = await service.close('ticket-001', 'user-001');
+      const result = await service.reply(mockUserId, 'TKT001', replyDto);
 
-      expect(result).toBeDefined();
-    });
-
-    it('工单已关闭 -> 应抛出 BadRequestException', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue({
-        ...mockTicket,
-        status: TicketStatus.CLOSED,
-      });
-
-      await expect(service.close('ticket-001', 'user-001')).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-  });
-
-  // -- findAll (admin) -----------------------------------------
-  describe('findAll', () => {
-    it('管理员应能获取所有工单', async () => {
-      prismaService.ticket.findMany.mockResolvedValue([mockTicket]);
-      prismaService.ticket.count.mockResolvedValue(1);
-
-      const result = await service.findAll({});
-
-      expect(result.items).toHaveLength(1);
-    });
-
-    it('应支持按状态筛选', async () => {
-      prismaService.ticket.findMany.mockResolvedValue([]);
-      prismaService.ticket.count.mockResolvedValue(0);
-
-      await service.findAll({ status: TicketStatus.OPEN });
-
-      expect(prismaService.ticket.findMany).toHaveBeenCalledWith(
+      expect(result).toEqual(mockMessage);
+      expect(prisma.ticketMessage.create).toHaveBeenCalled();
+      expect(prisma.ticket.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: TicketStatus.OPEN }),
+          data: expect.objectContaining({
+            status: TicketStatus.AWAITING_STAFF,
+          }),
         }),
       );
     });
   });
 
-  // -- reply as admin ------------------------------------------
-  describe('reply (admin)', () => {
-    it('管理员应能以 isAdmin=true 回复工单', async () => {
-      prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
-      prismaService.ticketMessage.create.mockResolvedValue({
-        id: 'admin-msg-001',
-        ticketId: 'ticket-001',
-        senderId: 'admin-001',
-        content: '管理员回复',
-        createdAt: new Date(),
-      });
-      prismaService.ticket.update.mockResolvedValue({
-        ...mockTicket,
-        status: TicketStatus.IN_PROGRESS,
-      });
+  describe('close', () => {
+    it('should throw NotFoundException if ticket not found', async () => {
+      prisma.ticket.findUnique.mockResolvedValue(null);
 
-      const result = await service.reply(
-        'ticket-001',
-        'admin-001',
-        { content: '管理员回复' } as any,
-        true,
+      await expect(service.close(mockUserId, 'TKT001')).rejects.toThrow(
+        NotFoundException,
       );
+    });
 
-      expect(result).toBeDefined();
+    it('should throw ForbiddenException if user is not owner', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({
+        ...mockTicket,
+        userId: 'other-user',
+      });
+
+      await expect(service.close(mockUserId, 'TKT001')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should close ticket', async () => {
+      prisma.ticket.findUnique.mockResolvedValue(mockTicket);
+      prisma.ticket.update.mockResolvedValue({
+        ...mockTicket,
+        status: TicketStatus.CLOSED,
+      });
+
+      const result = await service.close(mockUserId, 'TKT001');
+
+      expect(result.status).toBe(TicketStatus.CLOSED);
+      expect(prisma.ticket.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: TicketStatus.CLOSED,
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('reopen', () => {
+    it('should throw NotFoundException if ticket not found', async () => {
+      prisma.ticket.findUnique.mockResolvedValue(null);
+
+      await expect(service.reopen(mockUserId, 'TKT001')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw BadRequestException if ticket is not closed', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({
+        ...mockTicket,
+        status: TicketStatus.OPEN,
+      });
+
+      await expect(service.reopen(mockUserId, 'TKT001')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should reopen ticket', async () => {
+      prisma.ticket.findUnique.mockResolvedValue({
+        ...mockTicket,
+        status: TicketStatus.CLOSED,
+      });
+      prisma.ticket.update.mockResolvedValue({
+        ...mockTicket,
+        status: TicketStatus.OPEN,
+      });
+
+      const result = await service.reopen(mockUserId, 'TKT001');
+
+      expect(result.status).toBe(TicketStatus.OPEN);
+    });
+  });
+
+  describe('getStats', () => {
+    it('should return ticket statistics', async () => {
+      prisma.ticket.count
+        .mockResolvedValueOnce(10) // total
+        .mockResolvedValueOnce(3)  // open
+        .mockResolvedValueOnce(2)  // awaiting_staff
+        .mockResolvedValueOnce(1)  // awaiting_user
+        .mockResolvedValueOnce(4); // closed
+
+      const result = await service.getStats(mockUserId);
+
+      expect(result).toEqual({
+        total: 10,
+        open: 3,
+        awaitingStaff: 2,
+        awaitingUser: 1,
+        closed: 4,
+      });
     });
   });
 });

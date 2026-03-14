@@ -1,0 +1,351 @@
+/* 工单列表容器 */
+.stc-container {
+  height: 100vh;
+  background: var(--color-bg-layout);
+  overflow: hidden;
+}
+
+.stc-layout {
+  display: flex;
+  height: 100%;
+}
+
+/* ==================== 左侧边栏 ==================== */
+.stc-sidebar {
+  width: 380px;
+  background: var(--color-bg-card);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.stc-sidebar.is-open {
+  transform: translateX(0);
+}
+
+/* 头部 */
+.stc-sidebar__header {
+  padding: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stc-sidebar__header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stc-sidebar__header i {
+  color: var(--color-primary);
+}
+
+/* 统计面板 */
+.stc-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stc-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: var(--color-bg-layout);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.stc-stat:hover {
+  background: var(--color-bg-hover);
+  transform: translateY(-2px);
+}
+
+.stc-stat__num {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stc-stat__label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* 搜索框 */
+.stc-sidebar__search {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-card);
+}
+
+.stc-sidebar__search i,
+.stc-sidebar__search .anticon {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.stc-sidebar__search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.stc-sidebar__search input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* 筛选按钮 */
+.stc-filters {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stc-filters__row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stc-filter-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.stc-filter-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.stc-filter-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* 工单列表 */
+.stc-sidebar__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.stc-ticket-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.stc-ticket-item:hover {
+  background: var(--color-bg-hover);
+}
+
+.stc-ticket-item.active {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.stc-ticket-item.unread {
+  background: var(--color-bg-layout);
+}
+
+.stc-ticket-item__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-bg-layout);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--color-primary);
+}
+
+.stc-ticket-item__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.stc-ticket-item__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.stc-ticket-item__no {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.stc-ticket-item__status {
+  font-size: 11px;
+}
+
+.stc-ticket-item__subject {
+  font-size: 13px;
+  color: var(--color-text);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stc-ticket-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.stc-ticket-item__buyer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stc-ticket-item__badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #ff4d4f;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 分页 */
+.stc-pagination {
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.stc-pagination button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.stc-pagination button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.stc-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stc-pagination span {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* ==================== 右侧主区域 ==================== */
+.stc-main {
+  flex: 1;
+  background: var(--color-bg-layout);
+  overflow: hidden;
+  position: relative;
+}
+
+.stc-detail-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.stc-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 768px) {
+  .stc-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+  }
+
+  .stc-sidebar.is-open {
+    transform: translateX(0);
+  }
+}
+
+/* ==================== 滚动条样式 ==================== */
+.stc-sidebar__list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.stc-sidebar__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.stc-sidebar__list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.stc-sidebar__list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+
+

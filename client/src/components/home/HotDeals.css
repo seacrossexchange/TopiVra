@@ -1,0 +1,127 @@
+.hot-deals-section {
+  padding: 60px 0;
+  background: var(--color-bg-layout);
+}
+
+.hot-deals-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hot-deals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hot-deals-icon {
+  font-size: 28px;
+  color: #ff4d4f;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.hot-deals-countdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.countdown-text {
+  font-size: 18px;
+  color: #ff4d4f;
+  font-family: 'Courier New', monospace;
+}
+
+.hot-deal-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-border);
+}
+
+.hot-deal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.hot-deal-cover {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+}
+
+.hot-deal-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  font-weight: 600;
+  animation: shake 3s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: rotate(-3deg); }
+  20%, 40%, 60%, 80% { transform: rotate(3deg); }
+}
+
+.hot-deal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.hot-deal-card:hover .hot-deal-image {
+  transform: scale(1.05);
+}
+
+.hot-deal-content {
+  padding: 4px 0;
+}
+
+.hot-deal-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 12px 0;
+}
+
+.hot-deal-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.hot-deal-progress {
+  margin: 8px 0;
+}
+
+@media (max-width: 768px) {
+  .hot-deals-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .hot-deals-countdown {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+

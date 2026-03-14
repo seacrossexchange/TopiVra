@@ -4,275 +4,339 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '20.x'
 
 jobs:
-  # ── 后端测试 ────────────────────────────────────────────────
-  test-server:
-    name: Server Tests
+  # ==================== 代码质量检查 ====================
+  lint:
+    name: Lint & Format Check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: server
-
-    services:
-      mysql:
-        image: mariadb:11
-        env:
-          MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: topivra_test
-        ports:
-          - 3306:3306
-        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: server/package-lock.json
-
-      - name: Install dependencies
+      
+      - name: Install dependencies (Server)
+        working-directory: ./server
         run: npm ci
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: TypeScript type check
-        run: npx tsc --noEmit
-
-      - name: Run unit tests with coverage
-        run: npm run test:cov
-        env:
-          DATABASE_URL: mysql://root:root@localhost:3306/topivra_test
-          REDIS_URL: redis://localhost:6379
-          JWT_SECRET: ci-test-secret
-          NODE_ENV: test
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v4
-        with:
-          directory: server/coverage
-          flags: server
-          fail_ci_if_error: false
-
-  # ── 前端测试 ────────────────────────────────────────────────
-  test-client:
-    name: Client Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: client
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: client/package-lock.json
-
-      - name: Install dependencies
+      
+      - name: Install dependencies (Client)
+        working-directory: ./client
         run: npm ci
-
-      - name: Run ESLint
+      
+      - name: Lint Server
+        working-directory: ./server
         run: npm run lint
+      
+      - name: Lint Client
+        working-directory: ./client
+        run: npm run lint
+      
+      - name: Check TypeScript
+        working-directory: ./server
+        run: npm run build
+      
+      - name: Check TypeScript (Client)
+        working-directory: ./client
+        run: npm run build
 
-      - name: TypeScript type check
-        run: npx tsc --noEmit
-
-      - name: Run tests with coverage
-        run: npm test
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v4
-        with:
-          directory: client/coverage
-          flags: client
-          fail_ci_if_error: false
-
-  # ── E2E 测试 ────────────────────────────────────────────────
-  test-e2e:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    needs: [test-server, test-client]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: e2e/package-lock.json
-
-      - name: Start services with Docker Compose
-        run: docker compose -f config/docker-compose.yml up -d
-        env:
-          NODE_ENV: test
-
-      - name: Wait for services
-        run: sleep 30
-
-      - name: Install Playwright
-        working-directory: e2e
-        run: npm ci && npx playwright install --with-deps chromium
-
-      - name: Run E2E tests
-        working-directory: e2e
-        run: npx playwright test --project=chromium
-        env:
-          BASE_URL: http://localhost:3000
-
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: e2e/playwright-report/
-          retention-days: 7
-
-      - name: Stop services
-        if: always()
-        run: docker compose -f config/docker-compose.yml down
-
-  # ── 安全扫描 ────────────────────────────────────────────────
+  # ==================== 安全扫描 ====================
   security:
-    name: Security Scan
+    name: Security Audit
     runs-on: ubuntu-latest
-    needs: [test-server, test-client]
-
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run npm audit (server)
-        working-directory: server
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Run npm audit (Server)
+        working-directory: ./server
         run: npm audit --audit-level=high
         continue-on-error: true
-
-      - name: Run npm audit (client)
-        working-directory: client
+      
+      - name: Run npm audit (Client)
+        working-directory: ./client
         run: npm audit --audit-level=high
         continue-on-error: true
-
-      - name: Run Trivy vulnerability scanner
+      
+      - name: Run Snyk Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+      
+      - name: Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          severity: 'HIGH,CRITICAL'
-
+      
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
         with:
           sarif_file: 'trivy-results.sarif'
 
-  # ── 构建 Docker 镜像 ─────────────────────────────────────────
-  build:
+  # ==================== 单元测试 ====================
+  test-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: topivra_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies (Server)
+        working-directory: ./server
+        run: npm ci
+      
+      - name: Run Prisma migrations
+        working-directory: ./server
+        env:
+          DATABASE_URL: mysql://root:test_password@localhost:3306/topivra_test
+        run: npx prisma migrate deploy
+      
+      - name: Run unit tests
+        working-directory: ./server
+        env:
+          DATABASE_URL: mysql://root:test_password@localhost:3306/topivra_test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_SECRET: test_jwt_secret_key_for_ci_testing_only
+          JWT_REFRESH_SECRET: test_jwt_refresh_secret_key_for_ci_testing_only
+        run: npm run test:cov
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./server/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+      
+      - name: Run client tests
+        working-directory: ./client
+        run: npm run test -- --run --coverage
+      
+      - name: Upload client coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./client/coverage/lcov.info
+          flags: client
+          fail_ci_if_error: false
+
+  # ==================== E2E 测试 ====================
+  test-e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Start services
+        run: |
+          docker-compose -f config/docker-compose.yml up -d
+          sleep 30
+      
+      - name: Install E2E dependencies
+        working-directory: ./e2e
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        working-directory: ./e2e
+        run: npx playwright install --with-deps
+      
+      - name: Run E2E tests
+        working-directory: ./e2e
+        run: npx playwright test
+      
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 30
+      
+      - name: Stop services
+        if: always()
+        run: docker-compose -f config/docker-compose.yml down
+
+  # ==================== 代码质量分析 ====================
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    needs: [test-unit]
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=topivra
+            -Dsonar.sources=server/src,client/src
+            -Dsonar.tests=server/test,client/src/__tests__
+            -Dsonar.javascript.lcov.reportPaths=server/coverage/lcov.info,client/coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*.test.ts,**/*.test.tsx
+      
+      - name: SonarQube Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ==================== Docker 构建 ====================
+  build-docker:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [test-server, test-client]
-    if: github.ref == 'refs/heads/main'
-
+    needs: [lint, security, test-unit]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+      
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Build and push server image
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build and push Server image
         uses: docker/build-push-action@v5
         with:
-          context: server
+          context: ./server
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/topivra-server:latest
             ${{ secrets.DOCKER_USERNAME }}/topivra-server:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push client image
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/topivra-server:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/topivra-server:buildcache,mode=max
+      
+      - name: Build and push Client image
         uses: docker/build-push-action@v5
         with:
-          context: client
+          context: ./client
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/topivra-client:latest
             ${{ secrets.DOCKER_USERNAME }}/topivra-client:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/topivra-client:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/topivra-client:buildcache,mode=max
 
-  # ── 生产部署 ────────────────────────────────────────────────
-  deploy:
+  # ==================== 部署到生产环境 ====================
+  deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [build, security]
-    if: github.ref == 'refs/heads/main'
-    environment: production
-    concurrency:
-      group: production
-      cancel-in-progress: false
-
+    needs: [build-docker, test-e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://topivra.com
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
             cd /opt/topivra
             git pull origin main
-            docker compose -f config/docker-compose.prod.yml pull
-            docker compose -f config/docker-compose.prod.yml up -d --remove-orphans
-            docker image prune -f
-
+            docker-compose -f config/docker-compose.prod.yml pull
+            docker-compose -f config/docker-compose.prod.yml up -d
+            docker-compose -f config/docker-compose.prod.yml exec -T server npx prisma migrate deploy
+      
       - name: Health check
         run: |
           sleep 30
-          curl --fail --retry 5 --retry-delay 10 \
-            https://${{ secrets.PROD_DOMAIN }}/api/health || exit 1
-
-      - name: Notify on failure
-        if: failure()
-        uses: appleboy/ssh-action@v1.0.3
+          curl -f https://topivra.com/health || exit 1
+      
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        if: always()
         with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script: |
-            cd /opt/topivra
-            docker compose -f config/docker-compose.prod.yml rollback || true
+          status: ${{ job.status }}
+          text: 'Deployment to production: ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  # ==================== 性能测试 ====================
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://topivra.com
+            https://topivra.com/products
+            https://topivra.com/login
+          uploadArtifacts: true
+          temporaryPublicStorage: true

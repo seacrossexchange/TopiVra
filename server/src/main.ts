@@ -12,7 +12,23 @@ import { TransformInterceptor } from './common/interceptors';
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: true,
+  });
+
+  // 设置全局请求超时（30秒）
+  app.use((req: any, res: any, next: any) => {
+    req.setTimeout(30000, () => {
+      res.status(408).json({
+        success: false,
+        error: 'Request Timeout',
+        message: '请求超时，请稍后重试',
+        statusCode: 408,
+        timestamp: new Date().toISOString(),
+      });
+    });
+    next();
+  });
 
   // 使用 ConfigService 获取配置
   const configService = app.get(ConfigService);

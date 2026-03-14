@@ -1,0 +1,44 @@
+.membership-card {
+  margin: 20px 0;
+}
+
+.membership-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.membership-header h2 {
+  margin: 10px 0;
+}
+
+.upgrade-progress {
+  margin: 20px 0;
+}
+
+.upgrade-progress .remaining {
+  text-align: right;
+  color: #666;
+  font-size: 12px;
+}
+
+.benefits h4 {
+  margin: 15px 0 10px;
+}
+
+.benefits ul {
+  list-style: none;
+  padding: 0;
+}
+
+.benefits li {
+  padding: 5px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.benefits li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #52c41a;
+}

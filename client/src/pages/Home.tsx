@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Row, Col, Card, Typography, Rate, Tag } from 'antd';
+import { Button, Row, Col, Card, Typography, Rate, Tag, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,6 +12,10 @@ import {
 import { useSeo } from '@/hooks/useSeo';
 import { SEO } from '@/components/SEO';
 import apiClient from '@/services/apiClient';
+import { useAuthStore } from '@/store/authStore';
+import HotDeals from '@/components/home/HotDeals';
+import HotProducts from '@/components/home/HotProducts';
+import NewUserGuide from '@/components/common/NewUserGuide';
 import './Home.css';
 
 const { Title, Text } = Typography;
@@ -19,7 +23,9 @@ const { Title, Text } = Typography;
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
   const [siteStats, setSiteStats] = useState({ userCount: 0, orderCount: 0 });
+  const [showGuide, setShowGuide] = useState(false);
   const [adSlots, setAdSlots] = useState([
     { platform: 'TikTok',   label: '零售', price: '$12', tag: 'HOT',  enabled: true },
     { platform: 'Instagram',label: '批发', price: '$8',  tag: 'NEW',  enabled: true },
@@ -38,7 +44,13 @@ export default function Home() {
         setAdSlots(data);
       }
     }).catch(() => {});
-  }, []);
+
+    // 检查是否需要显示新用户引导
+    const hasSeenGuide = localStorage.getItem('hasSeenGuide');
+    if (isAuthenticated && !hasSeenGuide) {
+      setTimeout(() => setShowGuide(true), 1000);
+    }
+  }, [isAuthenticated]);
 
   useSeo({
     description: t('home.seoDesc', 'TopiVra 全球社交账号交易平台'),
@@ -143,6 +155,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 限时特惠 */}
+      <HotDeals />
+
+      {/* 热门商品 */}
+      <HotProducts />
 
       {/* 社区统计条 */}
       <section className="community-bar">
@@ -288,6 +306,9 @@ export default function Home() {
           </Button>
         </div>
       </section>
+
+      {/* 新用户引导 */}
+      <NewUserGuide visible={showGuide} onClose={() => setShowGuide(false)} />
 
     </div>
   );

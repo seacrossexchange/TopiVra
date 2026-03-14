@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(grep -r \"5174\\\\|3001\" client/vite.config.ts client/.env* server/.env*)",
-      "Read(//c/Users/cross/Desktop/TopiVra/docs/**)"
+      "Read(//c/Users/cross/Desktop/TopiVra/docs/**)",
+      "Bash(find c:UserscrossDesktopTopiVraclientsrcpagesseller -type f -name *.tsx -o -name *.ts -o -name *.css)",
+      "Bash(find c:UserscrossDesktopTopiVraclientsrcpagesadmin -type f -name *.tsx -o -name *.ts -o -name *.css)",
+      "Bash(npm run:*)"
     ]
   }
 }

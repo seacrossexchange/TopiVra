@@ -27,7 +27,18 @@
       "Bash(xargs grep:*)",
       "Bash(mv COMPLETE-DEPLOYMENT-GUIDE.md deployment-guide.md)",
       "Bash(mv DEVELOPMENT.md development.md)",
-      "Bash(mv API.md api.md)"
+      "Bash(mv API.md api.md)",
+      "Bash(bash scripts/check-i18n-completeness.sh)",
+      "Bash(wc -l client/src/i18n/locales/*.json)",
+      "Bash(grep -E \"\\\\.md$|\\\\.txt$\")",
+      "Bash(find . -maxdepth 2 -type d ! -path */node_modules/* ! -path */.git/* ! -path */dist/* ! -path */build/*)",
+      "Bash(grep \"\\\\.md$\")",
+      "Bash(ls -1 *.md)",
+      "Bash(ls -1 archive/*.md)",
+      "Bash(find server/src -type f -name *guard*)",
+      "Bash(ls -lh *.md)",
+      "Bash(find . -maxdepth 2 -name *[u4e00-u9fa5]*)",
+      "Bash(grep -E \"\\\\.\\(md|sh|bat|ps1\\)$\")"
     ]
   }
 }

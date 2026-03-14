@@ -2,142 +2,214 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
+  Put,
   Body,
   Param,
   Query,
   UseGuards,
-  ParseUUIDPipe,
+  Request,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Request as ExpressRequest } from 'express';
+import { TicketsService } from './tickets.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { TicketsService } from './tickets.service';
 import {
-  CreateTicketDto,
-  ReplyTicketDto,
-  UpdateTicketDto,
-  QueryTicketDto,
+  CreateRefundTicketDto,
+  CreateDMTicketDto,
+  SendMessageDto,
+  SellerRespondDto,
+  EscalateTicketDto,
+  AdminProcessTicketDto,
+  TicketQueryDto,
+  BuyerRespondReplacementDto,
+  DeliverReplacementDto,
 } from './dto/ticket.dto';
 
-@ApiTags('tickets')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('tickets')
+@UseGuards(JwtAuthGuard)
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
-  @Post()
-  @ApiOperation({ summary: '创建工单' })
-  async create(
-    @CurrentUser('id') userId: string,
-    @Body() dto: CreateTicketDto,
-  ) {
-    return this.ticketsService.create(userId, dto);
+  // ==================== 买家接口 ====================
+
+  /**
+   * 创建退款工单
+   */
+  @Post('refund')
+  async createRefundTicket(@Request() req: ExpressRequest & { user: any }, @Body() dto: CreateRefundTicketDto) {
+    return this.ticketsService.createRefundTicket(req.user.userId, dto);
   }
 
-  @Get()
-  @ApiOperation({ summary: '获取我的工单列表' })
-  async findByUser(
-    @CurrentUser('id') userId: string,
-    @Query() query: QueryTicketDto,
-  ) {
-    return this.ticketsService.findByUser(userId, query);
+  /**
+   * 创建私信工单
+   */
+  @Post('dm')
+  async createDMTicket(@Request() req: ExpressRequest & { user: any }, @Body() dto: CreateDMTicketDto) {
+    return this.ticketsService.createDMTicket(req.user.userId, dto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: '获取工单详情' })
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('id') userId: string,
-  ) {
-    return this.ticketsService.findOne(id, userId, false);
+  /**
+   * 买家查询工单列表
+   */
+  @Get('buyer')
+  async getBuyerTickets(@Request() req: ExpressRequest & { user: any }, @Query() query: TicketQueryDto) {
+    return this.ticketsService.findByBuyer(req.user.userId, query);
   }
 
-  @Post(':id/reply')
-  @ApiOperation({ summary: '回复工单' })
-  async reply(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('id') userId: string,
-    @Body() dto: ReplyTicketDto,
-  ) {
-    return this.ticketsService.reply(id, userId, dto, false);
+  /**
+   * 买家工单统计
+   */
+  @Get('buyer/stats')
+  async getBuyerStats(@Request() req: ExpressRequest & { user: any }) {
+    return this.ticketsService.getBuyerStats(req.user.userId);
   }
 
-  @Patch(':id/close')
-  @ApiOperation({ summary: '关闭工单' })
-  async close(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('id') userId: string,
+  /**
+   * 申请平台介入
+   */
+  @Put(':ticketNo/escalate')
+  async escalateTicket(
+    @Request() req: ExpressRequest & { user: any },
+    @Param('ticketNo') ticketNo: string,
+    @Body() dto: EscalateTicketDto,
   ) {
-    return this.ticketsService.close(id, userId, false);
+    return this.ticketsService.escalateToAdmin(ticketNo, req.user.userId, dto);
   }
-}
 
-@ApiTags('admin/tickets')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN')
-@Controller('admin/tickets')
-export class AdminTicketsController {
-  constructor(private readonly ticketsService: TicketsService) {}
+  /**
+   * 买家响应换货
+   */
+  @Put(':ticketNo/buyer-respond-replacement')
+  async buyerRespondReplacement(
+    @Request() req: ExpressRequest & { user: any },
+    @Param('ticketNo') ticketNo: string,
+    @Body() dto: BuyerRespondReplacementDto,
+  ) {
+    return this.ticketsService.buyerRespondReplacement(ticketNo, req.user.userId, dto);
+  }
 
-  @Get()
-  @ApiOperation({ summary: '管理员获取所有工单' })
-  async findAll(@Query() query: QueryTicketDto) {
+  /**
+   * 买家确认换货
+   */
+  @Put(':ticketNo/confirm-replacement')
+  async confirmReplacement(@Request() req: ExpressRequest & { user: any }, @Param('ticketNo') ticketNo: string) {
+    return this.ticketsService.confirmReplacement(ticketNo, req.user.userId);
+  }
+
+  // ==================== 卖家接口 ====================
+
+  /**
+   * 卖家查询工单列表
+   */
+  @Get('seller')
+  @Roles('SELLER')
+  @UseGuards(RolesGuard)
+  async getSellerTickets(@Request() req: ExpressRequest & { user: any }, @Query() query: TicketQueryDto) {
+    return this.ticketsService.findBySeller(req.user.userId, query);
+  }
+
+  /**
+   * 卖家工单统计
+   */
+  @Get('seller/stats')
+  @Roles('SELLER')
+  @UseGuards(RolesGuard)
+  async getSellerStats(@Request() req: ExpressRequest & { user: any }) {
+    return this.ticketsService.getSellerStats(req.user.userId);
+  }
+
+  /**
+   * 卖家响应退款
+   */
+  @Put(':ticketNo/seller-respond')
+  @Roles('SELLER')
+  @UseGuards(RolesGuard)
+  async sellerRespond(
+    @Request() req: ExpressRequest & { user: any },
+    @Param('ticketNo') ticketNo: string,
+    @Body() dto: SellerRespondDto,
+  ) {
+    return this.ticketsService.sellerRespond(ticketNo, req.user.userId, dto);
+  }
+
+  /**
+   * 卖家发货换货商品
+   */
+  @Put(':ticketNo/deliver-replacement')
+  @Roles('SELLER')
+  @UseGuards(RolesGuard)
+  async deliverReplacement(
+    @Request() req: ExpressRequest & { user: any },
+    @Param('ticketNo') ticketNo: string,
+    @Body() dto: DeliverReplacementDto,
+  ) {
+    return this.ticketsService.deliverReplacement(ticketNo, req.user.userId, dto);
+  }
+
+  // ==================== 管理员接口 ====================
+
+  /**
+   * 管理员查询所有工单
+   */
+  @Get('admin')
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  async getAdminTickets(@Query() query: TicketQueryDto) {
     return this.ticketsService.findAll(query);
   }
 
-  @Get('stats')
-  @ApiOperation({ summary: '获取工单统计' })
-  async getStats() {
-    return this.ticketsService.getStats();
+  /**
+   * 管理员工单统计
+   */
+  @Get('admin/stats')
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  async getAdminStats() {
+    return this.ticketsService.getAdminStats();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: '管理员获取工单详情' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ticketsService.findOne(id, undefined, true);
-  }
-
-  @Post(':id/reply')
-  @ApiOperation({ summary: '管理员回复工单' })
-  async reply(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('id') userId: string,
-    @Body() dto: ReplyTicketDto,
+  /**
+   * 管理员处理工单
+   */
+  @Put(':ticketNo/admin-process')
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  async adminProcess(
+    @Request() req: ExpressRequest & { user: any },
+    @Param('ticketNo') ticketNo: string,
+    @Body() dto: AdminProcessTicketDto,
   ) {
-    return this.ticketsService.reply(id, userId, dto, true);
+    return this.ticketsService.adminProcess(ticketNo, req.user.userId, dto);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: '管理员更新工单' })
-  async update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('id') userId: string,
-    @Body() dto: UpdateTicketDto,
-  ) {
-    return this.ticketsService.update(id, dto, userId);
+  // ==================== 通用接口 ====================
+
+  /**
+   * 获取工单详情
+   */
+  @Get(':ticketNo')
+  async getTicket(@Request() req: ExpressRequest & { user: any }, @Param('ticketNo') ticketNo: string) {
+    return this.ticketsService.findOne(ticketNo, req.user.userId);
   }
 
-  @Patch(':id/assign/:assigneeId')
-  @ApiOperation({ summary: '指派工单' })
-  async assign(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Param('assigneeId', ParseUUIDPipe) assigneeId: string,
-    @CurrentUser('id') userId: string,
+  /**
+   * 发送消息
+   */
+  @Post(':ticketNo/messages')
+  async sendMessage(
+    @Request() req: ExpressRequest & { user: any },
+    @Param('ticketNo') ticketNo: string,
+    @Body() dto: SendMessageDto,
   ) {
-    return this.ticketsService.assign(id, assigneeId, userId);
+    return this.ticketsService.sendMessage(ticketNo, req.user.userId, dto);
   }
 
-  @Patch(':id/close')
-  @ApiOperation({ summary: '管理员关闭工单' })
-  async close(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('id') userId: string,
-  ) {
-    return this.ticketsService.close(id, userId, true);
+  /**
+   * 关闭工单
+   */
+  @Put(':ticketNo/close')
+  async closeTicket(@Request() req: ExpressRequest & { user: any }, @Param('ticketNo') ticketNo: string) {
+    return this.ticketsService.closeTicket(ticketNo, req.user.userId);
   }
 }

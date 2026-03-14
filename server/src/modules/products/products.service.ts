@@ -641,6 +641,11 @@ export class ProductsService {
         await this.prisma.product.deleteMany({
           where: { id: { in: dto.ids }, sellerId },
         });
+        // 更新卖家商品数量
+        await this.prisma.sellerProfile.update({
+          where: { userId: sellerId },
+          data: { productCount: { decrement: products.length } },
+        });
         break;
       case 'offline':
         await this.prisma.product.updateMany({
@@ -660,10 +665,87 @@ export class ProductsService {
         break;
     }
 
+    // 审计日志
+    await this.auditService.log({
+      operatorId: sellerId,
+      operatorRole: OperatorRole.SELLER,
+      module: 'PRODUCTS',
+      action: 'BATCH_' + dto.action.toUpperCase(),
+      targetType: 'Product',
+      targetId: dto.ids.join(','),
+      description: `批量${dto.action === 'delete' ? '删除' : dto.action === 'online' ? '上架' : '下架'}商品 (${products.length}个)`,
+      afterData: { ids: dto.ids, action: dto.action, count: products.length },
+    });
+
+    // 清除缓存
+    for (const id of dto.ids) {
+      await this.invalidateProductCache(id);
+    }
+
     return {
       success: true,
       affected: products.length,
       action: dto.action,
+    };
+  }
+
+  // ==================== 管理员批量审核 ====================
+
+  async batchAudit(adminId: string, dto: any) {
+    const products = await this.prisma.product.findMany({
+      where: {
+        id: { in: dto.ids },
+        status: ProductStatus.PENDING,
+      },
+    });
+
+    if (products.length === 0) {
+      throw new NotFoundException('未找到可审核的商品');
+    }
+
+    const updateData: any = {
+      status:
+        dto.status === 'APPROVED'
+          ? ProductStatus.APPROVED
+          : ProductStatus.REJECTED,
+      auditedBy: adminId,
+      auditedAt: new Date(),
+    };
+
+    if (dto.status === 'REJECTED' && dto.rejectReason) {
+      updateData.rejectReason = dto.rejectReason;
+    }
+
+    if (dto.status === 'APPROVED') {
+      updateData.publishedAt = new Date();
+    }
+
+    await this.prisma.product.updateMany({
+      where: { id: { in: dto.ids } },
+      data: updateData,
+    });
+
+    // 审计日志
+    await this.auditService.log({
+      operatorId: adminId,
+      operatorRole: OperatorRole.ADMIN,
+      module: 'PRODUCTS',
+      action: 'BATCH_' + (dto.status === 'APPROVED' ? 'APPROVE' : 'REJECT'),
+      targetType: 'Product',
+      targetId: dto.ids.join(','),
+      description: `批量审核商品 (${products.length}个) - ${dto.status}${dto.rejectReason ? ` (原因: ${dto.rejectReason})` : ''}`,
+      afterData: { ids: dto.ids, status: dto.status, count: products.length },
+    });
+
+    // 清除缓存
+    for (const id of dto.ids) {
+      await this.invalidateProductCache(id);
+    }
+
+    return {
+      success: true,
+      affected: products.length,
+      status: dto.status,
     };
   }
 

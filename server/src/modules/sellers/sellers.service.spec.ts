@@ -70,10 +70,12 @@ describe('SellersService', () => {
 
     const mockWebsocketGateway = {
       sendToUser: jest.fn(),
+      notifyNewNotification: jest.fn(),
     };
 
     const mockMailService = {
       send: jest.fn(),
+      sendEmail: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

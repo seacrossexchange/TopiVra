@@ -187,3 +187,113 @@ groups:
           summary: "SSL 证书已过期"
           description: "{{ $labels.instance }} 的 SSL 证书已过期"
 
+      # ==================== 业务指标告警 ====================
+      
+      - alert: HighPaymentFailureRate
+        expr: rate(payment_failures_total[10m]) / rate(payment_attempts_total[10m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "支付失败率过高"
+          description: "支付失败率超过 10%，当前值: {{ $value | humanizePercentage }}"
+
+      - alert: LowInventoryStock
+        expr: product_inventory_available < 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "商品库存不足"
+          description: "商品 {{ $labels.product_id }} 库存不足 10 件，当前: {{ $value }}"
+
+      - alert: HighRefundRate
+        expr: rate(refund_requests_total[1h]) / rate(orders_completed_total[1h]) > 0.2
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "退款率过高"
+          description: "退款率超过 20%，当前值: {{ $value | humanizePercentage }}"
+
+      - alert: AutoDeliveryFailureRate
+        expr: rate(auto_delivery_failures_total[10m]) / rate(auto_delivery_attempts_total[10m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "自动发货失败率过高"
+          description: "自动发货失败率超过 5%，当前值: {{ $value | humanizePercentage }}"
+
+      - alert: UnprocessedOrders
+        expr: orders_pending_payment_count > 100
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "待支付订单积压"
+          description: "待支付订单数量超过 100，当前: {{ $value }}"
+
+      - alert: SellerResponseTimeSlow
+        expr: avg(seller_response_time_seconds) > 3600
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "卖家响应时间过长"
+          description: "平均响应时间超过 1 小时，当前: {{ $value | humanizeDuration }}"
+
+      - alert: HighLoginFailureRate
+        expr: rate(login_failures_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "登录失败率异常"
+          description: "可能存在暴力破解攻击，失败率: {{ $value }}/s"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections > 0.95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "数据库连接池即将耗尽"
+          description: "连接池使用率超过 95%，当前: {{ $value | humanizePercentage }}"
+
+      - alert: RedisConnectionPoolExhausted
+        expr: redis_connected_clients / redis_config_maxclients > 0.9
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis 连接池即将耗尽"
+          description: "连接池使用率超过 90%，当前: {{ $value | humanizePercentage }}"
+
+      - alert: QueueBacklog
+        expr: bull_queue_waiting_count > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "队列积压严重"
+          description: "队列 {{ $labels.queue_name }} 积压超过 1000 个任务，当前: {{ $value }}"
+
+      - alert: WebSocketConnectionsHigh
+        expr: websocket_connections_active > 10000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "WebSocket 连接数过高"
+          description: "活跃 WebSocket 连接数超过 10000，当前: {{ $value }}"
+
+      - alert: APIRateLimitExceeded
+        expr: rate(rate_limit_exceeded_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "API 限流触发频繁"
+          description: "限流触发频率: {{ $value }}/s"
+

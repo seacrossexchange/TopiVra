@@ -978,7 +978,25 @@ export class OrdersService {
           }
         }
 
-        // 创建退款支付记录（实际退款逻辑需要对接支付渠道）
+        // 退款到买家账户余额
+        const buyer = await tx.user.findUnique({
+          where: { id: refund.userId },
+        });
+
+        if (!buyer) {
+          throw new NotFoundException('买家不存在');
+        }
+
+        const newBalance = Number(buyer.balance || 0) + Number(refund.refundAmount);
+
+        await tx.user.update({
+          where: { id: refund.userId },
+          data: {
+            balance: newBalance,
+          },
+        });
+
+        // 创建退款支付记录
         await tx.payment.create({
           data: {
             paymentNo: `REF-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
@@ -991,6 +1009,18 @@ export class OrdersService {
             paidAt: new Date(),
           },
         });
+
+        // 记录买家余额变动流水（如果有 UserTransaction 表）
+        // await tx.userTransaction.create({
+        //   data: {
+        //     userId: refund.userId,
+        //     type: 'REFUND',
+        //     amount: Number(refund.refundAmount),
+        //     balanceAfter: newBalance,
+        //     orderId: refund.orderId,
+        //     description: `订单退款 - ${refund.order.orderNo}`,
+        //   },
+        // });
       }
 
       return updatedRefund;
@@ -1000,7 +1030,9 @@ export class OrdersService {
     await this.notificationService.notifyUser(refund.userId, {
       type: 'REFUND_RESULT' as any,
       title: '退款处理完成',
-      content: isApproved ? '您的退款申请已通过' : '您的退款申请已被拒绝',
+      content: isApproved 
+        ? `您的退款申请已通过，$${Number(refund.refundAmount).toFixed(2)} 已退回至账户余额` 
+        : '您的退款申请已被拒绝',
       orderId: refund.orderId,
     });
 

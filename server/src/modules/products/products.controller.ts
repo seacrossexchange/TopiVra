@@ -38,6 +38,15 @@ export class ProductsController {
   // ==================== 公开接口 ====================
 
   @Public()
+  @Get('hot-deals')
+  @ApiOperation({ summary: '获取限时特惠商品' })
+  @ApiResponse({ status: 200, description: '返回限时特惠商品列表' })
+  async getHotDeals(@Query('limit') limit?: number) {
+    const enhancementService = new (await import('./products-enhancement.service')).ProductsEnhancementService(this.productsService['prisma']);
+    return enhancementService.getHotDeals(limit ? parseInt(limit as any) : 8);
+  }
+
+  @Public()
   @Get()
   @ApiOperation({ summary: '获取商品列表（公开）' })
   @ApiResponse({ status: 200, description: '返回商品列表' })
@@ -68,8 +77,9 @@ export class ProductsController {
   @ApiOperation({ summary: '获取相关商品' })
   @ApiParam({ name: 'id', description: '商品ID' })
   @ApiResponse({ status: 200, description: '返回相关商品列表' })
-  async getRelatedProducts(@Param('id') id: string) {
-    return this.productsService.getRelatedProducts(id);
+  async getRelatedProducts(@Param('id') id: string, @Query('limit') limit?: number) {
+    const enhancementService = new (await import('./products-enhancement.service')).ProductsEnhancementService(this.productsService['prisma']);
+    return enhancementService.getRelatedProducts(id, limit ? parseInt(limit as any) : 8);
   }
 
   // ==================== 卖家接口 ====================
@@ -266,5 +276,18 @@ export class ProductsController {
     @Body() dto: AuditProductDto,
   ) {
     return this.productsService.audit(id, adminId, dto);
+  }
+
+  @Post('admin/batch-audit')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '批量审核商品（管理员）' })
+  @ApiResponse({ status: 200, description: '批量审核完成' })
+  async batchAudit(
+    @CurrentUser('id') adminId: string,
+    @Body() dto: any,
+  ) {
+    return this.productsService.batchAudit(adminId, dto);
   }
 }

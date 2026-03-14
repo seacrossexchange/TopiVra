@@ -1,7 +1,7 @@
 # TopiVra API 文档
 
 **版本**: v1.0.0  
-**基础 URL**: `http://localhost:3001/api/v1`  
+**基础 URL**: `http://localhost:8000/api/v1`  
 **认证方式**: JWT Bearer Token
 
 ---
@@ -514,9 +514,9 @@ Token 有效期为 7 天，过期后需要使用 refreshToken 刷新。
 
 ## 📚 更多文档
 
-- **Swagger UI**: http://localhost:3001/api/docs
-- **部署文档**: [DEPLOYMENT.md](./DEPLOYMENT.md)
-- **开发文档**: [DEVELOPMENT.md](./DEVELOPMENT.md)
+- **Swagger UI**: http://localhost:8000/api/v1/docs
+- **部署文档**: [../DEPLOYMENT.md](../DEPLOYMENT.md)
+- **开发文档**: [./DEVELOPMENT.md](./DEVELOPMENT.md)
 
 ---
 

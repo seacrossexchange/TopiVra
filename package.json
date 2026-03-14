@@ -1,30 +1,52 @@
 {
   "name": "topivra",
   "version": "1.0.0",
-  "private": true,
-  "description": "TopiVra - Global Digital Account Trading Platform",
+  "description": "Enterprise digital account trading platform",
+  "main": "index.js",
   "scripts": {
-    "prepare": "husky",
-    "lint:server": "cd server && npm run lint",
-    "lint:client": "cd client && npm run lint",
-    "lint": "npm run lint:server && npm run lint:client",
-    "test:server": "cd server && npm test",
-    "test:client": "cd client && npm test",
-    "test": "npm run test:server && npm run test:client"
+    "audit": "npm audit --audit-level=moderate",
+    "audit:fix": "npm audit fix",
+    "security:check": "npm run audit && npm run snyk:test",
+    "snyk:test": "snyk test --severity-threshold=high",
+    "snyk:monitor": "snyk monitor",
+    "verify": "node scripts/verify-delivery.ps1",
+    "precommit": "npm run lint && npm run test",
+    "prepare": "husky install"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/topivra/topivra.git"
+  },
+  "keywords": [
+    "trading-platform",
+    "digital-accounts",
+    "e-commerce",
+    "nestjs",
+    "react",
+    "typescript"
+  ],
+  "author": "TopiVra Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/topivra/topivra/issues"
+  },
+  "homepage": "https://github.com/topivra/topivra#readme",
   "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^15.2.10"
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "snyk": "^1.1275.0"
   },
   "lint-staged": {
-    "server/src/**/*.ts": [
-      "npx --prefix server eslint --fix",
-      "npx --prefix server prettier --write"
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
     ],
-    "client/src/**/*.{ts,tsx}": [
-      "npx --prefix client eslint --fix",
-      "npx --prefix client prettier --write"
+    "*.{json,md}": [
+      "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   }
 }
-

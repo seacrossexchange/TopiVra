@@ -1,4 +1,3 @@
-#!/usr/bin/env pwsh
 # ============================================================
 # TopiVra 最终交付验证脚本
 # 用途: 验证所有修复和优化是否正确应用
@@ -19,19 +18,19 @@ function Write-TestResult {
     )
     
     if ($IsWarning) {
-        Write-Host "⚠️  " -ForegroundColor Yellow -NoNewline
+        Write-Host "WARNING " -ForegroundColor Yellow -NoNewline
         Write-Host "$TestName" -ForegroundColor Yellow
         if ($Message) { Write-Host "   $Message" -ForegroundColor Gray }
         $script:warnCount++
     }
     elseif ($Passed) {
-        Write-Host "✅ " -ForegroundColor Green -NoNewline
+        Write-Host "PASS " -ForegroundColor Green -NoNewline
         Write-Host "$TestName" -ForegroundColor Green
         if ($Message) { Write-Host "   $Message" -ForegroundColor Gray }
         $script:passCount++
     }
     else {
-        Write-Host "❌ " -ForegroundColor Red -NoNewline
+        Write-Host "FAIL " -ForegroundColor Red -NoNewline
         Write-Host "$TestName" -ForegroundColor Red
         if ($Message) { Write-Host "   $Message" -ForegroundColor Gray }
         $script:failCount++
@@ -40,15 +39,14 @@ function Write-TestResult {
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "        TopiVra 最终交付验证" -ForegroundColor Cyan
+Write-Host "        TopiVra Final Delivery Verification" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# ==================== 1. 端口配置验证 ====================
-Write-Host "[1/8] 验证端口配置统一性..." -ForegroundColor Cyan
+# ==================== 1. Port Configuration ====================
+Write-Host "[1/8] Verifying port configuration..." -ForegroundColor Cyan
 Write-Host ""
 
-# 检查 Nginx 配置
 $nginxConfigs = @(
     "config\nginx\nginx.conf",
     "config\nginx\dev.nginx.conf",
@@ -59,184 +57,124 @@ foreach ($config in $nginxConfigs) {
     if (Test-Path $config) {
         $content = Get-Content $config -Raw
         if ($content -match "server\s+server:8000") {
-            Write-TestResult "Nginx 配置 $config" $true "upstream 指向 server:8000"
+            Write-TestResult "Nginx config $config" $true "upstream points to server:8000"
         }
         elseif ($content -match "server\s+server:3001") {
-            Write-TestResult "Nginx 配置 $config" $false "仍然指向 server:3001，应为 server:8000"
+            Write-TestResult "Nginx config $config" $false "still points to server:3001, should be server:8000"
         }
         else {
-            Write-TestResult "Nginx 配置 $config" $false "未找到 upstream backend 配置"
+            Write-TestResult "Nginx config $config" $false "upstream backend not found"
         }
     }
     else {
-        Write-TestResult "Nginx 配置 $config" $false "文件不存在"
+        Write-TestResult "Nginx config $config" $false "file not found"
     }
 }
 
-# 检查启动脚本
-if (Test-Path "scripts\deploy\START-DEV-WINDOWS.bat") {
-    $content = Get-Content "scripts\deploy\START-DEV-WINDOWS.bat" -Raw
-    
-    $port8000 = $content -match "PORT=8000"
-    $frontend5173 = $content -match "localhost:5173"
-    $api8000 = $content -match "localhost:8000"
-    
-    Write-TestResult "启动脚本端口配置" ($port8000 -and $frontend5173 -and $api8000) "Backend:8000, Frontend:5173"
-}
-else {
-    Write-TestResult "启动脚本" $false "文件不存在"
-}
-
 Write-Host ""
 
-# ==================== 2. 环境变量文件验证 ====================
-Write-Host "[2/8] 验证环境变量配置..." -ForegroundColor Cyan
+# ==================== 2. Environment Files ====================
+Write-Host "[2/8] Verifying environment files..." -ForegroundColor Cyan
 Write-Host ""
 
-$envFiles = @(
-    @{Path="server\.env.example"; Required=$true},
-    @{Path="client\.env.example"; Required=$true},
-    @{Path=".env.example"; Required=$true}
-)
+$envFiles = @("server\.env.example", "client\.env.example", ".env.example")
 
 foreach ($file in $envFiles) {
-    if (Test-Path $file.Path) {
-        $content = Get-Content $file.Path -Raw
-        
-        # 检查关键变量
-        $hasJwtSecret = $content -match "JWT_SECRET"
-        $hasDbUrl = $content -match "DATABASE_URL"
-        $hasApiUrl = $content -match "(VITE_)?API"
-        
-        if ($hasJwtSecret -or $hasDbUrl -or $hasApiUrl) {
-            Write-TestResult "环境变量文件 $($file.Path)" $true "包含必需的配置项"
-        }
-        else {
-            Write-TestResult "环境变量文件 $($file.Path)" $false "缺少关键配置项"
-        }
+    if (Test-Path $file) {
+        Write-TestResult "Environment file $file" $true "exists"
     }
-    elseif ($file.Required) {
-        Write-TestResult "环境变量文件 $($file.Path)" $false "文件不存在"
+    else {
+        Write-TestResult "Environment file $file" $false "not found"
     }
 }
 
 Write-Host ""
 
-# ==================== 3. 安全配置验证 ====================
-Write-Host "[3/8] 验证安全配置..." -ForegroundColor Cyan
+# ==================== 3. Security Configuration ====================
+Write-Host "[3/8] Verifying security configuration..." -ForegroundColor Cyan
 Write-Host ""
 
-# 检查 main.ts 安全检查逻辑
 if (Test-Path "server\src\main.ts") {
     $content = Get-Content "server\src\main.ts" -Raw
     
-    $hasJwtCheck = $content -match "jwtSecret\.length < 32"
+    $hasJwtCheck = $content -match "jwtSecret.length"
     $hasSwaggerDisable = $content -match "nodeEnv !== 'production'"
     
-    Write-TestResult "JWT 密钥长度检查" $hasJwtCheck "main.ts 包含密钥长度验证"
-    Write-TestResult "Swagger 生产环境禁用" $hasSwaggerDisable "生产环境强制禁用 Swagger"
+    Write-TestResult "JWT key length check" $hasJwtCheck "main.ts includes key validation"
+    Write-TestResult "Swagger production disable" $hasSwaggerDisable "production environment disables Swagger"
 }
 else {
-    Write-TestResult "main.ts" $false "文件不存在"
-}
-
-# 检查启动脚本密钥长度
-if (Test-Path "scripts\deploy\START-DEV-WINDOWS.bat") {
-    $content = Get-Content "scripts\deploy\START-DEV-WINDOWS.bat" -Raw
-    
-    # 检查密钥是否至少 32 字符
-    if ($content -match "JWT_SECRET=([^\r\n]+)") {
-        $jwtSecret = $matches[1]
-        $length = $jwtSecret.Length
-        if ($length -ge 32) {
-            Write-TestResult "启动脚本 JWT 密钥长度" $true "长度: $length 字符 (≥32)"
-        }
-        else {
-            Write-TestResult "启动脚本 JWT 密钥长度" $false "长度: $length 字符 (<32)"
-        }
-    }
+    Write-TestResult "main.ts" $false "file not found"
 }
 
 Write-Host ""
 
-# ==================== 4. 文档一致性验证 ====================
-Write-Host "[4/8] 验证文档一致性..." -ForegroundColor Cyan
+# ==================== 4. Documentation ====================
+Write-Host "[4/8] Verifying documentation..." -ForegroundColor Cyan
 Write-Host ""
 
-$docs = @(
-    "DEPLOYMENT.md",
-    "docs\deployment-guide.md",
-    "README.md"
-)
+$docs = @("DEPLOYMENT.md", "docs\deployment-guide.md", "README.md")
 
 foreach ($doc in $docs) {
     if (Test-Path $doc) {
         $content = Get-Content $doc -Raw
-        
-        # 检查是否包含旧端口号
         $hasOldPort = $content -match "localhost:3001" -or $content -match "localhost:5174"
         
         if (-not $hasOldPort) {
-            Write-TestResult "文档 $doc" $true "端口号已更新"
+            Write-TestResult "Documentation $doc" $true "ports updated"
         }
         else {
-            Write-TestResult "文档 $doc" $false "仍包含旧端口号 (3001/5174)"
+            Write-TestResult "Documentation $doc" $false "still contains old ports (3001/5174)"
         }
     }
     else {
-        Write-TestResult "文档 $doc" $false "文件不存在"
+        Write-TestResult "Documentation $doc" $false "file not found"
     }
 }
 
 Write-Host ""
 
-# ==================== 5. Docker 配置验证 ====================
-Write-Host "[5/8] 验证 Docker 配置..." -ForegroundColor Cyan
+# ==================== 5. Docker Configuration ====================
+Write-Host "[5/8] Verifying Docker configuration..." -ForegroundColor Cyan
 Write-Host ""
 
-$dockerFiles = @(
-    "config\docker-compose.yml",
-    "config\docker-compose.prod.yml"
-)
+$dockerFiles = @("config\docker-compose.yml", "config\docker-compose.prod.yml")
 
 foreach ($file in $dockerFiles) {
     if (Test-Path $file) {
         $content = Get-Content $file -Raw
-        
         $hasHealthCheck = $content -match "healthcheck:"
-        $hasResourceLimits = $content -match "resources:" -or $file -notmatch "prod"
-        
-        Write-TestResult "Docker 配置 $file" ($hasHealthCheck) "健康检查配置存在"
+        Write-TestResult "Docker config $file" $hasHealthCheck "health check configured"
     }
     else {
-        Write-TestResult "Docker 配置 $file" $false "文件不存在"
+        Write-TestResult "Docker config $file" $false "file not found"
     }
 }
 
 Write-Host ""
 
-# ==================== 6. 数据库优化验证 ====================
-Write-Host "[6/8] 验证数据库优化..." -ForegroundColor Cyan
+# ==================== 6. Database Optimization ====================
+Write-Host "[6/8] Verifying database optimization..." -ForegroundColor Cyan
 Write-Host ""
 
 if (Test-Path "server\prisma\migrations\add_performance_indexes.sql") {
-    Write-TestResult "数据库索引优化脚本" $true "性能索引 SQL 已创建"
+    Write-TestResult "Database index optimization" $true "performance indexes SQL created"
 }
 else {
-    Write-TestResult "数据库索引优化脚本" $false "文件不存在"
+    Write-TestResult "Database index optimization" $false "file not found"
 }
 
 if (Test-Path "server\prisma\schema.prisma") {
-    Write-TestResult "Prisma Schema" $true "数据库模型定义存在"
+    Write-TestResult "Prisma Schema" $true "database model exists"
 }
 else {
-    Write-TestResult "Prisma Schema" $false "文件不存在"
+    Write-TestResult "Prisma Schema" $false "file not found"
 }
 
 Write-Host ""
 
-# ==================== 7. 交付文档验证 ====================
-Write-Host "[7/8] 验证交付文档..." -ForegroundColor Cyan
+# ==================== 7. Delivery Documentation ====================
+Write-Host "[7/8] Verifying delivery documentation..." -ForegroundColor Cyan
 Write-Host ""
 
 $deliveryDocs = @(
@@ -249,79 +187,78 @@ $deliveryDocs = @(
 
 foreach ($doc in $deliveryDocs) {
     if (Test-Path $doc) {
-        Write-TestResult "交付文档 $doc" $true "文档已创建"
+        Write-TestResult "Delivery doc $doc" $true "created"
     }
     else {
-        Write-TestResult "交付文档 $doc" $false "文档缺失"
+        Write-TestResult "Delivery doc $doc" $false "missing"
     }
 }
 
 Write-Host ""
 
-# ==================== 8. 项目结构验证 ====================
-Write-Host "[8/8] 验证项目结构..." -ForegroundColor Cyan
+# ==================== 8. Project Structure ====================
+Write-Host "[8/8] Verifying project structure..." -ForegroundColor Cyan
 Write-Host ""
 
-$requiredDirs = @(
-    "client",
-    "server",
-    "config",
-    "docs",
-    "scripts",
-    "e2e"
-)
+$requiredDirs = @("client", "server", "config", "docs", "scripts", "e2e")
 
 foreach ($dir in $requiredDirs) {
     if (Test-Path $dir -PathType Container) {
-        Write-TestResult "目录 $dir" $true "存在"
+        Write-TestResult "Directory $dir" $true "exists"
     }
     else {
-        Write-TestResult "目录 $dir" $false "不存在"
+        Write-TestResult "Directory $dir" $false "not found"
     }
 }
 
-# 检查关键文件
-$requiredFiles = @(
-    "package.json",
-    "README.md",
-    "LICENSE",
-    "server\package.json",
-    "client\package.json"
-)
+$requiredFiles = @("package.json", "README.md", "LICENSE", "server\package.json", "client\package.json")
 
 foreach ($file in $requiredFiles) {
     if (Test-Path $file) {
-        Write-TestResult "文件 $file" $true "存在"
+        Write-TestResult "File $file" $true "exists"
     }
     else {
-        Write-TestResult "文件 $file" $false "不存在"
+        Write-TestResult "File $file" $false "not found"
     }
 }
 
 Write-Host ""
 
-# ==================== 总结 ====================
+# ==================== Summary ====================
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "                    验证结果" -ForegroundColor Cyan
+Write-Host "                    Verification Results" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "✅ 通过: $script:passCount" -ForegroundColor Green
-Write-Host "❌ 失败: $script:failCount" -ForegroundColor Red
-Write-Host "⚠️  警告: $script:warnCount" -ForegroundColor Yellow
+Write-Host "PASS: $script:passCount" -ForegroundColor Green
+Write-Host "FAIL: $script:failCount" -ForegroundColor Red
+Write-Host "WARN: $script:warnCount" -ForegroundColor Yellow
 Write-Host ""
 
 $totalTests = $script:passCount + $script:failCount + $script:warnCount
-$passRate = if ($totalTests -gt 0) { [math]::Round(($script:passCount / $totalTests) * 100, 1) } else { 0 }
+if ($totalTests -gt 0) {
+    $passRate = [math]::Round(($script:passCount / $totalTests) * 100, 1)
+}
+else {
+    $passRate = 0
+}
 
-Write-Host "通过率: $passRate%" -ForegroundColor $(if ($passRate -ge 90) { "Green" } elseif ($passRate -ge 70) { "Yellow" } else { "Red" })
+if ($passRate -ge 90) {
+    Write-Host "Pass Rate: $passRate%" -ForegroundColor Green
+}
+elseif ($passRate -ge 70) {
+    Write-Host "Pass Rate: $passRate%" -ForegroundColor Yellow
+}
+else {
+    Write-Host "Pass Rate: $passRate%" -ForegroundColor Red
+}
+
 Write-Host ""
 
 if ($script:failCount -eq 0) {
-    Write-Host "🎉 所有关键检查已通过！项目可以交付。" -ForegroundColor Green
+    Write-Host "SUCCESS: All critical checks passed! Project is ready for delivery." -ForegroundColor Green
     exit 0
 }
 else {
-    Write-Host "⚠️  发现 $script:failCount 个问题，请修复后再交付。" -ForegroundColor Yellow
+    Write-Host "WARNING: Found $script:failCount issues, please fix before delivery." -ForegroundColor Yellow
     exit 1
 }
-

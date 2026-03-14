@@ -11,7 +11,7 @@
 scripts/deploy/START-DEV-WINDOWS.bat
 
 # 3. 访问应用
-# 前端：http://localhost:3000
+# 前端：http://localhost:5173
 # 后端：http://localhost:8000
 # API 文档：http://localhost:8000/api/v1/docs
 ```

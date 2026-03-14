@@ -22,7 +22,10 @@ const CREDIT_RULES: Record<CreditChangeReason, number> = {
 };
 
 // 信用等级阈值
-const CREDIT_LEVEL_THRESHOLDS: Record<CreditLevel, { min: number; max: number }> = {
+const CREDIT_LEVEL_THRESHOLDS: Record<
+  CreditLevel,
+  { min: number; max: number }
+> = {
   POOR: { min: 0, max: 60 },
   NORMAL: { min: 61, max: 100 },
   GOOD: { min: 101, max: 140 },
@@ -91,8 +94,10 @@ export class CreditService {
       data: {
         creditScore: newScore,
         creditLevel: this.calculateCreditLevel(newScore),
-        positivePoints: change > 0 ? { increment: change } : credit.positivePoints,
-        negativePoints: change < 0 ? { increment: Math.abs(change) } : credit.negativePoints,
+        positivePoints:
+          change > 0 ? { increment: change } : credit.positivePoints,
+        negativePoints:
+          change < 0 ? { increment: Math.abs(change) } : credit.negativePoints,
         lastCalculated: new Date(),
       },
     });
@@ -111,7 +116,9 @@ export class CreditService {
       },
     });
 
-    this.logger.log(`卖家 ${sellerId} 信用分变更: ${change} (${reason}), 新分数: ${newScore}`);
+    this.logger.log(
+      `卖家 ${sellerId} 信用分变更: ${change} (${reason}), 新分数: ${newScore}`,
+    );
 
     return credit;
   }
@@ -254,21 +261,22 @@ export class CreditService {
    */
   async recalculateSellerCredit(sellerId: string) {
     // 获取所有统计数据
-    const [completedOrders, refundedOrders, disputedOrders, reviews] = await Promise.all([
-      this.prisma.orderItem.count({
-        where: { sellerId, deliveryConfirmed: true },
-      }),
-      this.prisma.refundRequest.count({
-        where: { sellerId, status: 'COMPLETED' },
-      }),
-      this.prisma.refundRequest.count({
-        where: { sellerId, status: 'DISPUTED' },
-      }),
-      this.prisma.review.findMany({
-        where: { sellerId },
-        select: { rating: true },
-      }),
-    ]);
+    const [completedOrders, refundedOrders, disputedOrders, reviews] =
+      await Promise.all([
+        this.prisma.orderItem.count({
+          where: { sellerId, deliveryConfirmed: true },
+        }),
+        this.prisma.refundRequest.count({
+          where: { sellerId, status: 'COMPLETED' },
+        }),
+        this.prisma.refundRequest.count({
+          where: { sellerId, status: 'DISPUTED' },
+        }),
+        this.prisma.review.findMany({
+          where: { sellerId },
+          select: { rating: true },
+        }),
+      ]);
 
     // 计算平均评分
     const avgRating =
@@ -278,7 +286,8 @@ export class CreditService {
 
     // 计算五星好评率
     const fiveStarCount = reviews.filter((r) => r.rating === 5).length;
-    const fiveStarRate = reviews.length > 0 ? (fiveStarCount / reviews.length) * 100 : 0;
+    const fiveStarRate =
+      reviews.length > 0 ? (fiveStarCount / reviews.length) * 100 : 0;
 
     // 更新统计
     await this.prisma.sellerCredit.update({

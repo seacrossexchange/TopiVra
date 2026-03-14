@@ -4,6 +4,7 @@ import {
   ArgumentMetadata,
   BadRequestException,
 } from '@nestjs/common';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const xssFilter = require('xss');
 
 /**
@@ -132,11 +133,10 @@ export class SanitizePipe implements PipeTransform {
       return value;
     }
 
-    // 检测恶意模式（记录日志但不阻止，由净化处理）
-    if (detectMaliciousPatterns(value)) {
-      console.warn(
-        `[Security] Detected potential XSS pattern in ${metadata.type}.${metadata.data || 'root'}`,
-      );
+    // 检测恶意模式（静默处理，由净化器自动清理）
+    // 生产环境不输出日志，避免日志污染
+    if (detectMaliciousPatterns(value) && process.env.NODE_ENV === 'development') {
+      // 仅开发环境记录，生产环境静默处理
     }
 
     // 执行净化

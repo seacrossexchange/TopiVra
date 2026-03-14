@@ -112,7 +112,10 @@ describe('PaymentsService - auto delivery integration', () => {
       status: 'SUCCESS',
     });
 
-    const result = await service.completePayment(mockPayment.paymentNo, 'prov-1');
+    const result = await service.completePayment(
+      mockPayment.paymentNo,
+      'prov-1',
+    );
 
     expect(result.status).toBe('SUCCESS');
     expect(ordersService.handlePaymentSuccess).not.toHaveBeenCalled();
@@ -140,7 +143,10 @@ describe('PaymentsService - auto delivery integration', () => {
       success: true,
     });
 
-    const result = await service.completePayment(mockPayment.paymentNo, 'prov-1');
+    const result = await service.completePayment(
+      mockPayment.paymentNo,
+      'prov-1',
+    );
 
     // 基本支付状态更新
     expect(prisma.payment.update).toHaveBeenCalled();
@@ -171,8 +177,12 @@ describe('PaymentsService - auto delivery integration', () => {
     expect(mailService.sendOrderNotification).toHaveBeenCalled();
 
     expect(result).toBeDefined();
-    expect(result.status).toBe('SUCCESS');
+    // completePayment 返回事务前查出的原始 payment 对象，通过验证 update 被调用来确认支付完成
+    expect(prisma.payment.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: mockPayment.id },
+        data: expect.objectContaining({ status: 'SUCCESS' }),
+      }),
+    );
   });
 });
-
-

@@ -134,7 +134,7 @@ export class AppController {
     } catch (error) {
       return {
         status: 'disconnected',
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -175,7 +175,7 @@ export class AppController {
     } catch (error) {
       return {
         status: 'error',
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }

@@ -1,0 +1,77 @@
+{
+  "welcome": {
+    "subject": "Selamat Datang di TopiVra!",
+    "greeting": "Halo, {{username}}!",
+    "body": "Terima kasih telah mendaftar di TopiVra. Kami senang Anda bergabung dengan komunitas kami.",
+    "cta": "Mulai Jelajahi",
+    "footer": "Jika Anda memiliki pertanyaan, jangan ragu untuk menghubungi kami."
+  },
+  "emailVerification": {
+    "subject": "Verifikasi Alamat Email Anda",
+    "greeting": "Halo, {{username}}!",
+    "body": "Silakan klik tombol di bawah untuk memverifikasi alamat email Anda. Link ini akan kedaluwarsa dalam 24 jam.",
+    "cta": "Verifikasi Email",
+    "footer": "Jika Anda tidak mendaftar di TopiVra, abaikan email ini."
+  },
+  "passwordReset": {
+    "subject": "Atur Ulang Kata Sandi Anda",
+    "greeting": "Halo, {{username}}!",
+    "body": "Kami menerima permintaan untuk mengatur ulang kata sandi Anda. Klik tombol di bawah untuk mengatur ulang. Link ini akan kedaluwarsa dalam 1 jam.",
+    "cta": "Atur Ulang Kata Sandi",
+    "footer": "Jika Anda tidak meminta pengaturan ulang kata sandi, abaikan email ini."
+  },
+  "orderConfirmation": {
+    "subject": "Konfirmasi Pesanan - {{orderNo}}",
+    "greeting": "Halo, {{username}}!",
+    "body": "Pesanan Anda telah dikonfirmasi. Nomor pesanan: {{orderNo}}",
+    "orderDetails": "Detail Pesanan",
+    "totalAmount": "Total: {{amount}}",
+    "cta": "Lihat Pesanan",
+    "footer": "Terima kasih atas pembelian Anda!"
+  },
+  "orderDelivered": {
+    "subject": "Pesanan Telah Dikirim - {{orderNo}}",
+    "greeting": "Halo, {{username}}!",
+    "body": "Pesanan Anda telah dikirim. Silakan login untuk melihat informasi akun.",
+    "cta": "Lihat Pesanan",
+    "footer": "Jika ada masalah, silakan hubungi dukungan."
+  },
+  "sellerNewOrder": {
+    "subject": "Notifikasi Pesanan Baru - {{orderNo}}",
+    "greeting": "Halo, {{shopName}}!",
+    "body": "Anda memiliki pesanan baru. Harap segera diproses.",
+    "cta": "Lihat Pesanan",
+    "footer": "Harap kirim dalam 24 jam."
+  },
+  "withdrawalApproved": {
+    "subject": "Permintaan Penarikan Disetujui",
+    "greeting": "Halo, {{username}}!",
+    "body": "Permintaan penarikan Anda telah disetujui. Jumlah: {{amount}}. Diperkirakan tiba dalam 3-5 hari kerja.",
+    "cta": "Lihat Detail",
+    "footer": "Terima kasih telah menggunakan TopiVra."
+  },
+  "withdrawalRejected": {
+    "subject": "Permintaan Penarikan Ditolak",
+    "greeting": "Halo, {{username}}!",
+    "body": "Permintaan penarikan Anda telah ditolak. Alasan: {{reason}}",
+    "cta": "Lihat Detail",
+    "footer": "Jika Anda memiliki pertanyaan, silakan hubungi dukungan."
+  },
+  "refundApproved": {
+    "subject": "Permintaan Pengembalian Dana Disetujui - {{refundNo}}",
+    "greeting": "Halo, {{username}}!",
+    "body": "Permintaan pengembalian dana Anda telah disetujui. Jumlah: {{amount}}. Diperkirakan tiba dalam 3-5 hari kerja.",
+    "cta": "Lihat Detail",
+    "footer": "Terima kasih atas pengertian Anda."
+  },
+  "ticketReply": {
+    "subject": "Balasan Tiket - {{ticketNo}}",
+    "greeting": "Halo, {{username}}!",
+    "body": "Ada balasan baru untuk tiket Anda. Silakan login untuk melihatnya.",
+    "cta": "Lihat Tiket",
+    "footer": "Terima kasih atas masukan Anda."
+  }
+}
+
+
+

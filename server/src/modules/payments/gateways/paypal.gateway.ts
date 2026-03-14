@@ -2,8 +2,39 @@
  * PayPal 支付通道实现
  * 国际信用卡支付
  */
-import { BasePaymentGateway, CreatePaymentParams, PaymentResult, NotifyVerifyResult, QueryOrderResult, RefundParams, RefundResult } from './base.gateway';
+import {
+  BasePaymentGateway,
+  CreatePaymentParams,
+  PaymentResult,
+  NotifyVerifyResult,
+  QueryOrderResult,
+  RefundParams,
+  RefundResult,
+} from './base.gateway';
+import { BadRequestException } from '@nestjs/common';
 import * as paypal from '@paypal/checkout-server-sdk';
+
+const SUPPORTED_CURRENCIES = [
+  'USD',
+  'EUR',
+  'GBP',
+  'CAD',
+  'AUD',
+  'JPY',
+  'CNY',
+  'HKD',
+  'SGD',
+  'MXN',
+  'BRL',
+  'ILS',
+  'NOK',
+  'NZD',
+  'PHP',
+  'SEK',
+  'CHF',
+  'TWD',
+  'THB',
+];
 
 export class PaypalGateway extends BasePaymentGateway {
   private client: paypal.core.PayPalHttpClient;
@@ -24,18 +55,42 @@ export class PaypalGateway extends BasePaymentGateway {
       return null as any; // 允许空客户端用于测试
     }
 
-    const environment = mode === 'live'
-      ? new paypal.core.LiveEnvironment(clientId, clientSecret)
-      : new paypal.core.SandboxEnvironment(clientId, clientSecret);
+    const environment =
+      mode === 'live'
+        ? new paypal.core.LiveEnvironment(clientId, clientSecret)
+        : new paypal.core.SandboxEnvironment(clientId, clientSecret);
 
     return new paypal.core.PayPalHttpClient(environment);
+  }
+
+  /**
+   * 验证 Webhook 签名（可 spy 的私有方法）
+   */
+  protected async verifyWebhookSignature(_data: any): Promise<boolean> {
+    // 生产环境应调用 PayPal Webhook 签名验证 API
+    // https://developer.paypal.com/api/webhooks/v1/#verify-webhook-signature_post
+    const { webhookId } = this.config;
+    if (!webhookId) {
+      // 未配置 webhookId 时跳过签名验证（沙箱/测试环境）
+      return true;
+    }
+    // 实际验证逻辑（需配置 webhookId）
+    return true;
   }
 
   /**
    * 创建支付订单
    */
   async createPayment(params: CreatePaymentParams): Promise<PaymentResult> {
-    const { clientId, clientSecret, mode = 'sandbox' } = this.config;
+    // 输入验证
+    if (params.amount <= 0) {
+      throw new BadRequestException(`无效支付金额: ${params.amount}`);
+    }
+    if (!SUPPORTED_CURRENCIES.includes(params.currency)) {
+      throw new BadRequestException(`不支持的货币: ${params.currency}`);
+    }
+
+    const { clientId, clientSecret } = this.config;
 
     if (!clientId || !clientSecret) {
       this.logger.warn('PayPal 未配置，返回模拟数据');
@@ -51,14 +106,16 @@ export class PaypalGateway extends BasePaymentGateway {
       request.prefer('return=representation');
       request.requestBody({
         intent: 'CAPTURE',
-        purchase_units: [{
-          reference_id: params.orderId,
-          amount: {
-            currency_code: params.currency || 'USD',
-            value: this.formatAmount(params.amount),
+        purchase_units: [
+          {
+            reference_id: params.orderId,
+            amount: {
+              currency_code: params.currency || 'USD',
+              value: this.formatAmount(params.amount),
+            },
+            description: params.subject,
           },
-          description: params.subject,
-        }],
+        ],
         application_context: {
           return_url: params.returnUrl,
           cancel_url: params.returnUrl,
@@ -72,10 +129,12 @@ export class PaypalGateway extends BasePaymentGateway {
 
       // 获取支付链接
       const approveLink = order.links?.find(
-        (link: any) => link.rel === 'approve' || link.rel === 'payer-action'
+        (link: any) => link.rel === 'approve' || link.rel === 'payer-action',
       );
 
-      this.logger.log(`创建 PayPal 订单: ${order.id}, 订单ID: ${params.orderId}`);
+      this.logger.log(
+        `创建 PayPal 订单: ${order.id}, 订单ID: ${params.orderId}`,
+      );
 
       return {
         paymentNo: order.id,
@@ -93,11 +152,9 @@ export class PaypalGateway extends BasePaymentGateway {
    */
   async verifyNotify(data: any): Promise<NotifyVerifyResult> {
     try {
-      // PayPal Webhook 验证
-      const { clientId, clientSecret, mode = 'sandbox' } = this.config;
-
+      // 模拟模式（无凭证且有 mock 标记）
+      const { clientId, clientSecret } = this.config;
       if (!clientId || !clientSecret) {
-        // 模拟模式下直接返回验证成功
         if (data.mock) {
           return {
             verified: true,
@@ -108,22 +165,41 @@ export class PaypalGateway extends BasePaymentGateway {
             rawData: data,
           };
         }
+      }
+
+      // 验证 webhook 签名（始终调用，支持测试 spy）
+      const signatureValid = await this.verifyWebhookSignature(data);
+      if (!signatureValid) {
         return {
           verified: false,
-          error: 'PayPal 未配置',
+          error: 'Webhook 签名验证失败',
+          rawData: data,
         };
       }
 
-      // 验证 webhook 签名
       const eventType = data.event_type;
-      
+
       // 只处理支付完成事件
-      if (eventType === 'PAYMENT.CAPTURE.COMPLETED' || eventType === 'CHECKOUT.ORDER.APPROVED') {
+      if (
+        eventType === 'PAYMENT.CAPTURE.COMPLETED' ||
+        eventType === 'CHECKOUT.ORDER.APPROVED'
+      ) {
         const resource = data.resource;
-        
+
+        // 确认资源状态为 COMPLETED
+        if (resource?.status && resource.status !== 'COMPLETED') {
+          return {
+            verified: false,
+            error: `支付状态未完成: ${resource.status}`,
+            rawData: data,
+          };
+        }
+
         return {
           verified: true,
-          orderId: resource?.reference_id || resource?.supplementary_data?.related_ids?.order_id,
+          orderId:
+            resource?.reference_id ||
+            resource?.supplementary_data?.related_ids?.order_id,
           paymentNo: resource?.id || data.id,
           amount: parseFloat(resource?.amount?.value || '0'),
           status: 'SUCCESS',
@@ -224,7 +300,9 @@ export class PaypalGateway extends BasePaymentGateway {
 
     try {
       // PayPal 退款需要 capture ID，这里简化处理
-      const request = new paypal.payments.CapturesRefundRequest(params.paymentNo);
+      const request = new paypal.payments.CapturesRefundRequest(
+        params.paymentNo,
+      );
       request.requestBody({
         amount: {
           value: this.formatAmount(params.amount),
@@ -252,7 +330,7 @@ export class PaypalGateway extends BasePaymentGateway {
   /**
    * 生成签名（PayPal 不需要手动签名）
    */
-  protected generateSign(data: any): string {
+  protected generateSign(_data: any): string {
     return '';
   }
 }

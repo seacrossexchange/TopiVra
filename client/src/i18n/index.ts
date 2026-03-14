@@ -6,6 +6,7 @@ import en from './locales/en.json';
 import id from './locales/id.json';
 import ptBR from './locales/pt-BR.json';
 import esMX from './locales/es-MX.json';
+import { applyTextDirection } from '@/utils/rtl';
 
 // 从 localStorage 获取保存的语言
 const savedLanguage = localStorage.getItem('language') || 'zh-CN';
@@ -30,11 +31,18 @@ i18n
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
+    // 复数规则支持
+    pluralSeparator: '_',
+    contextSeparator: '_',
   });
 
-// 监听语言变化，保存到 localStorage
+// 监听语言变化，保存到 localStorage 并应用 RTL
 i18n.on('languageChanged', (lng) => {
   localStorage.setItem('language', lng);
+  applyTextDirection(lng);
 });
+
+// 初始化时应用文本方向
+applyTextDirection(savedLanguage);
 
 export default i18n;

@@ -28,7 +28,11 @@ export class MetricsService {
 
   async getBusinessMetrics(): Promise<BusinessMetrics> {
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     try {
@@ -70,7 +74,9 @@ export class MetricsService {
         this.prisma.product.count({ where: { status: 'ON_SALE' } }),
         this.prisma.product.count({ where: { status: 'SOLD_OUT' } }),
         this.prisma.ticket.count({ where: { status: 'OPEN' } }),
-        this.prisma.ticket.count({ where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } }),
+        this.prisma.ticket.count({
+          where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
+        }),
       ]);
 
       return {
@@ -92,16 +98,22 @@ export class MetricsService {
         timestamp: now,
       };
     } catch (error) {
-      this.logger.error('获取业务指标失败', error.stack);
+      const stack = error instanceof Error ? error.stack : String(error);
+      this.logger.error('获取业务指标失败', stack);
       throw error;
     }
   }
 
-  async recordMetric(name: string, value: number, tags?: Record<string, string>): Promise<void> {
+  async recordMetric(
+    name: string,
+    value: number,
+    tags?: Record<string, string>,
+  ): Promise<void> {
     try {
       this.logger.log(`Metric: ${name} = ${value}`, JSON.stringify(tags));
     } catch (error) {
-      this.logger.error(`记录指标失败: ${name}`, error.stack);
+      const stack = error instanceof Error ? error.stack : String(error);
+      this.logger.error(`记录指标失败: ${name}`, stack);
     }
   }
 
@@ -126,36 +138,3 @@ export class MetricsService {
     return { status, checks, metrics };
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

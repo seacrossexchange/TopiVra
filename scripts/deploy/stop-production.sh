@@ -73,3 +73,12 @@ echo "    重启服务：bash scripts/deploy/deploy-production.sh"
 echo "    清理数据：docker compose -f $CONFIG_DIR/docker-compose.yml -f $CONFIG_DIR/docker-compose.prod.yml down -v"
 echo ""
 
+
+
+
+
+
+
+
+
+

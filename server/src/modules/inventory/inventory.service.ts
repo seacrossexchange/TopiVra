@@ -28,7 +28,10 @@ export class InventoryService {
    */
   private encryptAccountData(accountData: string): string {
     const algorithm = 'aes-256-cbc';
-    const key = Buffer.from(process.env.ENCRYPTION_KEY || '0'.repeat(64), 'hex');
+    const key = Buffer.from(
+      process.env.ENCRYPTION_KEY || '0'.repeat(64),
+      'hex',
+    );
     const iv = crypto.randomBytes(16);
 
     const cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -44,7 +47,10 @@ export class InventoryService {
   private decryptAccountData(encryptedData: string): string {
     try {
       const algorithm = 'aes-256-cbc';
-      const key = Buffer.from(process.env.ENCRYPTION_KEY || '0'.repeat(64), 'hex');
+      const key = Buffer.from(
+        process.env.ENCRYPTION_KEY || '0'.repeat(64),
+        'hex',
+      );
 
       const parts = encryptedData.split(':');
       const iv = Buffer.from(parts[0], 'hex');
@@ -55,8 +61,8 @@ export class InventoryService {
       decrypted += decipher.final('utf8');
 
       return decrypted;
-    } catch (error) {
-      this.logger.error(`解密失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`解密失败: ${(error as Error).message}`);
       return encryptedData; // 如果解密失败，返回原始数据
     }
   }
@@ -66,7 +72,7 @@ export class InventoryService {
    */
   async checkDuplicate(
     accountData: string,
-    sellerId?: string,
+    _sellerId?: string,
   ): Promise<{
     isDuplicate: boolean;
     existingInventory?: any;
@@ -164,12 +170,26 @@ export class InventoryService {
           accountInfo: account.accountInfo,
         });
         results.success++;
-      } catch (error) {
+      } catch (error: unknown) {
         results.failed++;
-        if (error.message.includes('已上架')) {
+        // HttpException (BadRequestException) 的 message 在不同场景下可能是字符串或对象
+        let errMsg: string;
+        const httpResp = (error as any)?.response;
+        if (typeof httpResp === 'string') {
+          errMsg = httpResp;
+        } else if (typeof httpResp?.message === 'string') {
+          errMsg = httpResp.message;
+        } else if (typeof (error as any)?.message === 'string') {
+          errMsg = (error as any).message;
+        } else {
+          errMsg = String(error);
+        }
+        if (errMsg.includes('已上架') || errMsg.includes('已被其他卖家上架')) {
           results.duplicates++;
         }
-        results.errors.push(`${account.accountData.substring(0, 20)}...: ${error.message}`);
+        results.errors.push(
+          `${account.accountData.substring(0, 20)}...: ${errMsg}`,
+        );
       }
     }
 
@@ -209,11 +229,7 @@ export class InventoryService {
   /**
    * 标记账号为已售出
    */
-  async markAsSold(
-    inventoryId: string,
-    orderId: string,
-    orderItemId: string,
-  ) {
+  async markAsSold(inventoryId: string, orderId: string, orderItemId: string) {
     const inventory = await this.prisma.productInventory.update({
       where: { id: inventoryId },
       data: {
@@ -346,11 +362,7 @@ export class InventoryService {
   /**
    * 标记账号为失效
    */
-  async markAsInvalid(
-    inventoryId: string,
-    sellerId: string,
-    reason: string,
-  ) {
+  async markAsInvalid(inventoryId: string, sellerId: string, reason: string) {
     const inventory = await this.prisma.productInventory.findUnique({
       where: { id: inventoryId },
     });
@@ -380,4 +392,3 @@ export class InventoryService {
     return { success: true, message: '账号已标记为失效' };
   }
 }
-

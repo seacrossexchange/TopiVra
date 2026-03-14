@@ -13,15 +13,15 @@ import { ConfigService } from '@nestjs/config';
 const logger = new Logger('SentryModule');
 
 // 动态导入 Sentry（可选依赖）
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 let Sentry: any = null;
 let nodeProfilingIntegration: any = null;
 
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  /* eslint-disable @typescript-eslint/no-require-imports */
   Sentry = require('@sentry/node');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  nodeProfilingIntegration = require('@sentry/profiling-node').nodeProfilingIntegration;
+  nodeProfilingIntegration =
+    require('@sentry/profiling-node').nodeProfilingIntegration;
+  /* eslint-enable @typescript-eslint/no-require-imports */
 } catch (_e) {
   logger.warn('Sentry dependencies not installed. Error tracking disabled.');
   logger.warn(

@@ -247,9 +247,15 @@ export class PaymentsService {
         confirmations: txData.confirmations,
         timestamp: txData.timestamp,
       };
-    } catch (error) {
-      this.logger.error(`区块链交易验证失败: ${error.message}`, error.stack);
-      return { verified: false, error: `验证失败: ${error.message}` };
+    } catch (error: unknown) {
+      this.logger.error(
+        `区块链交易验证失败: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      return {
+        verified: false,
+        error: `验证失败: ${(error as Error).message}`,
+      };
     }
   }
 
@@ -315,8 +321,8 @@ export class PaymentsService {
         default:
           return null;
       }
-    } catch (error) {
-      this.logger.error(`获取区块链交易数据失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`获取区块链交易数据失败: ${(error as Error).message}`);
       return null;
     }
   }
@@ -404,8 +410,8 @@ export class PaymentsService {
         confirmations: txData.blockNumber ? 1 : 0,
         timestamp: txData.block_timestamp || Date.now(),
       };
-    } catch (error) {
-      this.logger.error(`TRON 交易查询失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`TRON 交易查询失败: ${(error as Error).message}`);
       return null;
     }
   }
@@ -549,8 +555,10 @@ export class PaymentsService {
         confirmations,
         timestamp: Date.now(),
       };
-    } catch (error) {
-      this.logger.error(`${chainType} 交易查询失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(
+        `${chainType} 交易查询失败: ${(error as Error).message}`,
+      );
       return null;
     }
   }
@@ -646,8 +654,8 @@ export class PaymentsService {
       }
 
       return result;
-    } catch (error) {
-      this.logger.error(`支付宝签名验证异常: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`支付宝签名验证异常: ${(error as Error).message}`);
       return false;
     }
   }
@@ -705,7 +713,9 @@ export class PaymentsService {
   private async verifyWechatSignature(data: any): Promise<boolean> {
     const apiKey = this.configService.get('WECHAT_API_KEY');
     const apiV3Key = this.configService.get('WECHAT_API_V3_KEY');
-    const wechatPlatformCert = this.configService.get('WECHAT_PLATFORM_CERTIFICATE');
+    const wechatPlatformCert = this.configService.get(
+      'WECHAT_PLATFORM_CERTIFICATE',
+    );
 
     // 未配置密钥时拒绝所有回调（安全优先）
     if (!apiKey && !apiV3Key) {
@@ -715,11 +725,16 @@ export class PaymentsService {
 
     try {
       // 判断是 V3 还是 V2 API 回调
-      const isV3 = data.resource && data.resource.algorithm === 'AEAD_AES_256_GCM';
+      const isV3 =
+        data.resource && data.resource.algorithm === 'AEAD_AES_256_GCM';
 
       if (isV3 && apiV3Key) {
         // V3 API 验签 - 使用平台证书验证签名
-        return await this.verifyWechatV3Signature(data, apiV3Key, wechatPlatformCert);
+        return await this.verifyWechatV3Signature(
+          data,
+          apiV3Key,
+          wechatPlatformCert,
+        );
       } else if (apiKey) {
         // V2 API 验签 - 使用 HMAC-SHA256
         return this.verifyWechatV2Signature(data, apiKey);
@@ -727,8 +742,11 @@ export class PaymentsService {
 
       this.logger.warn('微信支付签名验证：未匹配到合适的验签方式');
       return false;
-    } catch (error) {
-      this.logger.error(`微信支付签名验证异常: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      this.logger.error(
+        `微信支付签名验证异常: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       return false;
     }
   }
@@ -746,7 +764,10 @@ export class PaymentsService {
 
       // 构建待签名字符串
       const params = Object.keys(data)
-        .filter((key) => key !== 'sign' && data[key] !== undefined && data[key] !== '')
+        .filter(
+          (key) =>
+            key !== 'sign' && data[key] !== undefined && data[key] !== '',
+        )
         .sort()
         .map((key) => `${key}=${data[key]}`)
         .join('&');
@@ -767,8 +788,10 @@ export class PaymentsService {
       }
 
       return true;
-    } catch (error) {
-      this.logger.error(`微信支付 V2 签名验证异常: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(
+        `微信支付 V2 签名验证异常: ${(error as Error).message}`,
+      );
       return false;
     }
   }
@@ -842,16 +865,20 @@ export class PaymentsService {
           // 解密成功，验证通过
           this.logger.log('微信支付 V3 数据解密成功');
           return true;
-        } catch (decryptError) {
-          this.logger.error(`微信支付 V3 解密失败: ${decryptError.message}`);
+        } catch (decryptError: unknown) {
+          this.logger.error(
+            `微信支付 V3 解密失败: ${(decryptError as Error).message}`,
+          );
           return false;
         }
       }
 
       // 如果没有 ciphertext，仅验证时间戳
       return true;
-    } catch (error) {
-      this.logger.error(`微信支付 V3 签名验证异常: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(
+        `微信支付 V3 签名验证异常: ${(error as Error).message}`,
+      );
       return false;
     }
   }
@@ -993,7 +1020,9 @@ export class PaymentsService {
 
     // 🔥 触发自动发货（调用订单服务）
     try {
-      const deliveryResult = await this.ordersService.handlePaymentSuccess(payment.orderId);
+      const deliveryResult = await this.ordersService.handlePaymentSuccess(
+        payment.orderId,
+      );
       this.logger.log(`自动发货结果: ${JSON.stringify(deliveryResult)}`);
 
       // 发送实时通知给买家
@@ -1004,8 +1033,8 @@ export class PaymentsService {
           message: '您的订单已支付成功，商品已自动交付',
           autoDelivery: deliveryResult.success,
         });
-      } catch (error) {
-        this.logger.warn(`WebSocket 通知发送失败: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(`WebSocket 通知发送失败: ${(error as Error).message}`);
       }
 
       // 发送邮件通知
@@ -1028,12 +1057,12 @@ export class PaymentsService {
             </div>
           `,
           );
-        } catch (error) {
-          this.logger.warn(`邮件通知发送失败: ${error.message}`);
+        } catch (error: unknown) {
+          this.logger.warn(`邮件通知发送失败: ${(error as Error).message}`);
         }
       }
-    } catch (error) {
-      this.logger.error(`自动发货失败: ${error.message}`);
+    } catch (_error) {
+      this.logger.error(`自动发货失败: ${(_error as Error).message}`);
       // 不影响支付流程，但需要通知管理员
     }
 
@@ -1103,11 +1132,16 @@ export class PaymentsService {
 
     try {
       // 创建通道实例
-      const gatewayInstance = PaymentGatewayFactory.create(method, gateway.config);
+      const gatewayInstance = PaymentGatewayFactory.create(
+        method,
+        gateway.config,
+      );
 
       // 构建回调URL
-      const apiUrl = this.configService.get('API_URL') || 'http://localhost:3000';
-      const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
+      const apiUrl =
+        this.configService.get('API_URL') || 'http://localhost:3000';
+      const frontendUrl =
+        this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
 
       // 创建支付订单
       const result = await gatewayInstance.createPayment({
@@ -1151,7 +1185,10 @@ export class PaymentsService {
 
     try {
       // 创建通道实例
-      const gatewayInstance = PaymentGatewayFactory.create(method.toUpperCase(), gateway.config);
+      const gatewayInstance = PaymentGatewayFactory.create(
+        method.toUpperCase(),
+        gateway.config,
+      );
 
       // 验证签名
       const verifyResult = await gatewayInstance.verifyNotify(data);
@@ -1182,13 +1219,19 @@ export class PaymentsService {
       }
 
       // 完成支付
-      await this.completePayment(payment.paymentNo, verifyResult.paymentNo || payment.providerOrderId || '');
+      await this.completePayment(
+        payment.paymentNo,
+        verifyResult.paymentNo || payment.providerOrderId || '',
+      );
 
       this.logger.log(`${method} 支付完成: ${payment.paymentNo}`);
 
       return { success: true, message: '支付成功' };
     } catch (error: any) {
-      this.logger.error(`${method} 回调处理失败: ${error.message}`, error.stack);
+      this.logger.error(
+        `${method} 回调处理失败: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -1198,9 +1241,21 @@ export class PaymentsService {
    */
   async getAvailablePaymentMethods() {
     const methods = [
-      { code: 'USDT', name: 'USDT支付', enabled: !!this.configService.get('USDT_WALLET_ADDRESS') },
-      { code: 'ALIPAY', name: '支付宝', enabled: !!this.configService.get('ALIPAY_APP_ID') },
-      { code: 'WECHAT', name: '微信支付', enabled: !!this.configService.get('WECHAT_MCH_ID') },
+      {
+        code: 'USDT',
+        name: 'USDT支付',
+        enabled: !!this.configService.get('USDT_WALLET_ADDRESS'),
+      },
+      {
+        code: 'ALIPAY',
+        name: '支付宝',
+        enabled: !!this.configService.get('ALIPAY_APP_ID'),
+      },
+      {
+        code: 'WECHAT',
+        name: '微信支付',
+        enabled: !!this.configService.get('WECHAT_MCH_ID'),
+      },
     ];
 
     // 获取通道支付方式
@@ -1217,10 +1272,10 @@ export class PaymentsService {
           enabled: true,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       this.logger.warn('获取支付通道列表失败，可能数据库尚未迁移');
     }
 
-    return methods.filter(m => m.enabled);
+    return methods.filter((m) => m.enabled);
   }
 }

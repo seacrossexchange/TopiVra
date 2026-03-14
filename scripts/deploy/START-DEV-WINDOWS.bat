@@ -123,14 +123,15 @@ echo Using localhost for database connections
 echo.
 (
 echo NODE_ENV=development
-echo PORT=3001
-echo FRONTEND_URL=http://localhost:5174
+echo PORT=8000
+echo FRONTEND_URL=http://localhost:5173
 echo DATABASE_URL=mysql://root:root@localhost:3306/topivra
 echo REDIS_HOST=localhost
 echo REDIS_PORT=6379
 echo REDIS_URL=redis://localhost:6379
-echo JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-2024
-echo JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-this-in-production-2024
+echo JWT_SECRET=dev-jwt-secret-key-minimum-32-characters-for-development-only-2024
+echo JWT_REFRESH_SECRET=dev-jwt-refresh-secret-key-minimum-32-characters-for-dev-2024
+echo ENCRYPTION_KEY=dev-encryption-key-32-chars-minimum-for-development-2024
 echo USDT_WALLET_ADDRESS=TTestWalletAddressForDevelopmentOnly123456789
 ) > .env
 
@@ -187,8 +188,8 @@ REM Create .env file if not exists
 if not exist ".env" (
     echo Creating frontend .env file...
     (
-echo VITE_API_BASE_URL=http://localhost:3001/api/v1
-echo VITE_WS_URL=ws://localhost:3001
+echo VITE_API_BASE_URL=http://localhost:8000/api/v1
+echo VITE_WS_URL=ws://localhost:8000
 echo VITE_GOOGLE_CLIENT_ID=
 echo VITE_TELEGRAM_BOT_NAME=
 echo VITE_ENABLE_TELEGRAM_LOGIN=false
@@ -213,13 +214,13 @@ echo - Backend will run database migrations on first start
 echo - This may take 1-2 minutes, please be patient
 echo.
 echo Two command windows will open:
-echo   1. Backend Server  - http://localhost:3001
-echo   2. Frontend Server - http://localhost:5174
+echo   1. Backend Server  - http://localhost:8000
+echo   2. Frontend Server - http://localhost:5173
 echo.
 
 REM Start backend
 cd /d "%PROJECT_ROOT%\server"
-start "TopiVra Backend - http://localhost:3001" cmd /k "npm run start:dev"
+start "TopiVra Backend - http://localhost:8000" cmd /k "npm run start:dev"
 
 REM Wait a bit before starting frontend
 echo Waiting for backend to initialize...
@@ -235,9 +236,9 @@ echo              Startup Complete!
 echo ============================================================
 echo.
 echo Access URLs:
-echo   Frontend:  http://localhost:5174
-echo   Backend:   http://localhost:3001/api/v1
-echo   API Docs:  http://localhost:3001/api/v1/docs
+echo   Frontend:  http://localhost:5173
+echo   Backend:   http://localhost:8000/api/v1
+echo   API Docs:  http://localhost:8000/api/v1/docs
 echo.
 echo Test Accounts:
 echo   Admin:  admin@topivra.com / Admin123!
@@ -252,8 +253,8 @@ echo.
 echo Next Steps:
 echo   1. Wait for both servers to finish starting (1-2 minutes)
 echo   2. Check the Backend window for "Nest application successfully started"
-echo   3. Check the Frontend window for "Local: http://localhost:5174"
-echo   4. Open http://localhost:5174 in your browser
+echo   3. Check the Frontend window for "Local: http://localhost:5173"
+echo   4. Open http://localhost:5173 in your browser
 echo   5. Login with one of the test accounts above
 echo.
 echo IMPORTANT - First Time Setup:
@@ -278,7 +279,7 @@ echo Please check the error messages above.
 echo.
 echo Common solutions:
 echo   1. Make sure Docker Desktop is running
-echo   2. Check if ports 3001, 3306, 5174, 6379 are available
+echo   2. Check if ports 8000, 3306, 5173, 6379 are available
 echo   3. Try: docker-compose -f config/docker-compose.yml down -v
 echo   4. Then run this script again
 echo.

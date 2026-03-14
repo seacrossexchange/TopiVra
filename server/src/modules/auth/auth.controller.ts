@@ -127,7 +127,7 @@ export class AuthController {
       if (!req.user) {
         throw new UnauthorizedException('用户认证失败');
       }
-      
+
       const result = await this.authService.login(req.user, ip, userAgent);
       await this.redis.del(`login:fail:${ip}`);
       return result;

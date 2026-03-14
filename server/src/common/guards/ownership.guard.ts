@@ -42,7 +42,7 @@ export class OwnershipGuard implements CanActivate {
     }
 
     const resourceType = this.getResourceType(request.route.path);
-    
+
     if (!resourceType) {
       // 无法识别资源类型，放行（由其他守卫处理）
       return true;
@@ -166,7 +166,7 @@ export class OwnershipGuard implements CanActivate {
         // 订单：买家或卖家可以访问
         const isBuyer = resource.buyerId === userId;
         const isSeller = resource.orderItems?.some(
-          (item: any) => item.sellerId === userId
+          (item: any) => item.sellerId === userId,
         );
         return isBuyer || isSeller;
 
@@ -185,4 +185,3 @@ export class OwnershipGuard implements CanActivate {
     }
   }
 }
-

@@ -59,9 +59,8 @@ export class ScheduleService {
 
         this.logger.log(`订单 ${order.orderNo} 已自动取消（超时未支付）`);
       } catch (error) {
-        this.logger.error(
-          `订单 ${order.orderNo} 自动取消失败: ${error.message}`,
-        );
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(`订单 ${order.orderNo} 自动取消失败: ${message}`);
       }
     }
   }
@@ -141,9 +140,8 @@ export class ScheduleService {
 
         this.logger.log(`订单 ${order.orderNo} 自动确认完成`);
       } catch (error) {
-        this.logger.error(
-          `订单 ${order.orderNo} 自动确认失败: ${error.message}`,
-        );
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(`订单 ${order.orderNo} 自动确认失败: ${message}`);
       }
     }
   }

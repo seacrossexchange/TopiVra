@@ -108,7 +108,10 @@ export const useNotificationStore = create<NotificationState>()(
             unreadCount: Math.max(0, state.unreadCount - 1),
           }));
         } catch (error) {
-          console.error('标记已读失败:', error);
+          // 标记失败静默处理，不影响用户体验
+          if (import.meta.env.DEV) {
+            console.error('标记已读失败:', error);
+          }
         }
       },
 
@@ -126,7 +129,10 @@ export const useNotificationStore = create<NotificationState>()(
             unreadCount: 0,
           }));
         } catch (error) {
-          console.error('标记全部已读失败:', error);
+          // 标记失败静默处理，不影响用户体验
+          if (import.meta.env.DEV) {
+            console.error('标记全部已读失败:', error);
+          }
         }
       },
 
@@ -146,7 +152,10 @@ export const useNotificationStore = create<NotificationState>()(
             };
           });
         } catch (error) {
-          console.error('删除通知失败:', error);
+          // 删除失败静默处理，不影响用户体验
+          if (import.meta.env.DEV) {
+            console.error('删除通知失败:', error);
+          }
         }
       },
 

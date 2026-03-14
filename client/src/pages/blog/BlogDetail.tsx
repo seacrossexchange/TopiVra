@@ -65,7 +65,9 @@ export default function BlogDetail() {
         
         setError(null);
       } catch (err: any) {
-        console.error('Failed to fetch blog:', err);
+        if (import.meta.env.DEV) {
+          console.error('Failed to fetch blog:', err);
+        }
         setError(err.response?.data?.message || t('blog.loadError'));
       } finally {
         setLoading(false);
@@ -120,7 +122,7 @@ export default function BlogDetail() {
           url: window.location.href,
         });
       } catch {
-        console.log('Share cancelled');
+        // 用户取消分享，静默处理
       }
     } else {
       // 复制链接到剪贴板

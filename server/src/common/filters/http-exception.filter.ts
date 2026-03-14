@@ -68,7 +68,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Unknown error occurred';
       error = 'Internal Server Error';
-      
+
       this.logger.error('Unknown error type:', exception);
     }
 

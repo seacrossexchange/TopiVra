@@ -15,7 +15,7 @@ export class RedisHealthIndicator extends HealthIndicator {
   async isHealthy(key: string): Promise<HealthIndicatorResult> {
     try {
       const client = this.redisService.getClient();
-      const result = await client.ping();
+      const result = await client!.ping();
       if (result === 'PONG') {
         return this.getStatus(key, true);
       }
@@ -31,7 +31,7 @@ export class RedisHealthIndicator extends HealthIndicator {
       }
       throw new HealthCheckError(
         'Redis check failed',
-        this.getStatus(key, false, { message: error.message }),
+        this.getStatus(key, false, { message: (error as Error).message }),
       );
     }
   }

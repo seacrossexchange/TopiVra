@@ -43,7 +43,8 @@ export class AlertsService {
         await this.sendTelegramMessage(level, title, message, details);
         return true;
       } catch (error) {
-        this.logger.error(`发送 Telegram 告警失败: ${error.message}`);
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.error(`发送 Telegram 告警失败: ${message}`);
         return false;
       }
     }

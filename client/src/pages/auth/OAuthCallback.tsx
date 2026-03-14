@@ -40,7 +40,9 @@ export default function OAuthCallback() {
           }
         })
         .catch(err => {
-          console.error('获取用户信息失败:', err);
+          if (import.meta.env.DEV) {
+            console.error('获取用户信息失败:', err);
+          }
           message.error('登录失败，请重试');
           navigate('/auth/login');
         });

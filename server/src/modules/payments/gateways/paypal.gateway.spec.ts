@@ -4,10 +4,9 @@ import { BadRequestException } from '@nestjs/common';
 describe('PaypalGateway', () => {
   let gateway: PaypalGateway;
 
+  // 不传入 clientId/clientSecret，触发 mock 模式（不发真实网络请求）
   const mockConfig = {
     apiUrl: 'https://api-m.sandbox.paypal.com',
-    clientId: 'test_client_id',
-    clientSecret: 'test_client_secret',
   };
 
   beforeEach(() => {
@@ -29,7 +28,6 @@ describe('PaypalGateway', () => {
 
       expect(result).toBeDefined();
       expect(result.paymentNo).toBeDefined();
-      // approvalUrl 在 PaymentResult 中不存在，使用 payUrl
       expect(result.payUrl ?? result.qrCode ?? result.paymentNo).toBeDefined();
     });
 
@@ -43,7 +41,9 @@ describe('PaypalGateway', () => {
         notifyUrl: 'http://test.com/notify',
       };
 
-      await expect(gateway.createPayment(paymentData)).rejects.toThrow(BadRequestException);
+      await expect(gateway.createPayment(paymentData)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('应该支持多种货币', async () => {
@@ -74,12 +74,14 @@ describe('PaypalGateway', () => {
         notifyUrl: 'http://test.com/notify',
       };
 
-      await expect(gateway.createPayment(paymentData)).rejects.toThrow(BadRequestException);
+      await expect(gateway.createPayment(paymentData)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('verifyNotify', () => {
-    it('应该验证有效的PayPal webhook', async () => {
+    it('应该验证有效的PayPal webhook（COMPLETED 事件）', async () => {
       const data = {
         event_type: 'PAYMENT.CAPTURE.COMPLETED',
         resource: {
@@ -93,11 +95,14 @@ describe('PaypalGateway', () => {
         },
       };
 
-      // Mock webhook 验证
-      jest.spyOn(gateway as any, 'verifyWebhookSignature').mockResolvedValue(true);
+      // spy verifyWebhookSignature（protected 方法）
+      jest
+        .spyOn(gateway as any, 'verifyWebhookSignature')
+        .mockResolvedValue(true);
 
-      const verified = await gateway.verifyNotify(data);
-      expect(verified).toBe(true);
+      const result = await gateway.verifyNotify(data);
+      expect(result.verified).toBe(true);
+      expect(result.status).toBe('SUCCESS');
     });
 
     it('应该拒绝无效的webhook签名', async () => {
@@ -110,13 +115,33 @@ describe('PaypalGateway', () => {
         },
       };
 
-      jest.spyOn(gateway as any, 'verifyWebhookSignature').mockResolvedValue(false);
+      jest
+        .spyOn(gateway as any, 'verifyWebhookSignature')
+        .mockResolvedValue(false);
 
-      const verified = await gateway.verifyNotify(data);
-      expect(verified).toBe(false);
+      const result = await gateway.verifyNotify(data);
+      expect(result.verified).toBe(false);
     });
 
-    it('应该拒绝未完成的支付', async () => {
+    it('应该拒绝未完成的支付（PENDING 状态）', async () => {
+      const data = {
+        event_type: 'PAYMENT.CAPTURE.COMPLETED',
+        resource: {
+          id: 'PP123456',
+          status: 'PENDING',
+          custom_id: 'TEST_PP001',
+        },
+      };
+
+      jest
+        .spyOn(gateway as any, 'verifyWebhookSignature')
+        .mockResolvedValue(true);
+
+      const result = await gateway.verifyNotify(data);
+      expect(result.verified).toBe(false);
+    });
+
+    it('应该拒绝不处理的事件类型', async () => {
       const data = {
         event_type: 'PAYMENT.CAPTURE.PENDING',
         resource: {
@@ -126,10 +151,12 @@ describe('PaypalGateway', () => {
         },
       };
 
-      jest.spyOn(gateway as any, 'verifyWebhookSignature').mockResolvedValue(true);
+      jest
+        .spyOn(gateway as any, 'verifyWebhookSignature')
+        .mockResolvedValue(true);
 
-      const verified = await gateway.verifyNotify(data);
-      expect(verified).toBe(false);
+      const result = await gateway.verifyNotify(data);
+      expect(result.verified).toBe(false);
     });
   });
 
@@ -146,6 +173,3 @@ describe('PaypalGateway', () => {
     });
   });
 });
-
-
-

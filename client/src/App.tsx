@@ -5,8 +5,12 @@
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
+import { HelmetProvider } from 'react-helmet-async';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
+import idID from 'antd/locale/id_ID';
+import ptBR from 'antd/locale/pt_BR';
+import esES from 'antd/locale/es_ES';
 import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { router } from './router';
@@ -38,11 +42,17 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   // 使用 useMemo 确保主题对象在 isDark 变化时重新创建
   const antdTheme = React.useMemo(() => getAntdTheme(isDark), [isDark]);
   
-  // 根据当前语言选择 Ant Design locale
-  const antdLocale = React.useMemo(() => 
-    i18n.language === 'zh-CN' ? zhCN : enUS,
-    [i18n.language]
-  );
+  // 根据当前语言选择 Ant Design locale - 支持 i18n 语言代码到 Ant Design locale 的映射
+  const antdLocale = React.useMemo(() => {
+    const localeMap: Record<string, typeof zhCN> = {
+      'zh-CN': zhCN,
+      'en': enUS,
+      'id': idID,
+      'pt-BR': ptBR,
+      'es-MX': esES, // 使用 esES 作为西班牙语（墨西哥）的本地化
+    };
+    return localeMap[i18n.language] || enUS;
+  }, [i18n.language]);
 
   return (
     <ConfigProvider 
@@ -57,11 +67,13 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <RouterProvider router={router} />
-        </ThemeProvider>
-      </QueryClientProvider>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }

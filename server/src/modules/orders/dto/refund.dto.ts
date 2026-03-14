@@ -15,20 +15,20 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // RefundStatus enum - matches Prisma schema
 export enum RefundStatus {
-  PENDING = 'PENDING',           // 待卖家响应
+  PENDING = 'PENDING', // 待卖家响应
   SELLER_AGREED = 'SELLER_AGREED', // 卖家同意
   SELLER_REJECTED = 'SELLER_REJECTED', // 卖家拒绝
-  DISPUTED = 'DISPUTED',         // 平台介入
-  PROCESSING = 'PROCESSING',     // 处理中
-  COMPLETED = 'COMPLETED',       // 已完成
-  REJECTED = 'REJECTED',         // 已拒绝
-  CANCELLED = 'CANCELLED',       // 已取消
+  DISPUTED = 'DISPUTED', // 平台介入
+  PROCESSING = 'PROCESSING', // 处理中
+  COMPLETED = 'COMPLETED', // 已完成
+  REJECTED = 'REJECTED', // 已拒绝
+  CANCELLED = 'CANCELLED', // 已取消
 }
 
 // Refund type enum
 export enum RefundType {
-  REFUND_ONLY = 'REFUND_ONLY',       // 仅退款
-  RETURN_REFUND = 'RETURN_REFUND',   // 退货退款
+  REFUND_ONLY = 'REFUND_ONLY', // 仅退款
+  RETURN_REFUND = 'RETURN_REFUND', // 退货退款
 }
 
 // ==================== 创建退款申请 ====================
@@ -36,7 +36,7 @@ export enum RefundType {
 export class CreateRefundRequestDto {
   @ApiProperty({ description: '订单ID' })
   @IsUUID()
-  orderId: string;
+  orderId!: string;
 
   @ApiPropertyOptional({ description: '订单项ID（部分退款时必填）' })
   @IsOptional()
@@ -47,9 +47,13 @@ export class CreateRefundRequestDto {
   @IsNumber()
   @IsPositive()
   @Min(0.01)
-  refundAmount: number;
+  refundAmount!: number;
 
-  @ApiPropertyOptional({ description: '退款类型', enum: RefundType, default: RefundType.REFUND_ONLY })
+  @ApiPropertyOptional({
+    description: '退款类型',
+    enum: RefundType,
+    default: RefundType.REFUND_ONLY,
+  })
   @IsOptional()
   @IsEnum(RefundType)
   refundType?: RefundType;
@@ -57,7 +61,7 @@ export class CreateRefundRequestDto {
   @ApiProperty({ description: '退款原因' })
   @IsString()
   @MaxLength(500)
-  reason: string;
+  reason!: string;
 
   @ApiPropertyOptional({ description: '详细描述' })
   @IsOptional()
@@ -99,7 +103,7 @@ export class UpdateRefundRequestDto {
 export class SellerRespondRefundDto {
   @ApiProperty({ description: '是否同意退款' })
   @IsBoolean()
-  agreed: boolean;
+  agreed!: boolean;
 
   @ApiPropertyOptional({ description: '卖家回复说明' })
   @IsOptional()
@@ -120,15 +124,18 @@ export class EscalateRefundDto {
   @ApiProperty({ description: '升级原因' })
   @IsString()
   @MaxLength(500)
-  escalateReason: string;
+  escalateReason!: string;
 }
 
 // ==================== 管理员处理退款 ====================
 
 export class AdminProcessRefundDto {
-  @ApiProperty({ description: '处理动作', enum: ['APPROVE', 'REJECT', 'PROCESS'] })
+  @ApiProperty({
+    description: '处理动作',
+    enum: ['APPROVE', 'REJECT', 'PROCESS'],
+  })
   @IsEnum(['APPROVE', 'REJECT', 'PROCESS'])
-  action: 'APPROVE' | 'REJECT' | 'PROCESS';
+  action!: 'APPROVE' | 'REJECT' | 'PROCESS';
 
   @ApiPropertyOptional({ description: '管理员处理说明' })
   @IsOptional()
@@ -230,29 +237,29 @@ export class SellerRefundQueryDto extends RefundQueryDto {
 
 export class RefundStatsDto {
   @ApiProperty({ description: '待响应数量' })
-  pending: number;
+  pending!: number;
 
   @ApiProperty({ description: '卖家同意数量' })
-  sellerAgreed: number;
+  sellerAgreed!: number;
 
   @ApiProperty({ description: '卖家拒绝数量' })
-  sellerRejected: number;
+  sellerRejected!: number;
 
   @ApiProperty({ description: '平台介入数量' })
-  disputed: number;
+  disputed!: number;
 
   @ApiProperty({ description: '处理中数量' })
-  processing: number;
+  processing!: number;
 
   @ApiProperty({ description: '已完成数量' })
-  completed: number;
+  completed!: number;
 
   @ApiProperty({ description: '已拒绝数量' })
-  rejected: number;
+  rejected!: number;
 
   @ApiProperty({ description: '已取消数量' })
-  cancelled: number;
+  cancelled!: number;
 
   @ApiProperty({ description: '退款总金额' })
-  totalAmount: number;
+  totalAmount!: number;
 }

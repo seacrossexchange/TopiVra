@@ -57,3 +57,12 @@ ALTER TABLE "products" ADD COLUMN "inventoryCount" INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE "order_items" ADD COLUMN "inventoryId" TEXT;
 ALTER TABLE "order_items" ADD COLUMN "autoDelivered" BOOLEAN NOT NULL DEFAULT false;
 
+
+
+
+
+
+
+
+
+

@@ -19,6 +19,10 @@ describe('i18n locales for auto-delivery markets', () => {
     const text = i18n.t('inventory.title');
     expect(text).toBe('Gestión de Inventario');
   });
-}
+});
+
+
+
+
 
 

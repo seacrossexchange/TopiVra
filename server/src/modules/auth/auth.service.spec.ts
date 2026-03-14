@@ -12,11 +12,14 @@ import { AuditService } from '../../common/audit/audit.service';
 
 describe('AuthService', () => {
   let service: AuthService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let prismaService: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let jwtService: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let redisService: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mailService: any;
-  let auditService: any;
 
   const mockUser = {
     id: 'user-123',
@@ -98,7 +101,6 @@ describe('AuthService', () => {
     jwtService = mockJwt;
     redisService = mockRedis;
     mailService = mockMail;
-    auditService = mockAudit;
   });
 
   describe('validateUser', () => {
@@ -106,7 +108,10 @@ describe('AuthService', () => {
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
 
-      const result = await service.validateUser('test@example.com', 'Password123!');
+      const result = await service.validateUser(
+        'test@example.com',
+        'Password123!',
+      );
 
       expect(result).toBeDefined();
       expect(result?.passwordHash).toBeUndefined();
@@ -115,7 +120,10 @@ describe('AuthService', () => {
     it('应该拒绝不存在的用户', async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
 
-      const result = await service.validateUser('nonexistent@example.com', 'Password123!');
+      const result = await service.validateUser(
+        'nonexistent@example.com',
+        'Password123!',
+      );
 
       expect(result).toBeNull();
     });
@@ -124,7 +132,10 @@ describe('AuthService', () => {
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
-      const result = await service.validateUser('test@example.com', 'WrongPassword!');
+      const result = await service.validateUser(
+        'test@example.com',
+        'WrongPassword!',
+      );
 
       expect(result).toBeNull();
     });
@@ -133,7 +144,9 @@ describe('AuthService', () => {
       const bannedUser = { ...mockUser, status: 'BANNED' };
       prismaService.user.findUnique.mockResolvedValue(bannedUser);
 
-      await expect(service.validateUser('test@example.com', 'Password123!')).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.validateUser('test@example.com', 'Password123!'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -144,7 +157,11 @@ describe('AuthService', () => {
       redisService.set.mockResolvedValue(true);
       mailService.sendVerificationCode.mockResolvedValue(true);
 
-      const result = await service.register('test@example.com', 'Password123!', 'testuser');
+      const result = await service.register(
+        'test@example.com',
+        'Password123!',
+        'testuser',
+      );
 
       expect(result.success).toBe(true);
       expect(prismaService.user.create).toHaveBeenCalled();
@@ -153,15 +170,16 @@ describe('AuthService', () => {
     it('应该拒绝已存在的邮箱注册', async () => {
       prismaService.user.findUnique.mockResolvedValue(mockUser);
 
-      await expect(service.register('test@example.com', 'Password123!', 'testuser')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.register('test@example.com', 'Password123!', 'testuser'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('login', () => {
     it('应该成功登录并返回tokens', async () => {
-      const userWithoutHash = { ...mockUser };
-      delete userWithoutHash.passwordHash;
-      
+      const { passwordHash: _pw, ...userWithoutHash } = mockUser;
+
       prismaService.userRole.findMany.mockResolvedValue([{ role: 'USER' }]);
 
       const result = await service.login(userWithoutHash);
@@ -203,9 +221,11 @@ describe('AuthService', () => {
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       prismaService.userRole.findMany.mockResolvedValue([{ role: 'USER' }]);
       jwtService.sign.mockReturnValue('new-token');
-      jwtService.decode.mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      jwtService.decode.mockReturnValue({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
 
-      const result = await service.refreshToken('valid-refresh-token') as any;
+      const result = (await service.refreshToken('valid-refresh-token')) as any;
 
       expect(result).toHaveProperty('accessToken');
     });
@@ -213,7 +233,9 @@ describe('AuthService', () => {
     it('应该拒绝黑名单中的refresh token', async () => {
       redisService.get.mockResolvedValue('blacklisted');
 
-      await expect(service.refreshToken('blacklisted-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('blacklisted-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('应该拒绝无效的refresh token', async () => {
@@ -222,7 +244,9 @@ describe('AuthService', () => {
         throw new Error('Invalid token');
       });
 
-      await expect(service.refreshToken('invalid-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('invalid-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('应该拒绝type不是refresh的token', async () => {
@@ -231,14 +255,18 @@ describe('AuthService', () => {
       redisService.get.mockResolvedValue(null);
       jwtService.verify.mockReturnValue(mockPayload);
 
-      await expect(service.refreshToken('access-token')).rejects.toThrow(BadRequestException);
+      await expect(service.refreshToken('access-token')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('logout', () => {
     it('应该成功登出并将token加入黑名单', async () => {
       prismaService.user.findUnique.mockResolvedValue(mockUser);
-      jwtService.decode.mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 3600 });
+      jwtService.decode.mockReturnValue({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      });
       redisService.set.mockResolvedValue(true);
 
       const result = await service.logout('user-123', 'some-token');
@@ -277,13 +305,17 @@ describe('AuthService', () => {
     it('应该拒绝不存在的用户', async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.getUserProfile('nonexistent-user')).rejects.toThrow(BadRequestException);
+      await expect(service.getUserProfile('nonexistent-user')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('卖家应该返回卖家信息', async () => {
       const sellerUser = { ...mockUser, isSeller: true };
       prismaService.user.findUnique.mockResolvedValue(sellerUser);
-      prismaService.sellerProfile = { findUnique: jest.fn().mockResolvedValue({ shopName: 'Test Shop' }) };
+      prismaService.sellerProfile = {
+        findUnique: jest.fn().mockResolvedValue({ shopName: 'Test Shop' }),
+      };
 
       const result = await service.getUserProfile('seller-123');
 
@@ -295,11 +327,17 @@ describe('AuthService', () => {
     it('应该成功验证邮箱', async () => {
       const verificationData = { userId: 'user-123', code: '123456' };
       redisService.get.mockResolvedValue(JSON.stringify(verificationData));
-      prismaService.user.update.mockResolvedValue({ ...mockUser, emailVerified: true });
+      prismaService.user.update.mockResolvedValue({
+        ...mockUser,
+        emailVerified: true,
+      });
       prismaService.userRole.findMany.mockResolvedValue([{ role: 'USER' }]);
       jwtService.sign.mockReturnValue('token');
 
-      const result = await service.verifyEmailWithCode('test@example.com', '123456') as any;
+      const result = (await service.verifyEmailWithCode(
+        'test@example.com',
+        '123456',
+      )) as any;
 
       expect(result.success).toBe(true);
     });
@@ -308,13 +346,17 @@ describe('AuthService', () => {
       const verificationData = { userId: 'user-123', code: '654321' };
       redisService.get.mockResolvedValue(JSON.stringify(verificationData));
 
-      await expect(service.verifyEmailWithCode('test@example.com', '123456')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.verifyEmailWithCode('test@example.com', '123456'),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('应该拒绝过期的验证码', async () => {
       redisService.get.mockResolvedValue(null);
 
-      await expect(service.verifyEmailWithCode('test@example.com', '123456')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.verifyEmailWithCode('test@example.com', '123456'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -335,13 +377,17 @@ describe('AuthService', () => {
       const verifiedUser = { ...mockUser, emailVerified: true };
       prismaService.user.findUnique.mockResolvedValue(verifiedUser);
 
-      await expect(service.resendVerification('test@example.com')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.resendVerification('test@example.com'),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('应该拒绝不存在的用户', async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.resendVerification('nonexistent@example.com')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.resendVerification('nonexistent@example.com'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -351,8 +397,12 @@ describe('AuthService', () => {
         prismaService.user.findUnique.mockResolvedValue(mockUser);
         prismaService.user.update.mockResolvedValue(mockUser);
         const mockTotp = (service as any).totpService;
-        mockTotp.generateSecret = jest.fn().mockReturnValue({ secret: 'SECRET', otpauthUrl: 'otpauth://...' });
-        mockTotp.generateRecoveryCodes = jest.fn().mockReturnValue(['code1', 'code2']);
+        mockTotp.generateSecret = jest
+          .fn()
+          .mockReturnValue({ secret: 'SECRET', otpauthUrl: 'otpauth://...' });
+        mockTotp.generateRecoveryCodes = jest
+          .fn()
+          .mockReturnValue(['code1', 'code2']);
 
         const result = await service.enableTwoFactor('user-123');
 
@@ -363,15 +413,24 @@ describe('AuthService', () => {
       it('应该拒绝不存在的用户', async () => {
         prismaService.user.findUnique.mockResolvedValue(null);
 
-        await expect(service.enableTwoFactor('nonexistent-user')).rejects.toThrow(BadRequestException);
+        await expect(
+          service.enableTwoFactor('nonexistent-user'),
+        ).rejects.toThrow(BadRequestException);
       });
     });
 
     describe('disableTwoFactor', () => {
       it('应该成功禁用2FA', async () => {
-        const userWith2FA = { ...mockUser, twoFactorEnabled: true, twoFactorSecret: 'SECRET' };
+        const userWith2FA = {
+          ...mockUser,
+          twoFactorEnabled: true,
+          twoFactorSecret: 'SECRET',
+        };
         prismaService.user.findUnique.mockResolvedValue(userWith2FA);
-        prismaService.user.update.mockResolvedValue({ ...mockUser, twoFactorEnabled: false });
+        prismaService.user.update.mockResolvedValue({
+          ...mockUser,
+          twoFactorEnabled: false,
+        });
         const mockTotp = (service as any).totpService;
         mockTotp.verifyToken = jest.fn().mockReturnValue(true);
 
@@ -383,7 +442,9 @@ describe('AuthService', () => {
       it('应该拒绝未启用2FA的用户', async () => {
         prismaService.user.findUnique.mockResolvedValue(mockUser);
 
-        await expect(service.disableTwoFactor('user-123', '123456')).rejects.toThrow(BadRequestException);
+        await expect(
+          service.disableTwoFactor('user-123', '123456'),
+        ).rejects.toThrow(BadRequestException);
       });
     });
   });

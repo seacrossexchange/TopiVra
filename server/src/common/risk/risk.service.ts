@@ -56,7 +56,11 @@ export class RiskService {
   /**
    * 评估订单风险
    */
-  async assessOrderRisk(userId: string, orderAmount: number, data?: UserBehaviorData): Promise<RiskAssessment> {
+  async assessOrderRisk(
+    userId: string,
+    orderAmount: number,
+    data?: UserBehaviorData,
+  ): Promise<RiskAssessment> {
     const factors: RiskFactor[] = [];
     let totalScore = 0;
 
@@ -125,7 +129,10 @@ export class RiskService {
   /**
    * 评估提现风险
    */
-  async assessWithdrawalRisk(userId: string, amount: number): Promise<RiskAssessment> {
+  async assessWithdrawalRisk(
+    userId: string,
+    amount: number,
+  ): Promise<RiskAssessment> {
     const factors: RiskFactor[] = [];
     let totalScore = 0;
 
@@ -144,7 +151,8 @@ export class RiskService {
     }
 
     // 3. 检查提现频率
-    const withdrawalFrequencyFactor = await this.checkWithdrawalFrequency(userId);
+    const withdrawalFrequencyFactor =
+      await this.checkWithdrawalFrequency(userId);
     if (withdrawalFrequencyFactor) {
       factors.push(withdrawalFrequencyFactor);
       totalScore += withdrawalFrequencyFactor.weight;
@@ -184,7 +192,7 @@ export class RiskService {
     if (!user) return null;
 
     const daysSinceCreation = Math.floor(
-      (Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      (Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     if (daysSinceCreation < 7) {
@@ -202,7 +210,9 @@ export class RiskService {
   /**
    * 检查订单频率
    */
-  private async checkOrderFrequency(userId: string): Promise<RiskFactor | null> {
+  private async checkOrderFrequency(
+    userId: string,
+  ): Promise<RiskFactor | null> {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const recentOrders = await this.prisma.order.count({
@@ -228,7 +238,10 @@ export class RiskService {
    * 检查大额订单
    */
   private checkLargeAmount(amount: number): RiskFactor | null {
-    const largeThreshold = this.configService.get<number>('RISK_LARGE_AMOUNT_THRESHOLD', 1000);
+    const largeThreshold = this.configService.get<number>(
+      'RISK_LARGE_AMOUNT_THRESHOLD',
+      1000,
+    );
 
     if (amount >= largeThreshold) {
       return {
@@ -245,7 +258,9 @@ export class RiskService {
   /**
    * 检查可疑IP
    */
-  private async checkSuspiciousIp(ipAddress: string): Promise<RiskFactor | null> {
+  private async checkSuspiciousIp(
+    ipAddress: string,
+  ): Promise<RiskFactor | null> {
     // 检查IP是否在黑名单中
     const blacklisted = await this.prisma.blacklistedIp.findUnique({
       where: { ip: ipAddress },
@@ -349,7 +364,9 @@ export class RiskService {
   /**
    * 检查未完成的纠纷
    */
-  private async checkPendingDisputes(userId: string): Promise<RiskFactor | null> {
+  private async checkPendingDisputes(
+    userId: string,
+  ): Promise<RiskFactor | null> {
     const pendingDisputes = await this.prisma.refundRequest.count({
       where: {
         sellerId: userId,
@@ -372,7 +389,9 @@ export class RiskService {
   /**
    * 检查提现频率
    */
-  private async checkWithdrawalFrequency(userId: string): Promise<RiskFactor | null> {
+  private async checkWithdrawalFrequency(
+    userId: string,
+  ): Promise<RiskFactor | null> {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const recentWithdrawals = await this.prisma.withdrawal.count({
@@ -398,7 +417,10 @@ export class RiskService {
    * 检查大额提现
    */
   private checkLargeWithdrawal(amount: number): RiskFactor | null {
-    const threshold = this.configService.get<number>('RISK_LARGE_WITHDRAWAL_THRESHOLD', 5000);
+    const threshold = this.configService.get<number>(
+      'RISK_LARGE_WITHDRAWAL_THRESHOLD',
+      5000,
+    );
 
     if (amount >= threshold) {
       return {
@@ -415,7 +437,9 @@ export class RiskService {
   /**
    * 确定风险等级
    */
-  private determineRiskLevel(score: number): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
+  private determineRiskLevel(
+    score: number,
+  ): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
     if (score >= this.thresholds.high) return 'CRITICAL';
     if (score >= this.thresholds.medium) return 'HIGH';
     if (score >= this.thresholds.low) return 'MEDIUM';

@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsInt, Min, IsArray, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  Min,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AddAccountDto {
@@ -56,4 +63,5 @@ export class MarkInvalidDto {
   @IsString()
   reason: string;
 }
+
 

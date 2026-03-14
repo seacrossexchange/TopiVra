@@ -276,6 +276,9 @@ export class PaymentCallbackGuard implements CanActivate {
    */
   private async checkAndSetIdempotencyKey(key: string): Promise<boolean> {
     const redis = this.redisService.getClient();
+    if (!redis) {
+      return false;
+    }
     const existing = await redis.get(key);
 
     if (existing) {
@@ -296,6 +299,9 @@ export class PaymentCallbackGuard implements CanActivate {
     windowSeconds: number,
   ): Promise<boolean> {
     const redis = this.redisService.getClient();
+    if (!redis) {
+      return false;
+    }
     const current = await redis.incr(key);
 
     if (current === 1) {

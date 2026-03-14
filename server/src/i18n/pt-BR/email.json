@@ -1,0 +1,77 @@
+{
+  "welcome": {
+    "subject": "Bem-vindo ao TopiVra!",
+    "greeting": "Olá, {{username}}!",
+    "body": "Obrigado por se cadastrar no TopiVra. Estamos felizes em tê-lo em nossa comunidade.",
+    "cta": "Começar a Explorar",
+    "footer": "Se você tiver alguma dúvida, sinta-se à vontade para nos contatar."
+  },
+  "emailVerification": {
+    "subject": "Verifique Seu Endereço de E-mail",
+    "greeting": "Olá, {{username}}!",
+    "body": "Por favor, clique no botão abaixo para verificar seu endereço de e-mail. Este link expirará em 24 horas.",
+    "cta": "Verificar E-mail",
+    "footer": "Se você não se cadastrou no TopiVra, ignore este e-mail."
+  },
+  "passwordReset": {
+    "subject": "Redefinir Sua Senha",
+    "greeting": "Olá, {{username}}!",
+    "body": "Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para redefini-la. Este link expirará em 1 hora.",
+    "cta": "Redefinir Senha",
+    "footer": "Se você não solicitou a redefinição de senha, ignore este e-mail."
+  },
+  "orderConfirmation": {
+    "subject": "Confirmação de Pedido - {{orderNo}}",
+    "greeting": "Olá, {{username}}!",
+    "body": "Seu pedido foi confirmado. Número do pedido: {{orderNo}}",
+    "orderDetails": "Detalhes do Pedido",
+    "totalAmount": "Valor Total: {{amount}}",
+    "cta": "Ver Pedido",
+    "footer": "Obrigado pela sua compra!"
+  },
+  "orderDelivered": {
+    "subject": "Pedido Entregue - {{orderNo}}",
+    "greeting": "Olá, {{username}}!",
+    "body": "Seu pedido foi entregue. Por favor, faça login para ver as informações da conta.",
+    "cta": "Ver Pedido",
+    "footer": "Se houver algum problema, entre em contato com o suporte."
+  },
+  "sellerNewOrder": {
+    "subject": "Notificação de Novo Pedido - {{orderNo}}",
+    "greeting": "Olá, {{shopName}}!",
+    "body": "Você tem um novo pedido. Por favor, processe-o prontamente.",
+    "cta": "Ver Pedido",
+    "footer": "Por favor, entregue dentro de 24 horas."
+  },
+  "withdrawalApproved": {
+    "subject": "Solicitação de Saque Aprovada",
+    "greeting": "Olá, {{username}}!",
+    "body": "Sua solicitação de saque foi aprovada. Valor: {{amount}}. Previsto para chegar em 3-5 dias úteis.",
+    "cta": "Ver Detalhes",
+    "footer": "Obrigado por usar o TopiVra."
+  },
+  "withdrawalRejected": {
+    "subject": "Solicitação de Saque Rejeitada",
+    "greeting": "Olá, {{username}}!",
+    "body": "Sua solicitação de saque foi rejeitada. Motivo: {{reason}}",
+    "cta": "Ver Detalhes",
+    "footer": "Se você tiver alguma dúvida, entre em contato com o suporte."
+  },
+  "refundApproved": {
+    "subject": "Solicitação de Reembolso Aprovada - {{refundNo}}",
+    "greeting": "Olá, {{username}}!",
+    "body": "Sua solicitação de reembolso foi aprovada. Valor: {{amount}}. Previsto para chegar em 3-5 dias úteis.",
+    "cta": "Ver Detalhes",
+    "footer": "Obrigado pela sua compreensão."
+  },
+  "ticketReply": {
+    "subject": "Resposta ao Ticket - {{ticketNo}}",
+    "greeting": "Olá, {{username}}!",
+    "body": "Há uma nova resposta ao seu ticket. Por favor, faça login para visualizá-la.",
+    "cta": "Ver Ticket",
+    "footer": "Obrigado pelo seu feedback."
+  }
+}
+
+
+

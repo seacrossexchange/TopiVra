@@ -1,8 +1,23 @@
-import { Controller, Get, Post, Delete, Body, Query, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Query,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MessagesService } from './messages.service';
-import { SendMessageDto, MessageQueryDto, ConversationQueryDto, MarkAsReadDto } from './dto/message.dto';
+import {
+  SendMessageDto,
+  MessageQueryDto,
+  ConversationQueryDto,
+  MarkAsReadDto,
+} from './dto/message.dto';
 
 @ApiTags('消息')
 @ApiBearerAuth()

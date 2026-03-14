@@ -42,7 +42,11 @@ export class RoleService {
   /**
    * 为用户添加角色
    */
-  async addRole(userId: string, role: string, grantedBy?: string): Promise<void> {
+  async addRole(
+    userId: string,
+    role: string,
+    grantedBy?: string,
+  ): Promise<void> {
     // 检查用户是否存在
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -126,7 +130,11 @@ export class RoleService {
   /**
    * 设置用户角色（替换所有现有角色）
    */
-  async setRoles(userId: string, roles: string[], grantedBy?: string): Promise<void> {
+  async setRoles(
+    userId: string,
+    roles: string[],
+    grantedBy?: string,
+  ): Promise<void> {
     // 检查用户是否存在
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -176,7 +184,3 @@ export class RoleService {
     return this.hasRole(userId, 'SELLER');
   }
 }
-
-
-
-

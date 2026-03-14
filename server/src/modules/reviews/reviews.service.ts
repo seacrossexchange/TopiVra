@@ -64,6 +64,9 @@ export class ReviewsService {
     }
 
     // 检查评价时限（7天内）
+    if (!order.completedAt) {
+      throw new BadRequestException('订单未完成，无法评价');
+    }
     const daysSinceCompletion = Math.floor(
       (Date.now() - order.completedAt.getTime()) / (1000 * 60 * 60 * 24),
     );

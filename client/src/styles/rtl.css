@@ -1,0 +1,193 @@
+/**
+ * RTL (Right-to-Left) 样式支持
+ * 为阿拉伯语、希伯来语等从右到左的语言提供布局支持
+ */
+
+/* 基础 RTL 设置 */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* 浮动 */
+[dir="rtl"] .float-left {
+  float: right;
+}
+
+[dir="rtl"] .float-right {
+  float: left;
+}
+
+/* 文本对齐 */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* Flexbox */
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+/* 边距 - 使用逻辑属性 */
+[dir="rtl"] .ml-1 { margin-inline-start: 0.25rem; margin-inline-end: 0; }
+[dir="rtl"] .ml-2 { margin-inline-start: 0.5rem; margin-inline-end: 0; }
+[dir="rtl"] .ml-3 { margin-inline-start: 0.75rem; margin-inline-end: 0; }
+[dir="rtl"] .ml-4 { margin-inline-start: 1rem; margin-inline-end: 0; }
+
+[dir="rtl"] .mr-1 { margin-inline-end: 0.25rem; margin-inline-start: 0; }
+[dir="rtl"] .mr-2 { margin-inline-end: 0.5rem; margin-inline-start: 0; }
+[dir="rtl"] .mr-3 { margin-inline-end: 0.75rem; margin-inline-start: 0; }
+[dir="rtl"] .mr-4 { margin-inline-end: 1rem; margin-inline-start: 0; }
+
+/* 内边距 */
+[dir="rtl"] .pl-1 { padding-inline-start: 0.25rem; padding-inline-end: 0; }
+[dir="rtl"] .pl-2 { padding-inline-start: 0.5rem; padding-inline-end: 0; }
+[dir="rtl"] .pl-3 { padding-inline-start: 0.75rem; padding-inline-end: 0; }
+[dir="rtl"] .pl-4 { padding-inline-start: 1rem; padding-inline-end: 0; }
+
+[dir="rtl"] .pr-1 { padding-inline-end: 0.25rem; padding-inline-start: 0; }
+[dir="rtl"] .pr-2 { padding-inline-end: 0.5rem; padding-inline-start: 0; }
+[dir="rtl"] .pr-3 { padding-inline-end: 0.75rem; padding-inline-start: 0; }
+[dir="rtl"] .pr-4 { padding-inline-end: 1rem; padding-inline-start: 0; }
+
+/* 边框 */
+[dir="rtl"] .border-left {
+  border-inline-start: 1px solid;
+  border-inline-end: none;
+}
+
+[dir="rtl"] .border-right {
+  border-inline-end: 1px solid;
+  border-inline-start: none;
+}
+
+/* 圆角 */
+[dir="rtl"] .rounded-l {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  border-start-end-radius: 0.375rem;
+  border-end-end-radius: 0.375rem;
+}
+
+[dir="rtl"] .rounded-r {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  border-start-start-radius: 0.375rem;
+  border-end-start-radius: 0.375rem;
+}
+
+/* 图标镜像（某些图标需要在 RTL 中镜像） */
+[dir="rtl"] .icon-arrow-left,
+[dir="rtl"] .icon-arrow-right,
+[dir="rtl"] .icon-chevron-left,
+[dir="rtl"] .icon-chevron-right {
+  transform: scaleX(-1);
+}
+
+/* 表单元素 */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+/* 下拉菜单 */
+[dir="rtl"] .dropdown-menu {
+  left: auto;
+  right: 0;
+}
+
+/* 工具提示 */
+[dir="rtl"] .tooltip-left {
+  left: auto;
+  right: 100%;
+}
+
+[dir="rtl"] .tooltip-right {
+  right: auto;
+  left: 100%;
+}
+
+/* 导航 */
+[dir="rtl"] .breadcrumb-separator::before {
+  content: "\\";
+  transform: scaleX(-1);
+}
+
+/* 表格 */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* 列表 */
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+/* 模态框 */
+[dir="rtl"] .modal-close {
+  right: auto;
+  left: 1rem;
+}
+
+/* 侧边栏 */
+[dir="rtl"] .sidebar-left {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .sidebar-right {
+  right: auto;
+  left: 0;
+}
+
+/* 卡片 */
+[dir="rtl"] .card-image-left {
+  order: 2;
+}
+
+[dir="rtl"] .card-content-right {
+  order: 1;
+}
+
+/* 徽章位置 */
+[dir="rtl"] .badge-top-right {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .badge-top-left {
+  left: auto;
+  right: 0;
+}
+
+/* 动画方向 */
+[dir="rtl"] .slide-in-left {
+  animation-name: slideInRight;
+}
+
+[dir="rtl"] .slide-in-right {
+  animation-name: slideInLeft;
+}
+
+/* 滚动条（Webkit） */
+[dir="rtl"]::-webkit-scrollbar {
+  left: 0;
+  right: auto;
+}
+
+
+

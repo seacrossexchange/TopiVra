@@ -147,7 +147,10 @@ export const useMessageStore = create<MessageState>((set, get) => ({
       const result = await messagesService.getUnreadCount();
       set({ unreadCount: result.count });
     } catch (error) {
-      console.error('获取未读消息数失败:', error);
+      // 获取未读数失败静默处理
+      if (import.meta.env.DEV) {
+        console.error('获取未读消息数失败:', error);
+      }
     }
   },
 

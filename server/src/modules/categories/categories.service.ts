@@ -41,7 +41,8 @@ export class CategoriesService {
         ]);
         this.logger.debug('Category cache invalidated');
       } catch (error) {
-        this.logger.warn(`Cache invalidation error: ${error.message}`);
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn(`Cache invalidation error: ${message}`);
       }
     }
   }
@@ -115,7 +116,8 @@ export class CategoriesService {
           return JSON.parse(cached);
         }
       } catch (error) {
-        this.logger.warn(`Cache read error: ${error.message}`);
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn(`Cache read error: ${message}`);
       }
     }
 
@@ -151,7 +153,8 @@ export class CategoriesService {
           CACHE_TTL.TREE,
         );
       } catch (error) {
-        this.logger.warn(`Cache write error: ${error.message}`);
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn(`Cache write error: ${message}`);
       }
     }
 

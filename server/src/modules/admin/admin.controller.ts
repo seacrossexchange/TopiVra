@@ -160,7 +160,12 @@ export class AdminController {
     @Body() body: { approved: boolean; adminNote?: string },
     @CurrentUser('id') operatorId: string,
   ) {
-    return this.adminService.reviewRefund(id, body.approved, body.adminNote, operatorId);
+    return this.adminService.reviewRefund(
+      id,
+      body.approved,
+      body.adminNote,
+      operatorId,
+    );
   }
 
   // System Settings
@@ -271,7 +276,12 @@ export class AdminController {
     @Body() body: { content: string; isInternal?: boolean },
     @CurrentUser('id') operatorId: string,
   ) {
-    return this.adminService.replyTicket(id, body.content, body.isInternal || false, operatorId);
+    return this.adminService.replyTicket(
+      id,
+      body.content,
+      body.isInternal || false,
+      operatorId,
+    );
   }
 
   @Patch('tickets/:id/status')

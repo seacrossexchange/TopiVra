@@ -89,7 +89,10 @@ export default function BlogList() {
 
       setCategories(allCategories);
     } catch (error) {
-      console.error('Failed to fetch blogs:', error);
+      // 获取博客失败，显示空状态
+      if (import.meta.env.DEV) {
+        console.error('Failed to fetch blogs:', error);
+      }
       setPosts([]);
       setCategories([{ id: 'all', name: t('blog.allCategories', '全部'), slug: 'all', postCount: 0 }]);
     } finally {

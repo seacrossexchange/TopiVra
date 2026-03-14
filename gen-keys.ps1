@@ -148,3 +148,12 @@ Write-Host ""
 Write-Host "[WARNING] Never commit server\.env to Git!" -ForegroundColor Red
 Write-Host ""
 
+
+
+
+
+
+
+
+
+

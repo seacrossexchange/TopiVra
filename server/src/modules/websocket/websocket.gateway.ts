@@ -24,7 +24,7 @@ export class WebsocketGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   private readonly logger = new Logger(WebsocketGateway.name);
   private userSockets: Map<string, Set<string>> = new Map();
@@ -81,8 +81,8 @@ export class WebsocketGateway
       this.userSockets.get(userId)!.add(client.id);
 
       this.logger.log(`用户连接: ${userId}, socketId: ${client.id}`);
-    } catch (error) {
-      this.logger.warn(`客户端连接验证失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.warn(`客户端连接验证失败: ${(error as Error).message}`);
       client.disconnect();
     }
   }

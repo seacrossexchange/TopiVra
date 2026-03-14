@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreditChangeReason, CreditLevel } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -218,14 +214,9 @@ export class CreditService {
         data: {
           creditScore: newScore,
           creditLevel: newLevel,
-          positivePoints:
-            change > 0
-              ? { increment: change }
-              : undefined,
+          positivePoints: change > 0 ? { increment: change } : undefined,
           negativePoints:
-            change < 0
-              ? { increment: Math.abs(change) }
-              : undefined,
+            change < 0 ? { increment: Math.abs(change) } : undefined,
         },
       }),
       this.prisma.creditTransaction.create({

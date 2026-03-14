@@ -1,0 +1,77 @@
+{
+  "welcome": {
+    "subject": "Welcome to TopiVra!",
+    "greeting": "Hello, {{username}}!",
+    "body": "Thank you for signing up for TopiVra. We're excited to have you in our community.",
+    "cta": "Start Exploring",
+    "footer": "If you have any questions, feel free to contact us."
+  },
+  "emailVerification": {
+    "subject": "Verify Your Email Address",
+    "greeting": "Hello, {{username}}!",
+    "body": "Please click the button below to verify your email address. This link will expire in 24 hours.",
+    "cta": "Verify Email",
+    "footer": "If you didn't sign up for TopiVra, please ignore this email."
+  },
+  "passwordReset": {
+    "subject": "Reset Your Password",
+    "greeting": "Hello, {{username}}!",
+    "body": "We received a request to reset your password. Click the button below to reset it. This link will expire in 1 hour.",
+    "cta": "Reset Password",
+    "footer": "If you didn't request a password reset, please ignore this email."
+  },
+  "orderConfirmation": {
+    "subject": "Order Confirmation - {{orderNo}}",
+    "greeting": "Hello, {{username}}!",
+    "body": "Your order has been confirmed. Order number: {{orderNo}}",
+    "orderDetails": "Order Details",
+    "totalAmount": "Total Amount: {{amount}}",
+    "cta": "View Order",
+    "footer": "Thank you for your purchase!"
+  },
+  "orderDelivered": {
+    "subject": "Order Delivered - {{orderNo}}",
+    "greeting": "Hello, {{username}}!",
+    "body": "Your order has been delivered. Please log in to view the account information.",
+    "cta": "View Order",
+    "footer": "If you have any issues, please contact support."
+  },
+  "sellerNewOrder": {
+    "subject": "New Order Notification - {{orderNo}}",
+    "greeting": "Hello, {{shopName}}!",
+    "body": "You have a new order. Please process it promptly.",
+    "cta": "View Order",
+    "footer": "Please deliver within 24 hours."
+  },
+  "withdrawalApproved": {
+    "subject": "Withdrawal Request Approved",
+    "greeting": "Hello, {{username}}!",
+    "body": "Your withdrawal request has been approved. Amount: {{amount}}. Expected to arrive in 3-5 business days.",
+    "cta": "View Details",
+    "footer": "Thank you for using TopiVra."
+  },
+  "withdrawalRejected": {
+    "subject": "Withdrawal Request Rejected",
+    "greeting": "Hello, {{username}}!",
+    "body": "Your withdrawal request has been rejected. Reason: {{reason}}",
+    "cta": "View Details",
+    "footer": "If you have any questions, please contact support."
+  },
+  "refundApproved": {
+    "subject": "Refund Request Approved - {{refundNo}}",
+    "greeting": "Hello, {{username}}!",
+    "body": "Your refund request has been approved. Amount: {{amount}}. Expected to arrive in 3-5 business days.",
+    "cta": "View Details",
+    "footer": "Thank you for your understanding."
+  },
+  "ticketReply": {
+    "subject": "Ticket Reply - {{ticketNo}}",
+    "greeting": "Hello, {{username}}!",
+    "body": "There's a new reply to your ticket. Please log in to view it.",
+    "cta": "View Ticket",
+    "footer": "Thank you for your feedback."
+  }
+}
+
+
+

@@ -121,3 +121,12 @@ echo "    1. 验证数据完整性"
 echo "    2. 运行健康检查：bash scripts/deploy/health-check.sh"
 echo ""
 
+
+
+
+
+
+
+
+
+

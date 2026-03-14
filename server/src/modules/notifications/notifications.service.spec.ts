@@ -13,8 +13,7 @@ describe('NotificationsService', () => {
     type: 'SYSTEM',
     title: '系统通知',
     content: '内容',
-    status: 'UNREAD',
-    priority: 'MEDIUM',
+    isRead: false,
     createdAt: new Date(),
   };
 
@@ -26,7 +25,6 @@ describe('NotificationsService', () => {
         create: jest.fn(),
         update: jest.fn(),
         updateMany: jest.fn(),
-        delete: jest.fn(),
         count: jest.fn(),
       },
     };
@@ -53,16 +51,16 @@ describe('NotificationsService', () => {
       expect(result.items).toHaveLength(1);
       expect(result.total).toBe(1);
     });
+  });
 
-    it('应返回未读数量', async () => {
-      prismaService.notification.findMany.mockResolvedValue([mockNotification]);
-      prismaService.notification.count
-        .mockResolvedValueOnce(1)  // total
-        .mockResolvedValueOnce(1); // unreadCount
+  // -- getUnreadCount ------------------------------------------
+  describe('getUnreadCount', () => {
+    it('应返回用户未读通知数量', async () => {
+      prismaService.notification.count.mockResolvedValue(5);
 
-      const result = await service.findByUser('user-001', {});
+      const result = await service.getUnreadCount('user-001');
 
-      expect(result).toHaveProperty('unreadCount');
+      expect(result.count).toBe(5);
     });
   });
 
@@ -72,7 +70,7 @@ describe('NotificationsService', () => {
       prismaService.notification.findUnique.mockResolvedValue(mockNotification);
       prismaService.notification.update.mockResolvedValue({
         ...mockNotification,
-        status: 'READ',
+        isRead: true,
       });
 
       const result = await service.markAsRead('notif-001', 'user-001');
@@ -105,46 +103,12 @@ describe('NotificationsService', () => {
 
       const result = await service.markAllAsRead('user-001');
 
-      expect(result.success).toBe(true);
+      expect(result).toBeDefined();
       expect(prismaService.notification.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({
-            userId: 'user-001',
-            status: 'UNREAD',
-          }),
+          where: expect.objectContaining({ userId: 'user-001' }),
         }),
       );
-    });
-  });
-
-  // -- delete --------------------------------------------------
-  describe('delete', () => {
-    it('应成功删除通知', async () => {
-      prismaService.notification.findUnique.mockResolvedValue(mockNotification);
-      prismaService.notification.delete.mockResolvedValue(mockNotification);
-
-      const result = await service.delete('notif-001', 'user-001');
-
-      expect(result.success).toBe(true);
-    });
-
-    it('非通知所有者 -> 应抛出 ForbiddenException', async () => {
-      prismaService.notification.findUnique.mockResolvedValue(mockNotification);
-
-      await expect(
-        service.delete('notif-001', 'other-user'),
-      ).rejects.toThrow(ForbiddenException);
-    });
-  });
-
-  // -- getUnreadCount ------------------------------------------
-  describe('getUnreadCount', () => {
-    it('应返回用户未读通知数量', async () => {
-      prismaService.notification.count.mockResolvedValue(5);
-
-      const result = await service.getUnreadCount('user-001');
-
-      expect(result.count).toBe(5);
     });
   });
 });

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Tag, Button, Space, Steps, Timeline, message, Alert } from 'antd';
-import { ArrowLeftOutlined, CopyOutlined, CheckCircleOutlined, ClockCircleOutlined, RollbackOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Tag, Button, Space, Steps, Timeline, message, Alert, Progress } from 'antd';
+import { ArrowLeftOutlined, CopyOutlined, CheckCircleOutlined, ClockCircleOutlined, RollbackOutlined, LoadingOutlined, SyncOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -9,6 +9,7 @@ import apiClient from '@/services/apiClient';
 import PageLoading from '@/components/common/PageLoading';
 import PageError from '@/components/common/PageError';
 import RefundModal from '@/components/order/RefundModal';
+import { useDeliveryStream } from '@/hooks/useDeliveryStream';
 import './OrderDetail.css';
 
 interface OrderItem {
@@ -50,6 +51,9 @@ export default function OrderDetail() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [refundModalOpen, setRefundModalOpen] = useState(false);
+
+  // SSE 自动发货实时进度
+  const { events: deliveryEvents, status: streamStatus, progress: deliveryProgress, allSuccess: deliveryAllSuccess } = useDeliveryStream(id);
 
   // 获取订单详情
   const { data: order, isLoading, error } = useQuery<Order>({
@@ -271,6 +275,49 @@ export default function OrderDetail() {
           showIcon
           className="order-alert"
         />
+      )}
+
+      {/* 自动发货实时进度（SSE） */}
+      {(streamStatus === 'connecting' || streamStatus === 'streaming' || streamStatus === 'completed') && (
+        <Card
+          className="delivery-stream-card"
+          title={
+            <Space>
+              {streamStatus === 'streaming' ? <SyncOutlined spin /> : streamStatus === 'completed' ? <CheckCircleOutlined style={{ color: deliveryAllSuccess ? '#52c41a' : '#faad14' }} /> : <LoadingOutlined />}
+              {t('order.autoDelivery.title', '自动发货进度')}
+            </Space>
+          }
+        >
+          <Progress
+            percent={deliveryProgress}
+            status={streamStatus === 'completed' ? (deliveryAllSuccess ? 'success' : 'exception') : 'active'}
+            strokeColor={deliveryAllSuccess === false ? '#faad14' : undefined}
+          />
+          <div className="delivery-stream-events">
+            {deliveryEvents.map((ev, i) => (
+              <div key={i} className={`stream-event stream-event--${ev.type.toLowerCase()}`}>
+                {ev.type === 'STARTED' && (
+                  <span>{t('order.autoDelivery.started', '开始自动发货...')}</span>
+                )}
+                {ev.type === 'ITEM_PROCESSING' && (
+                  <span>{t('order.autoDelivery.processing', '正在处理')} [{ev.itemIndex}/{ev.totalItems}] {ev.productTitle}</span>
+                )}
+                {ev.type === 'ITEM_SUCCESS' && (
+                  <span style={{ color: '#52c41a' }}>✓ {ev.productTitle} — {t('order.autoDelivery.success', '发货成功')}，{t('order.autoDelivery.accountCount', '分配账号')} {ev.accountCount} {t('order.autoDelivery.units', '个')}</span>
+                )}
+                {ev.type === 'ITEM_FAILED' && (
+                  <span style={{ color: '#ff4d4f' }}>✗ {ev.productTitle} — {ev.error === 'NOT_AUTO_DELIVER' ? t('order.autoDelivery.notAutoDeliver', '不支持自动发货') : ev.error}</span>
+                )}
+                {ev.type === 'COMPLETED' && (
+                  <span style={{ color: '#52c41a' }}>🎉 {t('order.autoDelivery.completed', '全部发货完成，请查收账号信息')}</span>
+                )}
+                {ev.type === 'PARTIAL_FAILED' && (
+                  <span style={{ color: '#faad14' }}>⚠ {t('order.autoDelivery.partialFailed', '部分商品发货失败，请联系卖家处理')}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
 
       {/* 订单信息 */}

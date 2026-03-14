@@ -24,6 +24,7 @@ import {
   CopyOutlined,
 } from '@ant-design/icons';
 import { ordersService } from '@/services/orders';
+import { paymentsService } from '@/services/payments';
 import { useAuthStore } from '@/store/authStore';
 import type { Order } from '@/services/orders';
 
@@ -120,23 +121,15 @@ export default function Checkout() {
       
       const response = await ordersService.createOrder(orderData);
       setOrder(response.data);
-      
+
       if (checkoutState.paymentMethod === 'usdt') {
         // 创建 USDT 支付
-        const paymentResponse = await fetch('/api/payments/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify({
-            orderId: response.data.id,
-            method: 'USDT',
-          }),
+        const paymentResponse = await paymentsService.createPayment({
+          orderId: response.data.id,
+          method: 'USDT',
         });
-        const paymentData = await paymentResponse.json();
-        setPaymentNo(paymentData.data?.paymentNo || '');
-        setPaymentCreatedAt(paymentData.data?.createdAt ? new Date(paymentData.data.createdAt).getTime() : Date.now());
+        setPaymentNo(paymentResponse.data?.paymentNo || '');
+        setPaymentCreatedAt(paymentResponse.data?.createdAt ? new Date(paymentResponse.data.createdAt).getTime() : Date.now());
         setCurrentStep('payment');
       } else if (checkoutState.paymentMethod === 'balance') {
         // 余额支付直接处理
@@ -161,20 +154,12 @@ export default function Checkout() {
 
     setPaymentStatus('verifying');
     try {
-      const response = await fetch('/api/payments/usdt/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          paymentNo,
-          txHash,
-        }),
+      const response = await paymentsService.verifyUsdtPayment({
+        paymentNo,
+        txHash,
       });
-      const data = await response.json();
-      
-      if (data.success) {
+
+      if (response.data?.success) {
         setPaymentStatus('success');
         setCurrentStep('success');
         message.success(t('checkout.paymentSuccess'));

@@ -147,3 +147,12 @@ echo "查看报告："
 echo "  cat $REPORT_FILE"
 echo ""
 
+
+
+
+
+
+
+
+
+

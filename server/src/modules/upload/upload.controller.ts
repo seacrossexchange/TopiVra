@@ -65,10 +65,7 @@ export class UploadController {
         const ext = path.extname(file.originalname).toLowerCase();
 
         if (!allowedExts.includes(ext)) {
-          return callback(
-            new BadRequestException('不支持的文件扩展名'),
-            false,
-          );
+          return callback(new BadRequestException('不支持的文件扩展名'), false);
         }
 
         callback(null, true);
@@ -109,10 +106,7 @@ export class UploadController {
         ];
 
         if (!allowedMimes.includes(file.mimetype)) {
-          return callback(
-            new BadRequestException('不支持的文件类型'),
-            false,
-          );
+          return callback(new BadRequestException('不支持的文件类型'), false);
         }
 
         // 检查文件扩展名
@@ -128,10 +122,7 @@ export class UploadController {
         const ext = path.extname(file.originalname).toLowerCase();
 
         if (!allowedExts.includes(ext)) {
-          return callback(
-            new BadRequestException('不支持的文件扩展名'),
-            false,
-          );
+          return callback(new BadRequestException('不支持的文件扩展名'), false);
         }
 
         callback(null, true);

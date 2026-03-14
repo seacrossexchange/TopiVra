@@ -1,0 +1,34 @@
+{
+  "USER_NOT_FOUND": "Usuario no encontrado",
+  "INVALID_CREDENTIALS": "Correo o contraseña incorrectos",
+  "EMAIL_ALREADY_EXISTS": "Este correo ya está registrado",
+  "UNAUTHORIZED": "Acceso no autorizado",
+  "FORBIDDEN": "No tienes permiso para realizar esta acción",
+  "PRODUCT_NOT_FOUND": "Producto no encontrado",
+  "ORDER_NOT_FOUND": "Pedido no encontrado",
+  "INSUFFICIENT_STOCK": "Stock insuficiente",
+  "PAYMENT_FAILED": "Pago fallido",
+  "INVALID_PAYMENT_METHOD": "Método de pago inválido",
+  "ORDER_ALREADY_PAID": "El pedido ya fue pagado",
+  "ORDER_ALREADY_CANCELLED": "El pedido ya fue cancelado",
+  "CANNOT_CANCEL_ORDER": "No se puede cancelar este pedido",
+  "SELLER_NOT_FOUND": "Vendedor no encontrado",
+  "SELLER_NOT_APPROVED": "Vendedor no aprobado",
+  "TICKET_NOT_FOUND": "Ticket no encontrado",
+  "REFUND_NOT_FOUND": "Solicitud de reembolso no encontrada",
+  "REFUND_ALREADY_PROCESSED": "El reembolso ya fue procesado",
+  "INVALID_REFUND_STATUS": "Estado de reembolso inválido",
+  "INSUFFICIENT_BALANCE": "Saldo insuficiente",
+  "WITHDRAWAL_FAILED": "Retiro fallido",
+  "INVALID_FILE_TYPE": "Tipo de archivo no soportado",
+  "FILE_TOO_LARGE": "Archivo demasiado grande",
+  "VALIDATION_ERROR": "Error de validación de datos",
+  "INTERNAL_SERVER_ERROR": "Error interno del servidor",
+  "RATE_LIMIT_EXCEEDED": "Demasiadas solicitudes, intenta de nuevo más tarde",
+  "TOKEN_EXPIRED": "Token expirado, inicia sesión de nuevo",
+  "INVALID_TOKEN": "Token inválido",
+  "WEAK_PASSWORD": "Contraseña demasiado débil"
+}
+
+
+

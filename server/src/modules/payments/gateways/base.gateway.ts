@@ -96,7 +96,7 @@ export abstract class BasePaymentGateway {
   /**
    * 发起退款
    */
-  async refund(params: RefundParams): Promise<RefundResult> {
+  async refund(_params: RefundParams): Promise<RefundResult> {
     this.logger.warn(`退款功能未实现: ${this.code}`);
     return {
       success: false,
@@ -134,7 +134,8 @@ export abstract class BasePaymentGateway {
    * 生成随机字符串
    */
   protected generateNonceStr(length: number = 32): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));

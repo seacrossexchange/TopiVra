@@ -102,9 +102,9 @@ export class AuditService {
           userAgent: data.userAgent,
         },
       });
-    } catch (error) {
-      // Don't throw error on audit log failure - just log it
-      console.error('Failed to create audit log:', error);
+    } catch {
+      // Don't throw error on audit log failure - silently handle
+      // Audit log failure should not break business logic
     }
   }
 
@@ -125,8 +125,9 @@ export class AuditService {
           userAgent: log.userAgent,
         })),
       });
-    } catch (error) {
-      console.error('Failed to create audit logs batch:', error);
+    } catch {
+      // Don't throw error on audit log failure - silently handle
+      // Audit log failure should not break business logic
     }
   }
 

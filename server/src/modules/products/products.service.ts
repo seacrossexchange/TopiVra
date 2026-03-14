@@ -164,6 +164,9 @@ export class ProductsService {
       afterData: updated,
     });
 
+    // 清除缓存
+    await this.invalidateProductCache(id);
+
     return updated;
   }
 
@@ -275,7 +278,7 @@ export class ProductsService {
           return JSON.parse(cached);
         }
       } catch (error) {
-        this.logger.warn(`Cache read error: ${error.message}`);
+        this.logger.warn(`Cache read error: ${(error as Error).message}`);
       }
     }
 
@@ -331,7 +334,7 @@ export class ProductsService {
         await this.redis.set(cacheKey, JSON.stringify(result), CACHE_TTL.LIST);
         this.logger.debug(`Cached product list: ${cacheKey}`);
       } catch (error) {
-        this.logger.warn(`Cache write error: ${error.message}`);
+        this.logger.warn(`Cache write error: ${(error as Error).message}`);
       }
     }
 
@@ -341,6 +344,25 @@ export class ProductsService {
   // ==================== 查询商品详情 ====================
 
   async findOne(id: string) {
+    const cacheKey = `${CACHE_KEYS.PRODUCT_DETAIL}:${id}`;
+
+    // Try cache first
+    if (this.redis.isAvailable()) {
+      try {
+        const cached = await this.redis.get(cacheKey);
+        if (cached) {
+          this.logger.debug(`Cache hit for product detail: ${id}`);
+          // 异步增加浏览量，不阻塞响应
+          this.prisma.product
+            .update({ where: { id }, data: { viewCount: { increment: 1 } } })
+            .catch(() => {});
+          return JSON.parse(cached);
+        }
+      } catch (error) {
+        this.logger.warn(`Cache read error: ${(error as Error).message}`);
+      }
+    }
+
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
@@ -383,7 +405,40 @@ export class ProductsService {
       data: { viewCount: { increment: 1 } },
     });
 
+    // Cache the result
+    if (this.redis.isAvailable()) {
+      try {
+        await this.redis.set(
+          cacheKey,
+          JSON.stringify(product),
+          CACHE_TTL.DETAIL,
+        );
+        this.logger.debug(`Cached product detail: ${id}`);
+      } catch (error) {
+        this.logger.warn(`Cache write error: ${(error as Error).message}`);
+      }
+    }
+
     return product;
+  }
+
+  /**
+   * 清除商品相关缓存
+   */
+  private async invalidateProductCache(productId: string) {
+    if (!this.redis.isAvailable()) return;
+    try {
+      // 清除详情缓存
+      await this.redis.del(`${CACHE_KEYS.PRODUCT_DETAIL}:${productId}`);
+      // 清除列表缓存（按 pattern 删除）
+      const listKeys = await this.redis.keys(`${CACHE_KEYS.PRODUCT_LIST}:*`);
+      for (const key of listKeys) {
+        await this.redis.del(key);
+      }
+      this.logger.debug(`Cache invalidated for product: ${productId}`);
+    } catch (error) {
+      this.logger.warn(`Cache invalidation error: ${(error as Error).message}`);
+    }
   }
 
   // ==================== 管理员审核商品 ====================
@@ -435,6 +490,9 @@ export class ProductsService {
       beforeData: { status: product.status },
       afterData: { status: updated.status, rejectReason: dto.rejectReason },
     });
+
+    // 清除缓存（审核状态变化影响公开列表）
+    await this.invalidateProductCache(id);
 
     return updated;
   }
@@ -530,6 +588,9 @@ export class ProductsService {
       description: `删除商品: ${product.title}`,
       beforeData: product,
     });
+
+    // 清除缓存
+    await this.invalidateProductCache(id);
 
     return { success: true, message: '商品已删除' };
   }

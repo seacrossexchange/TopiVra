@@ -1,0 +1,77 @@
+{
+  "welcome": {
+    "subject": "欢迎加入 TopiVra！",
+    "greeting": "您好，{{username}}！",
+    "body": "感谢您注册 TopiVra。我们很高兴您加入我们的社区。",
+    "cta": "开始探索",
+    "footer": "如有任何问题，请随时联系我们。"
+  },
+  "emailVerification": {
+    "subject": "验证您的邮箱地址",
+    "greeting": "您好，{{username}}！",
+    "body": "请点击下方按钮验证您的邮箱地址。此链接将在24小时后失效。",
+    "cta": "验证邮箱",
+    "footer": "如果您没有注册 TopiVra，请忽略此邮件。"
+  },
+  "passwordReset": {
+    "subject": "重置您的密码",
+    "greeting": "您好，{{username}}！",
+    "body": "我们收到了重置密码的请求。请点击下方按钮重置密码。此链接将在1小时后失效。",
+    "cta": "重置密码",
+    "footer": "如果您没有请求重置密码，请忽略此邮件。"
+  },
+  "orderConfirmation": {
+    "subject": "订单确认 - {{orderNo}}",
+    "greeting": "您好，{{username}}！",
+    "body": "您的订单已确认。订单号：{{orderNo}}",
+    "orderDetails": "订单详情",
+    "totalAmount": "总金额：{{amount}}",
+    "cta": "查看订单",
+    "footer": "感谢您的购买！"
+  },
+  "orderDelivered": {
+    "subject": "订单已发货 - {{orderNo}}",
+    "greeting": "您好，{{username}}！",
+    "body": "您的订单已发货。请登录查看账号信息。",
+    "cta": "查看订单",
+    "footer": "如有问题，请联系客服。"
+  },
+  "sellerNewOrder": {
+    "subject": "新订单通知 - {{orderNo}}",
+    "greeting": "您好，{{shopName}}！",
+    "body": "您有一笔新订单，请及时处理。",
+    "cta": "查看订单",
+    "footer": "请在24小时内发货。"
+  },
+  "withdrawalApproved": {
+    "subject": "提现申请已批准",
+    "greeting": "您好，{{username}}！",
+    "body": "您的提现申请已批准，金额：{{amount}}。预计3-5个工作日到账。",
+    "cta": "查看详情",
+    "footer": "感谢您使用 TopiVra。"
+  },
+  "withdrawalRejected": {
+    "subject": "提现申请被拒绝",
+    "greeting": "您好，{{username}}！",
+    "body": "您的提现申请被拒绝。原因：{{reason}}",
+    "cta": "查看详情",
+    "footer": "如有疑问，请联系客服。"
+  },
+  "refundApproved": {
+    "subject": "退款申请已批准 - {{refundNo}}",
+    "greeting": "您好，{{username}}！",
+    "body": "您的退款申请已批准，金额：{{amount}}。预计3-5个工作日到账。",
+    "cta": "查看详情",
+    "footer": "感谢您的理解。"
+  },
+  "ticketReply": {
+    "subject": "工单回复 - {{ticketNo}}",
+    "greeting": "您好，{{username}}！",
+    "body": "您的工单有新回复，请登录查看。",
+    "cta": "查看工单",
+    "footer": "感谢您的反馈。"
+  }
+}
+
+
+

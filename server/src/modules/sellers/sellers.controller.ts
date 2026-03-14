@@ -48,7 +48,10 @@ export class SellersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: '申请成为卖家' })
-  async applySeller(@Request() req, @Body() applySellerDto: ApplySellerDto) {
+  async applySeller(
+    @Request() req: any,
+    @Body() applySellerDto: ApplySellerDto,
+  ) {
     return this.sellersService.applySeller(req.user.userId, applySellerDto);
   }
 
@@ -59,7 +62,7 @@ export class SellersController {
   @Roles('SELLER')
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取卖家资料' })
-  async getSellerProfile(@Request() req) {
+  async getSellerProfile(@Request() req: any) {
     return this.sellersService.getSellerProfile(req.user.userId);
   }
 
@@ -69,7 +72,7 @@ export class SellersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '更新卖家资料' })
   async updateSellerProfile(
-    @Request() req,
+    @Request() req: any,
     @Body() dto: UpdateSellerProfileDto,
   ) {
     return this.sellersService.updateSellerProfile(req.user.userId, dto);
@@ -82,7 +85,7 @@ export class SellersController {
   @Roles('SELLER')
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取卖家仪表盘统计' })
-  async getDashboardStats(@Request() req) {
+  async getDashboardStats(@Request() req: any) {
     return this.sellersService.getSellerDashboardStats(req.user.userId);
   }
 
@@ -91,7 +94,7 @@ export class SellersController {
   @Roles('SELLER')
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取卖家商品统计' })
-  async getProductsStats(@Request() req) {
+  async getProductsStats(@Request() req: any) {
     return this.sellersService.getSellerProductsStats(req.user.userId);
   }
 
@@ -102,7 +105,10 @@ export class SellersController {
   @Roles('SELLER')
   @ApiBearerAuth()
   @ApiOperation({ summary: '申请提现' })
-  async requestWithdrawal(@Request() req, @Body() dto: RequestWithdrawalDto) {
+  async requestWithdrawal(
+    @Request() req: any,
+    @Body() dto: RequestWithdrawalDto,
+  ) {
     return this.sellersService.requestWithdrawal(req.user.userId, dto);
   }
 
@@ -114,7 +120,7 @@ export class SellersController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async getWithdrawals(
-    @Request() req,
+    @Request() req: any,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
@@ -131,7 +137,7 @@ export class SellersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取提现记录详情' })
   async getWithdrawalDetail(
-    @Request() req,
+    @Request() req: any,
     @Param('withdrawalNo') withdrawalNo: string,
   ) {
     return this.sellersService.getWithdrawalDetail(
@@ -148,7 +154,7 @@ export class SellersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取资金流水' })
   async getTransactions(
-    @Request() req,
+    @Request() req: any,
     @Query() filters: TransactionFiltersDto,
   ) {
     return this.sellersService.getTransactions(req.user.userId, filters);
@@ -165,7 +171,7 @@ export class SellersController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'status', required: false, type: String })
   async getSellerOrders(
-    @Request() req,
+    @Request() req: any,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('status') status?: string,
@@ -187,7 +193,7 @@ export class SellersController {
   @ApiOperation({ summary: '设置商品促销' })
   @ApiParam({ name: 'id', description: '商品ID' })
   async setPromotion(
-    @Request() req,
+    @Request() req: any,
     @Param('id') productId: string,
     @Body() dto: { label: string; startDate: string; endDate: string },
   ) {
@@ -200,7 +206,7 @@ export class SellersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '清除商品促销' })
   @ApiParam({ name: 'id', description: '商品ID' })
-  async clearPromotion(@Request() req, @Param('id') productId: string) {
+  async clearPromotion(@Request() req: any, @Param('id') productId: string) {
     return this.sellersService.clearPromotion(productId, req.user.userId);
   }
 }

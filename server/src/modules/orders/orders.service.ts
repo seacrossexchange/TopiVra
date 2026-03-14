@@ -20,7 +20,6 @@ import {
   RefundQueryDto,
   AdminRefundQueryDto,
   RefundStatus,
-  RefundType,
 } from './dto/refund.dto';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
@@ -64,15 +63,33 @@ export class OrdersService {
     // 检查库存
     for (const item of dto.items) {
       const product = products.find((p) => p.id === item.productId);
+      if (!product) continue;
       if (product.stock < item.quantity) {
         throw new BadRequestException(`商品 ${product.title} 库存不足`);
+      }
+
+      // 如果商品支持自动发货，检查库存池是否有足够的可用账号
+      if (product.autoDeliver) {
+        const availableCount = await this.prisma.productInventory.count({
+          where: {
+            productId: item.productId,
+            status: 'AVAILABLE',
+            isValid: true,
+          },
+        });
+
+        if (availableCount < item.quantity) {
+          throw new BadRequestException(
+            `商品 ${product.title} 可用账号不足（需要 ${item.quantity}，可用 ${availableCount}）`,
+          );
+        }
       }
     }
 
     // 计算订单金额
     let totalAmount = 0;
     const orderItems = dto.items.map((item) => {
-      const product = products.find((p) => p.id === item.productId);
+      const product = products.find((p) => p.id === item.productId)!;
       const subtotal = Number(product.price) * item.quantity;
       totalAmount += subtotal;
 
@@ -110,7 +127,12 @@ export class OrdersService {
         orderStatus: OrderStatus.CREATED,
         paymentStatus: PaymentStatus.UNPAID,
         buyerRemark: dto.buyerRemark,
-        autoCancelAt: new Date(Date.now() + Number(this.configService.get('ORDER_AUTO_CANCEL_MINUTES') || 30) * 60 * 1000),
+        autoCancelAt: new Date(
+          Date.now() +
+            Number(this.configService.get('ORDER_AUTO_CANCEL_MINUTES') || 30) *
+              60 *
+              1000,
+        ),
         orderItems: {
           create: orderItems,
         },
@@ -124,13 +146,7 @@ export class OrdersService {
       },
     });
 
-    // 扣减库存
-    for (const item of dto.items) {
-      await this.prisma.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
-      });
-    }
+    // 注意：库存在支付成功后由自动发货服务扣减，避免未支付订单占用库存
 
     // 记录审计日志
     await this.auditService.log({
@@ -149,7 +165,9 @@ export class OrdersService {
     });
 
     // 通知卖家有新订单
-    const sellerIds = [...new Set(order.orderItems.map((item) => item.sellerId))];
+    const sellerIds = [
+      ...new Set(order.orderItems.map((item) => item.sellerId)),
+    ];
     for (const sellerId of sellerIds) {
       await this.notificationService.notifyUser(sellerId, {
         type: 'ORDER_CREATED' as any,
@@ -182,16 +200,17 @@ export class OrdersService {
 
     // 🔥 触发自动发货
     try {
-      const result = await this.autoDeliveryService.handlePaymentSuccess(orderId);
+      const result =
+        await this.autoDeliveryService.handlePaymentSuccess(orderId);
       this.logger.log(`自动发货结果: ${JSON.stringify(result)}`);
       return result;
-    } catch (error) {
-      this.logger.error(`自动发货失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`自动发货失败: ${(error as Error).message}`);
       // 不影响支付流程，记录错误日志
       return {
         orderId,
         success: false,
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -484,7 +503,9 @@ export class OrdersService {
     });
 
     // 通知卖家订单已完成
-    const sellerIds = [...new Set(order.orderItems.map((item) => item.sellerId))];
+    const sellerIds = [
+      ...new Set(order.orderItems.map((item) => item.sellerId)),
+    ];
     for (const sellerId of sellerIds) {
       await this.notificationService.notifyUser(sellerId, {
         type: 'ORDER_COMPLETED' as any,
@@ -539,7 +560,9 @@ export class OrdersService {
     });
 
     // 通知卖家订单已取消
-    const sellerIds = [...new Set(order.orderItems.map((item) => item.sellerId))];
+    const sellerIds = [
+      ...new Set(order.orderItems.map((item) => item.sellerId)),
+    ];
     for (const sellerId of sellerIds) {
       await this.notificationService.notifyUser(sellerId, {
         type: 'ORDER_CANCELLED' as any,
@@ -927,8 +950,12 @@ export class OrdersService {
           const sellerProfile = await tx.sellerProfile.findUnique({
             where: { userId: item.sellerId },
           });
-          if (sellerProfile && Number(sellerProfile.balance) >= Number(item.sellerAmount)) {
-            const newBalance = Number(sellerProfile.balance) - Number(item.sellerAmount);
+          if (
+            sellerProfile &&
+            Number(sellerProfile.balance) >= Number(item.sellerAmount)
+          ) {
+            const newBalance =
+              Number(sellerProfile.balance) - Number(item.sellerAmount);
             await tx.sellerProfile.update({
               where: { userId: item.sellerId },
               data: {
@@ -1111,7 +1138,9 @@ export class OrdersService {
           include: {
             orderItems: {
               include: {
-                product: { select: { id: true, title: true, thumbnailUrl: true } },
+                product: {
+                  select: { id: true, title: true, thumbnailUrl: true },
+                },
                 seller: { select: { id: true, username: true } },
               },
             },

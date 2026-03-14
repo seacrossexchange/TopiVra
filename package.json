@@ -1,0 +1,30 @@
+{
+  "name": "topivra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TopiVra - Global Digital Account Trading Platform",
+  "scripts": {
+    "prepare": "husky",
+    "lint:server": "cd server && npm run lint",
+    "lint:client": "cd client && npm run lint",
+    "lint": "npm run lint:server && npm run lint:client",
+    "test:server": "cd server && npm test",
+    "test:client": "cd client && npm test",
+    "test": "npm run test:server && npm run test:client"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10"
+  },
+  "lint-staged": {
+    "server/src/**/*.ts": [
+      "npx --prefix server eslint --fix",
+      "npx --prefix server prettier --write"
+    ],
+    "client/src/**/*.{ts,tsx}": [
+      "npx --prefix client eslint --fix",
+      "npx --prefix client prettier --write"
+    ]
+  }
+}
+

@@ -34,14 +34,13 @@ export default function Header() {
     }
   }, [isLoggedIn, fetchCart]);
 
-  // 语言选项配置
+  // 语言选项配置 - 与 i18n locales 保持一致
   const languageOptions = [
     { key: 'zh-CN', flag: '🇨🇳', label: '简体中文' },
     { key: 'en',    flag: '🇺🇸', label: 'English' },
-    { key: 'vi',    flag: '🇻🇳', label: 'Tiếng Việt' },
-    { key: 'fr',    flag: '🇫🇷', label: 'Français' },
-    { key: 'de',    flag: '🇩🇪', label: 'Deutsch' },
-    { key: 'pt',    flag: '🇧🇷', label: 'Português' },
+    { key: 'id',    flag: '🇮🇩', label: 'Bahasa Indonesia' },
+    { key: 'pt-BR', flag: '🇧🇷', label: 'Português (Brasil)' },
+    { key: 'es-MX', flag: '🇲🇽', label: 'Español (México)' },
   ];
 
   const currentLang = languageOptions.find(l => l.key === i18n.language) || languageOptions[0];

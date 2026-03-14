@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { NotificationService } from '../../common/notification/notification.service';
+import { DeliveryEventsService } from '../orders/delivery-events.service';
 
 @Injectable()
 export class AutoDeliveryService {
@@ -11,6 +12,7 @@ export class AutoDeliveryService {
     private prisma: PrismaService,
     private inventoryService: InventoryService,
     private notificationService: NotificationService,
+    private deliveryEventsService: DeliveryEventsService,
   ) {}
 
   /**
@@ -18,6 +20,11 @@ export class AutoDeliveryService {
    */
   async handlePaymentSuccess(orderId: string) {
     this.logger.log(`开始自动发货处理: ${orderId}`);
+
+    this.deliveryEventsService.emit({
+      orderId,
+      type: 'STARTED',
+    });
 
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
@@ -37,10 +44,20 @@ export class AutoDeliveryService {
 
     // 为每个订单项分配账号
     for (const item of order.orderItems) {
+      const itemIndex = order.orderItems.indexOf(item) + 1;
+      const totalItems = order.orderItems.length;
       try {
         // 检查商品是否支持自动发货
         if (!item.product.autoDeliver) {
           this.logger.log(`商品 ${item.productId} 不支持自动发货，跳过`);
+          this.deliveryEventsService.emit({
+            orderId,
+            type: 'ITEM_FAILED',
+            itemIndex,
+            totalItems,
+            productTitle: item.product.title,
+            error: 'NOT_AUTO_DELIVER',
+          });
           deliveryResults.push({
             orderItemId: item.id,
             success: false,
@@ -48,6 +65,14 @@ export class AutoDeliveryService {
           });
           continue;
         }
+
+        this.deliveryEventsService.emit({
+          orderId,
+          type: 'ITEM_PROCESSING',
+          itemIndex,
+          totalItems,
+          productTitle: item.product.title,
+        });
 
         // 为每个数量分配账号
         const accounts = [];
@@ -94,15 +119,33 @@ export class AutoDeliveryService {
           accountCount: accounts.length,
         });
 
+        this.deliveryEventsService.emit({
+          orderId,
+          type: 'ITEM_SUCCESS',
+          itemIndex,
+          totalItems,
+          productTitle: item.product.title,
+          accountCount: accounts.length,
+        });
+
         this.logger.log(
           `订单项 ${item.id} 自动发货成功，分配 ${accounts.length} 个账号`,
         );
-      } catch (error) {
-        this.logger.error(`订单项 ${item.id} 自动发货失败: ${error.message}`);
+      } catch (error: unknown) {
+        const errMsg = (error as Error).message;
+        this.logger.error(`订单项 ${item.id} 自动发货失败: ${errMsg}`);
+        this.deliveryEventsService.emit({
+          orderId,
+          type: 'ITEM_FAILED',
+          itemIndex,
+          totalItems,
+          productTitle: item.product.title,
+          error: errMsg,
+        });
         deliveryResults.push({
           orderItemId: item.id,
           success: false,
-          error: error.message,
+          error: errMsg,
         });
       }
     }
@@ -117,6 +160,13 @@ export class AutoDeliveryService {
         data: {
           orderStatus: 'DELIVERED',
         },
+      });
+
+      this.deliveryEventsService.emit({
+        orderId,
+        type: 'COMPLETED',
+        success: true,
+        totalItems: order.orderItems.length,
       });
 
       // 通知买家
@@ -135,14 +185,21 @@ export class AutoDeliveryService {
           order.orderNo,
           'DELIVERED',
         );
-      } catch (error) {
-        this.logger.warn(`WebSocket 通知失败: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(`WebSocket 通知失败: ${(error as Error).message}`);
       }
 
       this.logger.log(`订单 ${orderId} 自动发货完成`);
     } else {
       // 部分失败，需要人工处理
       this.logger.warn(`订单 ${orderId} 部分商品发货失败，需要人工处理`);
+
+      this.deliveryEventsService.emit({
+        orderId,
+        type: 'PARTIAL_FAILED',
+        success: false,
+        totalItems: order.orderItems.length,
+      });
 
       // 通知卖家
       const sellerIds = [
@@ -239,4 +296,3 @@ export class AutoDeliveryService {
     return result;
   }
 }
-

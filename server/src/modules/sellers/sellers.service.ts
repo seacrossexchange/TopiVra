@@ -269,7 +269,7 @@ export class SellersService {
         message: '提现申请已提交，等待审核',
       });
     } catch (error) {
-      this.logger.warn(`WebSocket 通知发送失败: ${error.message}`);
+      this.logger.warn(`WebSocket 通知发送失败: ${(error as Error).message}`);
     }
 
     return result;

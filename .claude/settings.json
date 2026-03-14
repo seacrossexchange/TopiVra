@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"5174\\\\|3001\" client/vite.config.ts client/.env* server/.env*)",
+      "Read(//c/Users/cross/Desktop/TopiVra/docs/**)"
+    ]
+  }
+}

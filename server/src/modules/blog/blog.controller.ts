@@ -8,7 +8,6 @@ import {
   Param,
   Query,
   UseGuards,
-  Req,
   Ip,
 } from '@nestjs/common';
 import {
@@ -154,10 +153,7 @@ export class BlogController {
   @ApiOperation({ summary: '点赞/取消点赞' })
   @ApiParam({ name: 'id', description: '文章 ID' })
   @ApiResponse({ status: 200, description: '操作成功' })
-  async toggleLike(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async toggleLike(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.blogService.toggleLike(id, userId);
   }
 
@@ -167,10 +163,7 @@ export class BlogController {
   @ApiOperation({ summary: '检查是否已点赞' })
   @ApiParam({ name: 'id', description: '文章 ID' })
   @ApiResponse({ status: 200, description: '返回点赞状态' })
-  async checkLiked(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async checkLiked(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.blogService.checkLiked(id, userId);
   }
 

@@ -45,9 +45,7 @@ export class BlogService {
     const existingView = await this.prisma.blogView.findFirst({
       where: {
         blogId,
-        OR: [
-          userId ? { userId } : { ipAddress },
-        ],
+        OR: [userId ? { userId } : { ipAddress }],
         createdAt: { gte: oneDayAgo },
       },
     });
@@ -396,6 +394,7 @@ export class BlogService {
 
     // 更新标签关联
     if (dto.tagIds !== undefined) {
+      const newTagIds = dto.tagIds;
       // 获取旧标签
       const oldTags = await this.prisma.blogTag.findMany({
         where: { blogId: id },
@@ -409,9 +408,9 @@ export class BlogService {
       });
 
       // 创建新关联
-      if (dto.tagIds.length > 0) {
+      if (newTagIds.length > 0) {
         await this.prisma.blogTag.createMany({
-          data: dto.tagIds.map((tagId) => ({
+          data: newTagIds.map((tagId) => ({
             blogId: id,
             tagId,
           })),
@@ -419,8 +418,8 @@ export class BlogService {
       }
 
       // 更新标签计数
-      const removedTags = oldTagIds.filter((tid) => !dto.tagIds.includes(tid));
-      const addedTags = dto.tagIds.filter((tid) => !oldTagIds.includes(tid));
+      const removedTags = oldTagIds.filter((tid) => !newTagIds.includes(tid));
+      const addedTags = newTagIds.filter((tid) => !oldTagIds.includes(tid));
 
       if (removedTags.length > 0) {
         await this.prisma.tag.updateMany({
@@ -443,7 +442,7 @@ export class BlogService {
   // ==================== 删除文章 ====================
 
   async remove(id: string) {
-    const blog = await this.findOne(id);
+    const _blog = await this.findOne(id);
 
     // 获取关联的标签
     const blogTags = await this.prisma.blogTag.findMany({

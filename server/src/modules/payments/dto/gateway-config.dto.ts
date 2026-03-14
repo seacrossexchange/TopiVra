@@ -1,7 +1,15 @@
 /**
  * 支付通道配置 DTO
  */
-import { IsString, IsBoolean, IsObject, IsOptional, IsInt, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsObject,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateGatewayConfigDto {
@@ -10,7 +18,11 @@ export class UpdateGatewayConfigDto {
   @IsOptional()
   enabled?: boolean;
 
-  @ApiPropertyOptional({ description: '通道配置', type: 'object', additionalProperties: true })
+  @ApiPropertyOptional({
+    description: '通道配置',
+    type: 'object',
+    additionalProperties: true,
+  })
   @IsObject()
   @IsOptional()
   config?: Record<string, any>;
@@ -36,7 +48,11 @@ export class GatewayConfigDto {
   @IsBoolean()
   enabled: boolean;
 
-  @ApiProperty({ description: '通道配置', type: 'object', additionalProperties: true })
+  @ApiProperty({
+    description: '通道配置',
+    type: 'object',
+    additionalProperties: true,
+  })
   @IsObject()
   config: Record<string, any>;
 

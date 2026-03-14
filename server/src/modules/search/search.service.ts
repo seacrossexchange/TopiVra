@@ -49,7 +49,8 @@ export class SearchService {
       }
       return null;
     } catch (error) {
-      this.logger.warn(`Cache get error for ${key}: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Cache get error for ${key}: ${message}`);
       return null;
     }
   }
@@ -67,7 +68,8 @@ export class SearchService {
       await this.redisService.set(key, JSON.stringify(data), ttl);
       this.logger.debug(`Cache set: ${key} (TTL: ${ttl}s)`);
     } catch (error) {
-      this.logger.warn(`Cache set error for ${key}: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Cache set error for ${key}: ${message}`);
     }
   }
 
@@ -91,7 +93,8 @@ export class SearchService {
       // 设置过期时间为 7 天
       await this.redisService.expire(countKey, 7 * 24 * 60 * 60);
     } catch (error) {
-      this.logger.warn(`记录搜索关键词失败: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`记录搜索关键词失败: ${message}`);
     }
   }
 
@@ -149,7 +152,8 @@ export class SearchService {
       keywordCounts.sort((a, b) => b.count - a.count);
       return keywordCounts.slice(0, 10).map((item) => item.keyword);
     } catch (error) {
-      this.logger.warn(`获取热门关键词失败: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`获取热门关键词失败: ${message}`);
       return this.getDefaultHotKeywords();
     }
   }
@@ -189,10 +193,7 @@ export class SearchService {
    * - 评分加成: +评分*5
    * - 最近更新: +时间权重(0-10)
    */
-  private calculateRelevanceScore(
-    product: any,
-    keyword: string,
-  ): number {
+  private calculateRelevanceScore(product: any, keyword: string): number {
     let score = 0;
     const lowerKeyword = keyword.toLowerCase();
     const lowerTitle = (product.title || '').toLowerCase();
@@ -227,7 +228,8 @@ export class SearchService {
 
     // 时间权重（最近更新的商品加分）
     const daysSinceUpdate = Math.floor(
-      (Date.now() - new Date(product.updatedAt).getTime()) / (1000 * 60 * 60 * 24),
+      (Date.now() - new Date(product.updatedAt).getTime()) /
+        (1000 * 60 * 60 * 24),
     );
     const timeScore = Math.max(0, 10 - daysSinceUpdate / 10);
     score += timeScore;
@@ -267,11 +269,11 @@ export class SearchService {
 
     // 分词搜索：将关键词按空格分割
     const keywords = keyword.trim().split(/\s+/);
-    
+
     // 构建搜索条件
     const where = {
       status: 'ON_SALE' as const,
-      OR: keywords.flatMap(kw => [
+      OR: keywords.flatMap((kw) => [
         { title: { contains: kw } },
         { description: { contains: kw } },
       ]),
@@ -462,7 +464,8 @@ export class SearchService {
       const history = await this.redisService.lrange(historyKey, 0, limit - 1);
       return history.map((h) => decodeURIComponent(h));
     } catch (error) {
-      this.logger.warn(`获取搜索历史失败: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`获取搜索历史失败: ${message}`);
       return [];
     }
   }
@@ -494,7 +497,8 @@ export class SearchService {
         await this.redisService.expire(historyKey, 30 * 24 * 60 * 60);
       }
     } catch (error) {
-      this.logger.warn(`添加搜索历史失败: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`添加搜索历史失败: ${message}`);
     }
   }
 
@@ -510,7 +514,8 @@ export class SearchService {
       const historyKey = CACHE_PREFIX.SEARCH_HISTORY + userId;
       await this.redisService.del(historyKey);
     } catch (error) {
-      this.logger.warn(`清除搜索历史失败: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`清除搜索历史失败: ${message}`);
     }
   }
 
@@ -542,7 +547,8 @@ export class SearchService {
 
       this.logger.log('已清除所有搜索缓存');
     } catch (error) {
-      this.logger.warn(`清除搜索缓存失败: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`清除搜索缓存失败: ${message}`);
     }
   }
 }

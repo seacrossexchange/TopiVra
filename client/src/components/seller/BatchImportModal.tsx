@@ -151,7 +151,7 @@ export default function BatchImportModal({
             placeholder={t('inventory.selectProduct')}
             showSearch
             filterOption={(input, option) =>
-              (option?.children as string).toLowerCase().includes(input.toLowerCase())
+              String(option?.children ?? '').toLowerCase().includes(input.toLowerCase())
             }
           >
             {products.map((p) => (
@@ -228,4 +228,13 @@ export default function BatchImportModal({
     </Modal>
   );
 }
+
+
+
+
+
+
+
+
+
 

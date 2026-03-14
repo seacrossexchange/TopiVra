@@ -6,6 +6,9 @@ import { BellOutlined, CheckOutlined, DeleteOutlined, ReloadOutlined } from '@an
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';
+import 'dayjs/locale/id';
+import 'dayjs/locale/pt-br';
+import 'dayjs/locale/es';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
 import type { Notification } from '../../types/notification';
@@ -90,9 +93,18 @@ export default function NotificationBell() {
     };
   }, [isOpen]);
 
-  // 格式化时间
+  // 格式化时间 - 支持 i18n 语言代码到 dayjs locale 的映射
   const formatTime = (dateStr: string) => {
-    dayjs.locale(i18n.language === 'zh-CN' ? 'zh-cn' : 'en');
+    // i18n 语言代码到 dayjs locale 的映射
+    const localeMap: Record<string, string> = {
+      'zh-CN': 'zh-cn',
+      'en': 'en',
+      'id': 'id',
+      'pt-BR': 'pt-br',
+      'es-MX': 'es',
+    };
+    const dayjsLocale = localeMap[i18n.language] || 'en';
+    dayjs.locale(dayjsLocale);
     return dayjs(dateStr).fromNow();
   };
 

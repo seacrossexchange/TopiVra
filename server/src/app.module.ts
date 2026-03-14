@@ -1,8 +1,20 @@
-import { Module, ValidationPipe, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import {
+  Module,
+  ValidationPipe,
+  MiddlewareConsumer,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { TerminusModule } from '@nestjs/terminus';
+import {
+  I18nModule,
+  AcceptLanguageResolver,
+  QueryResolver,
+  HeaderResolver,
+} from 'nestjs-i18n';
+import * as path from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -35,6 +47,10 @@ import { MessagesModule } from './modules/messages/messages.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
+import { I18nMiddleware } from './common/middleware/i18n.middleware';
+import { MetricsModule } from './common/metrics/metrics.module';
+// TranslationsModule - 正在由其他 agent 处理国际化
+// import { TranslationsModule } from './modules/translations/translations.module';
 
 @Module({
   imports: [
@@ -42,6 +58,20 @@ import { RequestLoggerMiddleware } from './common/middleware/request-logger.midd
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '.env.local'],
+    }),
+
+    // 国际化配置
+    I18nModule.forRoot({
+      fallbackLanguage: 'zh-CN',
+      loaderOptions: {
+        path: path.join(__dirname, '/i18n/'),
+        watch: true,
+      },
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        AcceptLanguageResolver,
+        new HeaderResolver(['x-lang']),
+      ],
     }),
 
     // Rate limiting configuration
@@ -71,6 +101,7 @@ import { RequestLoggerMiddleware } from './common/middleware/request-logger.midd
     AlertsModule,
     CreditModule,
     TerminusModule,
+    MetricsModule,
 
     // 业务模块
     MessagesModule,
@@ -94,6 +125,7 @@ import { RequestLoggerMiddleware } from './common/middleware/request-logger.midd
     TicketsModule,
     UploadModule,
     WebsocketModule,
+    // TranslationsModule, // 正在由其他 agent 处理国际化
   ],
   controllers: [AppController],
   providers: [
@@ -125,6 +157,6 @@ import { RequestLoggerMiddleware } from './common/middleware/request-logger.midd
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+    consumer.apply(I18nMiddleware, RequestLoggerMiddleware).forRoutes('*');
   }
 }

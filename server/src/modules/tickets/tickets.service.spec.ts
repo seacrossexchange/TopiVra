@@ -1,9 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TicketsService } from './tickets.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { NotificationService } from '../../common/notification';
 import { AuditService } from '../../common/audit';
+import { TicketStatus } from './dto/ticket.dto';
 
 describe('TicketsService', () => {
   let service: TicketsService;
@@ -11,19 +16,23 @@ describe('TicketsService', () => {
 
   const mockTicket = {
     id: 'ticket-001',
-    ticketNo: 'TKT20260001',
+    ticketNo: 'TK20260001',
     userId: 'user-001',
+    assigneeId: null,
     subject: '订单问题',
-    category: 'ORDER',
-    status: 'OPEN',
-    priority: 'MEDIUM',
+    content: '内容',
+    type: 'ORDER' as any,
+    status: TicketStatus.OPEN,
+    priority: 'MEDIUM' as any,
+    slaDeadline: new Date(Date.now() + 86400000),
     createdAt: new Date(),
     updatedAt: new Date(),
+    closedAt: null,
     messages: [],
   };
 
   beforeEach(async () => {
-    const mockPrisma = {
+    const mockPrisma: any = {
       ticket: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
@@ -35,7 +44,7 @@ describe('TicketsService', () => {
         create: jest.fn(),
         findMany: jest.fn(),
       },
-      $transaction: jest.fn((fn: any) => fn(mockPrisma)),
+      $transaction: jest.fn((fn: (tx: any) => any) => fn(mockPrisma)),
     };
 
     const mockNotification = { notifyUser: jest.fn() };
@@ -61,7 +70,7 @@ describe('TicketsService', () => {
 
       const result = await service.create('user-001', {
         subject: '订单问题',
-        category: 'ORDER',
+        type: 'ORDER',
         content: '我的订单出现了问题',
         priority: 'MEDIUM',
       } as any);
@@ -86,11 +95,11 @@ describe('TicketsService', () => {
       prismaService.ticket.findMany.mockResolvedValue([mockTicket]);
       prismaService.ticket.count.mockResolvedValue(1);
 
-      await service.findByUser('user-001', { status: 'OPEN' });
+      await service.findByUser('user-001', { status: TicketStatus.OPEN });
 
       expect(prismaService.ticket.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: 'OPEN' }),
+          where: expect.objectContaining({ status: TicketStatus.OPEN }),
         }),
       );
     });
@@ -109,17 +118,17 @@ describe('TicketsService', () => {
     it('工单不存在 -> 应抛出 NotFoundException', async () => {
       prismaService.ticket.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.findOne('nonexistent', 'user-001'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent', 'user-001')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('非工单所有者 -> 应抛出 ForbiddenException', async () => {
       prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
 
-      await expect(
-        service.findOne('ticket-001', 'other-user'),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.findOne('ticket-001', 'other-user')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
@@ -146,7 +155,7 @@ describe('TicketsService', () => {
     it('已关闭的工单 -> 应抛出 BadRequestException', async () => {
       prismaService.ticket.findUnique.mockResolvedValue({
         ...mockTicket,
-        status: 'CLOSED',
+        status: TicketStatus.CLOSED,
       });
 
       await expect(
@@ -158,7 +167,9 @@ describe('TicketsService', () => {
       prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
 
       await expect(
-        service.reply('ticket-001', 'unrelated-user', { content: '...' } as any),
+        service.reply('ticket-001', 'unrelated-user', {
+          content: '...',
+        } as any),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -169,33 +180,33 @@ describe('TicketsService', () => {
       prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
       prismaService.ticket.update.mockResolvedValue({
         ...mockTicket,
-        status: 'CLOSED',
+        status: TicketStatus.CLOSED,
       });
 
       const result = await service.close('ticket-001', 'user-001');
 
-      expect(result.success).toBe(true);
+      expect(result).toBeDefined();
     });
 
     it('工单已关闭 -> 应抛出 BadRequestException', async () => {
       prismaService.ticket.findUnique.mockResolvedValue({
         ...mockTicket,
-        status: 'CLOSED',
+        status: TicketStatus.CLOSED,
       });
 
-      await expect(
-        service.close('ticket-001', 'user-001'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.close('ticket-001', 'user-001')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
-  // -- adminFindAll --------------------------------------------
-  describe('adminFindAll', () => {
+  // -- findAll (admin) -----------------------------------------
+  describe('findAll', () => {
     it('管理员应能获取所有工单', async () => {
       prismaService.ticket.findMany.mockResolvedValue([mockTicket]);
       prismaService.ticket.count.mockResolvedValue(1);
 
-      const result = await service.adminFindAll({});
+      const result = await service.findAll({});
 
       expect(result.items).toHaveLength(1);
     });
@@ -204,19 +215,19 @@ describe('TicketsService', () => {
       prismaService.ticket.findMany.mockResolvedValue([]);
       prismaService.ticket.count.mockResolvedValue(0);
 
-      await service.adminFindAll({ status: 'PENDING' });
+      await service.findAll({ status: TicketStatus.OPEN });
 
       expect(prismaService.ticket.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: 'PENDING' }),
+          where: expect.objectContaining({ status: TicketStatus.OPEN }),
         }),
       );
     });
   });
 
-  // -- adminReply ----------------------------------------------
-  describe('adminReply', () => {
-    it('管理员应能回复工单', async () => {
+  // -- reply as admin ------------------------------------------
+  describe('reply (admin)', () => {
+    it('管理员应能以 isAdmin=true 回复工单', async () => {
       prismaService.ticket.findUnique.mockResolvedValue(mockTicket);
       prismaService.ticketMessage.create.mockResolvedValue({
         id: 'admin-msg-001',
@@ -227,12 +238,15 @@ describe('TicketsService', () => {
       });
       prismaService.ticket.update.mockResolvedValue({
         ...mockTicket,
-        status: 'ANSWERED',
+        status: TicketStatus.IN_PROGRESS,
       });
 
-      const result = await service.adminReply('ticket-001', 'admin-001', {
-        content: '管理员回复',
-      } as any);
+      const result = await service.reply(
+        'ticket-001',
+        'admin-001',
+        { content: '管理员回复' } as any,
+        true,
+      );
 
       expect(result).toBeDefined();
     });

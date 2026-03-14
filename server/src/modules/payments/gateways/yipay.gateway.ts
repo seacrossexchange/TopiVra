@@ -2,7 +2,13 @@
  * 易支付通道实现
  * 支持聚合多种支付方式（支付宝、微信等）
  */
-import { BasePaymentGateway, CreatePaymentParams, PaymentResult, NotifyVerifyResult, QueryOrderResult } from './base.gateway';
+import {
+  BasePaymentGateway,
+  CreatePaymentParams,
+  PaymentResult,
+  NotifyVerifyResult,
+  QueryOrderResult,
+} from './base.gateway';
 import * as crypto from 'crypto';
 
 export class YipayGateway extends BasePaymentGateway {
@@ -37,12 +43,14 @@ export class YipayGateway extends BasePaymentGateway {
 
     // 构建跳转URL
     const queryString = Object.keys(data)
-      .map(key => `${key}=${encodeURIComponent(data[key])}`)
+      .map((key) => `${key}=${encodeURIComponent(data[key])}`)
       .join('&');
 
     const payUrl = `${apiUrl}/submit.php?${queryString}`;
 
-    this.logger.log(`创建易支付订单: ${params.orderId}, 金额: ${params.amount}`);
+    this.logger.log(
+      `创建易支付订单: ${params.orderId}, 金额: ${params.amount}`,
+    );
 
     return {
       paymentNo: params.orderId,
@@ -57,7 +65,6 @@ export class YipayGateway extends BasePaymentGateway {
   async verifyNotify(data: any): Promise<NotifyVerifyResult> {
     try {
       const sign = data.sign;
-      const signType = data.sign_type || 'MD5';
 
       if (!sign) {
         return {
@@ -145,9 +152,14 @@ export class YipayGateway extends BasePaymentGateway {
       if (result.code === 1 && result.trade) {
         return {
           exists: true,
-          status: result.trade.trade_status === 'TRADE_SUCCESS' ? 'SUCCESS' : 'PENDING',
+          status:
+            result.trade.trade_status === 'TRADE_SUCCESS'
+              ? 'SUCCESS'
+              : 'PENDING',
           amount: parseFloat(result.trade.money),
-          paidAt: result.trade.endtime ? new Date(result.trade.endtime) : undefined,
+          paidAt: result.trade.endtime
+            ? new Date(result.trade.endtime)
+            : undefined,
           rawData: result,
         };
       }
@@ -175,13 +187,18 @@ export class YipayGateway extends BasePaymentGateway {
 
     // 按键名排序
     const sortedKeys = Object.keys(data)
-      .filter(key => data[key] !== undefined && data[key] !== '' && key !== 'sign' && key !== 'sign_type')
+      .filter(
+        (key) =>
+          data[key] !== undefined &&
+          data[key] !== '' &&
+          key !== 'sign' &&
+          key !== 'sign_type',
+      )
       .sort();
 
     // 构建签名字符串
-    const signStr = sortedKeys
-      .map(key => `${key}=${data[key]}`)
-      .join('&') + apiKey;
+    const signStr =
+      sortedKeys.map((key) => `${key}=${data[key]}`).join('&') + apiKey;
 
     // MD5 加密
     return crypto.createHash('md5').update(signStr, 'utf8').digest('hex');

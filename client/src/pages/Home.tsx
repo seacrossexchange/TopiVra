@@ -10,6 +10,7 @@ import {
   ClockCircleOutlined, RightOutlined,
 } from '@ant-design/icons';
 import { useSeo } from '@/hooks/useSeo';
+import { SEO } from '@/components/SEO';
 import apiClient from '@/services/apiClient';
 import './Home.css';
 
@@ -75,6 +76,11 @@ export default function Home() {
 
   return (
     <div className="home-container">
+      <SEO 
+        title={t('home.seoDesc')}
+        description={t('home.seoDesc')}
+        keywords="TopiVra, TikTok, Instagram, Facebook, social accounts, digital accounts"
+      />
 
       {/* Hero */}
       <section className="hero-section">

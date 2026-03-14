@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrdersService } from './orders.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
 import { RefundType } from './dto/refund.dto';
@@ -12,16 +16,16 @@ import { AutoDeliveryService } from '../inventory/auto-delivery.service';
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaService: any;
-  let auditService: any;
-  let notificationService: any;
+  let _auditService: any;
+  let _notificationService: any;
   let autoDeliveryService: any;
 
   const mockOrder = {
     id: 'order-123',
     orderNo: 'ORD202603080001',
     buyerId: 'user-123',
-    totalAmount: 100.00,
-    payAmount: 100.00,
+    totalAmount: 100.0,
+    payAmount: 100.0,
     currency: 'USD',
     orderStatus: OrderStatus.CREATED,
     paymentStatus: PaymentStatus.UNPAID,
@@ -32,15 +36,15 @@ describe('OrdersService', () => {
         productId: 'product-123',
         sellerId: 'seller-123',
         quantity: 1,
-        unitPrice: 100.00,
-        sellerAmount: 90.00,
+        unitPrice: 100.0,
+        sellerAmount: 90.0,
         productTitle: 'Test Product',
         product: {
           id: 'product-123',
           title: 'Test Product',
           sellerId: 'seller-123',
           stock: 10,
-          price: 100.00,
+          price: 100.0,
         },
       },
     ],
@@ -49,7 +53,7 @@ describe('OrdersService', () => {
   const mockProduct = {
     id: 'product-123',
     title: 'Test Product',
-    price: 100.00,
+    price: 100.0,
     stock: 10,
     sellerId: 'seller-123',
     status: 'APPROVED',
@@ -60,7 +64,7 @@ describe('OrdersService', () => {
   };
 
   beforeEach(async () => {
-    const mockPrisma = {
+    const mockPrisma: any = {
       order: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
@@ -100,8 +104,8 @@ describe('OrdersService', () => {
         update: jest.fn(),
         count: jest.fn(),
       },
-      $transaction: jest.fn((fn: any) => fn(mockPrisma)),
     };
+    mockPrisma.$transaction = jest.fn((fn: (tx: any) => any) => fn(mockPrisma));
 
     const mockAudit = {
       log: jest.fn(),
@@ -139,8 +143,8 @@ describe('OrdersService', () => {
 
     service = module.get<OrdersService>(OrdersService);
     prismaService = mockPrisma;
-    auditService = mockAudit;
-    notificationService = mockNotification;
+    _auditService = mockAudit;
+    _notificationService = mockNotification;
     autoDeliveryService = mockAutoDelivery;
   });
 
@@ -167,7 +171,9 @@ describe('OrdersService', () => {
 
       prismaService.product.findMany.mockResolvedValue([]);
 
-      await expect(service.create('user-123', createDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-123', createDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('应该拒绝库存不足的商品', async () => {
@@ -178,7 +184,9 @@ describe('OrdersService', () => {
       const lowStockProduct = { ...mockProduct, stock: 5 };
       prismaService.product.findMany.mockResolvedValue([lowStockProduct]);
 
-      await expect(service.create('user-123', createDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create('user-123', createDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -203,13 +211,17 @@ describe('OrdersService', () => {
     it('应该拒绝不存在的订单', async () => {
       prismaService.order.findUnique.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent-order', 'user-123')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.findOne('nonexistent-order', 'user-123'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('应该拒绝无权限的用户', async () => {
       prismaService.order.findUnique.mockResolvedValue(mockOrder);
 
-      await expect(service.findOne('order-123', 'other-user')).rejects.toThrow(ForbiddenException);
+      await expect(service.findOne('order-123', 'other-user')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
@@ -252,7 +264,10 @@ describe('OrdersService', () => {
   describe('cancel', () => {
     it('应该成功取消未支付订单', async () => {
       prismaService.order.findUnique.mockResolvedValue(mockOrder);
-      prismaService.order.update.mockResolvedValue({ ...mockOrder, orderStatus: OrderStatus.CANCELLED });
+      prismaService.order.update.mockResolvedValue({
+        ...mockOrder,
+        orderStatus: OrderStatus.CANCELLED,
+      });
       prismaService.product.update.mockResolvedValue(mockProduct);
 
       const result = await service.cancel('order-123', 'user-123');
@@ -263,20 +278,26 @@ describe('OrdersService', () => {
     it('应该拒绝不存在的订单', async () => {
       prismaService.order.findUnique.mockResolvedValue(null);
 
-      await expect(service.cancel('nonexistent-order', 'user-123')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.cancel('nonexistent-order', 'user-123'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('应该拒绝非订单所有者取消', async () => {
       prismaService.order.findUnique.mockResolvedValue(mockOrder);
 
-      await expect(service.cancel('order-123', 'other-user')).rejects.toThrow(ForbiddenException);
+      await expect(service.cancel('order-123', 'other-user')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('应该拒绝已支付订单取消', async () => {
       const paidOrder = { ...mockOrder, orderStatus: OrderStatus.PAID };
       prismaService.order.findUnique.mockResolvedValue(paidOrder);
 
-      await expect(service.cancel('order-123', 'user-123')).rejects.toThrow(BadRequestException);
+      await expect(service.cancel('order-123', 'user-123')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -288,10 +309,16 @@ describe('OrdersService', () => {
       prismaService.orderItem.findUnique.mockResolvedValue(orderItem);
       prismaService.orderItem.update.mockResolvedValue({
         ...orderItem,
-        order: { ...paidOrder, buyerId: 'user-123', orderNo: 'ORD202603080001' },
+        order: {
+          ...paidOrder,
+          buyerId: 'user-123',
+          orderNo: 'ORD202603080001',
+        },
       });
 
-      const result = await service.deliver('item-1', 'seller-123', { deliveredCredentials: { account: 'test' } });
+      const result = await service.deliver('item-1', 'seller-123', {
+        deliveredCredentials: { account: 'test' },
+      });
 
       expect(result).toBeDefined();
     });
@@ -300,23 +327,33 @@ describe('OrdersService', () => {
       const orderItem = { ...mockOrder.orderItems[0], order: mockOrder };
       prismaService.orderItem.findUnique.mockResolvedValue(orderItem);
 
-      await expect(service.deliver('item-1', 'other-seller', { deliveredCredentials: {} })).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.deliver('item-1', 'other-seller', { deliveredCredentials: {} }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('应该拒绝未支付订单交付', async () => {
       const orderItem = { ...mockOrder.orderItems[0], order: mockOrder };
       prismaService.orderItem.findUnique.mockResolvedValue(orderItem);
 
-      await expect(service.deliver('item-1', 'seller-123', { deliveredCredentials: {} })).rejects.toThrow(BadRequestException);
+      await expect(
+        service.deliver('item-1', 'seller-123', { deliveredCredentials: {} }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('confirmDelivery', () => {
     it('买家应该能确认收货', async () => {
-      const deliveredOrder = { ...mockOrder, orderStatus: OrderStatus.DELIVERED };
+      const deliveredOrder = {
+        ...mockOrder,
+        orderStatus: OrderStatus.DELIVERED,
+      };
       prismaService.order.findUnique.mockResolvedValue(deliveredOrder);
       prismaService.orderItem.updateMany.mockResolvedValue({});
-      prismaService.order.update.mockResolvedValue({ ...deliveredOrder, orderStatus: OrderStatus.COMPLETED });
+      prismaService.order.update.mockResolvedValue({
+        ...deliveredOrder,
+        orderStatus: OrderStatus.COMPLETED,
+      });
       prismaService.sellerProfile.findUnique.mockResolvedValue({ balance: 0 });
       prismaService.sellerProfile.update.mockResolvedValue({});
       prismaService.sellerTransaction.create.mockResolvedValue({});
@@ -329,7 +366,9 @@ describe('OrdersService', () => {
     it('应该拒绝未交付订单确认', async () => {
       prismaService.order.findUnique.mockResolvedValue(mockOrder);
 
-      await expect(service.confirmDelivery('order-123', 'user-123')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.confirmDelivery('order-123', 'user-123'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -412,23 +451,27 @@ describe('OrdersService', () => {
       it('应该拒绝非订单所有者申请退款', async () => {
         prismaService.order.findUnique.mockResolvedValue(mockOrder);
 
-        await expect(service.createRefundRequest('other-user', {
-          orderId: 'order-123',
-          refundType: RefundType.REFUND_ONLY,
-          reason: 'test',
-          refundAmount: 100,
-        })).rejects.toThrow(ForbiddenException);
+        await expect(
+          service.createRefundRequest('other-user', {
+            orderId: 'order-123',
+            refundType: RefundType.REFUND_ONLY,
+            reason: 'test',
+            refundAmount: 100,
+          }),
+        ).rejects.toThrow(ForbiddenException);
       });
 
       it('应该拒绝未支付订单申请退款', async () => {
         prismaService.order.findUnique.mockResolvedValue(mockOrder);
 
-        await expect(service.createRefundRequest('user-123', {
-          orderId: 'order-123',
-          refundType: RefundType.REFUND_ONLY,
-          reason: 'test',
-          refundAmount: 100,
-        })).rejects.toThrow(BadRequestException);
+        await expect(
+          service.createRefundRequest('user-123', {
+            orderId: 'order-123',
+            refundType: RefundType.REFUND_ONLY,
+            reason: 'test',
+            refundAmount: 100,
+          }),
+        ).rejects.toThrow(BadRequestException);
       });
     });
   });

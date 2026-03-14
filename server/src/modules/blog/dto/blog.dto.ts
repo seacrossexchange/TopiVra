@@ -29,12 +29,12 @@ export class CreateBlogDto {
   @IsString()
   @MinLength(2, { message: '标题至少 2 个字符' })
   @MaxLength(200, { message: '标题最多 200 个字符' })
-  title: string;
+  title!: string;
 
   @ApiProperty({ description: '文章 Slug', maxLength: 200 })
   @IsString()
   @MaxLength(200)
-  slug: string;
+  slug!: string;
 
   @ApiPropertyOptional({ description: '文章摘要', maxLength: 500 })
   @IsOptional()
@@ -45,7 +45,7 @@ export class CreateBlogDto {
   @ApiProperty({ description: '文章内容' })
   @IsString()
   @MinLength(10, { message: '内容至少 10 个字符' })
-  content: string;
+  content!: string;
 
   @ApiPropertyOptional({ description: '封面图片 URL', maxLength: 500 })
   @IsOptional()
@@ -169,12 +169,12 @@ export class CreateTagDto {
   @ApiProperty({ description: '标签名称', maxLength: 50 })
   @IsString()
   @MaxLength(50)
-  name: string;
+  name!: string;
 
   @ApiProperty({ description: '标签 Slug', maxLength: 50 })
   @IsString()
   @MaxLength(50)
-  slug: string;
+  slug!: string;
 
   @ApiPropertyOptional({ description: '标签描述', maxLength: 200 })
   @IsOptional()
@@ -194,7 +194,7 @@ export class CreateCommentDto {
   @IsString()
   @MinLength(1)
   @MaxLength(1000)
-  content: string;
+  content!: string;
 
   @ApiPropertyOptional({ description: '父评论ID（回复）' })
   @IsOptional()

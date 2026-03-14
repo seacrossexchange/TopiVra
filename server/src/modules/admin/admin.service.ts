@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   AuditService,
@@ -83,8 +83,8 @@ export class AdminService {
       role: u.roles?.find((r) => r.role === 'ADMIN')
         ? 'ADMIN'
         : u.roles?.find((r) => r.role === 'SELLER')
-        ? 'SELLER'
-        : 'USER',
+          ? 'SELLER'
+          : 'USER',
       createdAt: u.createdAt.toISOString(),
     }));
 
@@ -101,6 +101,10 @@ export class AdminService {
       where: { id },
       select: { id: true, status: true, username: true },
     });
+
+    if (!userBefore) {
+      throw new NotFoundException(`用户 ${id} 不存在`);
+    }
 
     const updated = await this.prisma.user.update({
       where: { id },
@@ -301,7 +305,15 @@ export class AdminService {
         take: pageSize,
         orderBy: { createdAt: 'desc' },
         include: {
-          user: { select: { id: true, username: true, email: true, avatar: true, status: true } },
+          user: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              avatar: true,
+              status: true,
+            },
+          },
         },
       }),
       this.prisma.sellerProfile.count({ where }),
@@ -328,6 +340,10 @@ export class AdminService {
       where: { id },
       select: { id: true, applicationStatus: true, shopName: true },
     });
+
+    if (!sellerBefore) {
+      throw new NotFoundException(`卖家档案 ${id} 不存在`);
+    }
 
     const applicationStatus =
       dto.action === 'approve' ? 'APPROVED' : 'REJECTED';
@@ -405,7 +421,10 @@ export class AdminService {
       operatorId,
       operatorRole: OperatorRole.ADMIN,
       module: AuditModule.SELLER,
-      action: newStatus === 'SUSPENDED' ? AuditAction.ADMIN_USER_BAN : AuditAction.ADMIN_USER_UNBAN,
+      action:
+        newStatus === 'SUSPENDED'
+          ? AuditAction.ADMIN_USER_BAN
+          : AuditAction.ADMIN_USER_UNBAN,
       targetType: 'sellerProfile',
       targetId: id,
       description: `Admin ${newStatus === 'SUSPENDED' ? 'suspended' : 'resumed'} seller ${seller.shopName}`,
@@ -809,7 +828,7 @@ export class AdminService {
     for (const config of configs) {
       result[config.key] =
         typeof config.value === 'object' && config.value !== null
-          ? (config.value as any).v ?? config.value
+          ? ((config.value as any).v ?? config.value)
           : config.value;
     }
     return result;
@@ -847,8 +866,10 @@ export class AdminService {
       telegram: { enabled: false, botToken: '' },
     };
     for (const c of configs) {
-      if (c.key === 'oauth_google') result.google = (c.value as any).v ?? c.value;
-      if (c.key === 'oauth_telegram') result.telegram = (c.value as any).v ?? c.value;
+      if (c.key === 'oauth_google')
+        result.google = (c.value as any).v ?? c.value;
+      if (c.key === 'oauth_telegram')
+        result.telegram = (c.value as any).v ?? c.value;
     }
     return result;
   }
@@ -883,7 +904,9 @@ export class AdminService {
   // Payment Config
   async getPaymentConfig() {
     const configs = await this.prisma.systemConfig.findMany({
-      where: { key: { in: ['payment_paypal', 'payment_stripe', 'payment_usdt'] } },
+      where: {
+        key: { in: ['payment_paypal', 'payment_stripe', 'payment_usdt'] },
+      },
     });
     const result: any = {
       paypal: { enabled: false },
@@ -891,8 +914,10 @@ export class AdminService {
       usdt: { enabled: false },
     };
     for (const c of configs) {
-      if (c.key === 'payment_paypal') result.paypal = (c.value as any).v ?? c.value;
-      if (c.key === 'payment_stripe') result.stripe = (c.value as any).v ?? c.value;
+      if (c.key === 'payment_paypal')
+        result.paypal = (c.value as any).v ?? c.value;
+      if (c.key === 'payment_stripe')
+        result.stripe = (c.value as any).v ?? c.value;
       if (c.key === 'payment_usdt') result.usdt = (c.value as any).v ?? c.value;
     }
     return result;
@@ -925,14 +950,18 @@ export class AdminService {
 
   // SEO Config
   async getSeoConfig() {
-    const c = await this.prisma.systemConfig.findUnique({ where: { key: 'seo_config' } });
-    return (c?.value as any)?.v ?? {
-      title: 'TopiVra',
-      description: '',
-      keywords: '',
-      googleAnalytics: '',
-      baiduAnalytics: '',
-    };
+    const c = await this.prisma.systemConfig.findUnique({
+      where: { key: 'seo_config' },
+    });
+    return (
+      (c?.value as any)?.v ?? {
+        title: 'TopiVra',
+        description: '',
+        keywords: '',
+        googleAnalytics: '',
+        baiduAnalytics: '',
+      }
+    );
   }
 
   async updateSeoConfig(data: any, operatorId: string) {
@@ -953,13 +982,17 @@ export class AdminService {
 
   // Telegram Config
   async getTelegramConfig() {
-    const c = await this.prisma.systemConfig.findUnique({ where: { key: 'telegram_config' } });
-    return (c?.value as any)?.v ?? {
-      botToken: '',
-      botUsername: '',
-      channelId: '',
-      channelUsername: '',
-    };
+    const c = await this.prisma.systemConfig.findUnique({
+      where: { key: 'telegram_config' },
+    });
+    return (
+      (c?.value as any)?.v ?? {
+        botToken: '',
+        botUsername: '',
+        channelId: '',
+        channelUsername: '',
+      }
+    );
   }
 
   async updateTelegramConfig(data: any, operatorId: string) {
@@ -984,13 +1017,21 @@ export class AdminService {
       where: { ticketId },
       orderBy: { createdAt: 'asc' },
       include: {
-        sender: { select: { id: true, username: true, roles: { select: { role: true } } } },
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            roles: { select: { role: true } },
+          },
+        },
       },
     });
     return messages.map((m) => ({
       id: m.id,
       content: m.content,
-      sender: m.sender?.roles?.some((r) => r.role === 'ADMIN') ? 'ADMIN' : 'USER',
+      sender: m.sender?.roles?.some((r) => r.role === 'ADMIN')
+        ? 'ADMIN'
+        : 'USER',
       senderName: m.sender?.username,
       isInternal: m.isInternal,
       createdAt: m.createdAt.toISOString(),
@@ -1023,7 +1064,11 @@ export class AdminService {
     return msg;
   }
 
-  async updateTicketStatus(ticketId: string, status: string, operatorId: string) {
+  async updateTicketStatus(
+    ticketId: string,
+    status: string,
+    operatorId: string,
+  ) {
     const updated = await this.prisma.ticket.update({
       where: { id: ticketId },
       data: {
@@ -1039,7 +1084,9 @@ export class AdminService {
   // ==================== 广告位管理 ====================
 
   async getAdSlots() {
-    const c = await this.prisma.systemConfig.findUnique({ where: { key: 'ad_slots' } });
+    const c = await this.prisma.systemConfig.findUnique({
+      where: { key: 'ad_slots' },
+    });
     const slots = (c?.value as any)?.v ?? [];
     return Array.isArray(slots) ? slots : [];
   }
@@ -1049,7 +1096,11 @@ export class AdminService {
     const limited = slots.slice(0, 5);
     await this.prisma.systemConfig.upsert({
       where: { key: 'ad_slots' },
-      create: { key: 'ad_slots', value: { v: limited }, description: '首页悬浮窗广告位配置' },
+      create: {
+        key: 'ad_slots',
+        value: { v: limited },
+        description: '首页悬浮窗广告位配置',
+      },
       update: { value: { v: limited } },
     });
     await this.auditService.log({

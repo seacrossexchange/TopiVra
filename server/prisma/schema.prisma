@@ -16,68 +16,68 @@ datasource db {
 // ==================== 用户与权限 ====================
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  passwordHash  String?   @map("password_hash")
-  username      String
-  avatar        String?
-  phone         String?
+  id           String  @id @default(uuid())
+  email        String  @unique
+  passwordHash String? @map("password_hash")
+  username     String
+  avatar       String?
+  phone        String?
 
   // 第三方登录
-  googleId      String?   @unique @map("google_id")
-  telegramId    String?   @unique @map("telegram_id")
+  googleId         String? @unique @map("google_id")
+  telegramId       String? @unique @map("telegram_id")
   telegramUsername String? @map("telegram_username")
 
   // 状态
   status        UserStatus @default(ACTIVE)
-  emailVerified Boolean   @default(false) @map("email_verified")
-  isSeller      Boolean   @default(false) @map("is_seller")
+  emailVerified Boolean    @default(false) @map("email_verified")
+  isSeller      Boolean    @default(false) @map("is_seller")
 
   // 偏好
-  language      String    @default("zh-CN")
-  currency      String    @default("USD")
-  timezone      String    @default("Asia/Shanghai")
+  language String @default("zh-CN")
+  currency String @default("USD")
+  timezone String @default("Asia/Shanghai")
 
   // 安全
-  twoFactorEnabled  Boolean   @default(false) @map("two_factor_enabled")
-  twoFactorSecret   String?   @map("two_factor_secret")
-  recoveryCodes     Json?     @map("recovery_codes")
-  lastLoginAt       DateTime? @map("last_login_at")
-  lastLoginIp       String?   @map("last_login_ip")
-  loginAttempts     Int       @default(0) @map("login_attempts")
-  lockedUntil       DateTime? @map("locked_until")
+  twoFactorEnabled Boolean   @default(false) @map("two_factor_enabled")
+  twoFactorSecret  String?   @map("two_factor_secret")
+  recoveryCodes    Json?     @map("recovery_codes")
+  lastLoginAt      DateTime? @map("last_login_at")
+  lastLoginIp      String?   @map("last_login_ip")
+  loginAttempts    Int       @default(0) @map("login_attempts")
+  lockedUntil      DateTime? @map("locked_until")
 
   // 时间戳
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // 关联
-  roles          UserRole[]
-  sellerProfile  SellerProfile?
-  products       Product[]
-  ordersAsBuyer  Order[]         @relation("BuyerOrders")
-  ordersAsSeller OrderItem[]     @relation("SellerOrderItems")
-  cartItems      CartItem[]
-  reviews        Review[]
-  favorites      Favorite[]
-  tickets        Ticket[]        @relation("UserTickets")
-  assignedTickets Ticket[]       @relation("AssignedTickets")
-  ticketMessages TicketMessage[]
-  notifications  Notification[]
-  withdrawals    Withdrawal[]
-  sellerTransactions SellerTransaction[]
-  blogs          Blog[]
-  blogComments   BlogComment[]
-  blogLikes      BlogLike[]
-  refundRequestsAsBuyer  RefundRequest[]  @relation("RefundBuyer")
-  refundRequestsAsSeller RefundRequest[]  @relation("RefundSeller")
-  
+  roles                  UserRole[]
+  sellerProfile          SellerProfile?
+  products               Product[]
+  ordersAsBuyer          Order[]             @relation("BuyerOrders")
+  ordersAsSeller         OrderItem[]         @relation("SellerOrderItems")
+  cartItems              CartItem[]
+  reviews                Review[]
+  favorites              Favorite[]
+  tickets                Ticket[]            @relation("UserTickets")
+  assignedTickets        Ticket[]            @relation("AssignedTickets")
+  ticketMessages         TicketMessage[]
+  notifications          Notification[]
+  withdrawals            Withdrawal[]
+  sellerTransactions     SellerTransaction[]
+  blogs                  Blog[]
+  blogComments           BlogComment[]
+  blogLikes              BlogLike[]
+  refundRequestsAsBuyer  RefundRequest[]     @relation("RefundBuyer")
+  refundRequestsAsSeller RefundRequest[]     @relation("RefundSeller")
+
   // 消息系统
-  sentMessages     Message[]    @relation("MessageSender")
-  receivedMessages Message[]    @relation("MessageReceiver")
-  
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
+
   // 库存系统
-  inventories      ProductInventory[]
+  inventories ProductInventory[]
 
   @@index([email])
   @@index([status])
@@ -99,9 +99,9 @@ model UserRole {
   role      Role
   grantedAt DateTime @default(now()) @map("granted_at")
   grantedBy String?  @map("granted_by")
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, role])
   @@index([userId])
   @@index([role])
@@ -115,47 +115,47 @@ enum Role {
 }
 
 model SellerProfile {
-  id              String    @id @default(uuid())
-  userId          String    @unique @map("user_id")
-  shopName        String    @map("shop_name")
-  shopDescription String?   @map("shop_description")
-  shopAvatar      String?   @map("shop_avatar")
-  shopBanner      String?   @map("shop_banner")
+  id              String  @id @default(uuid())
+  userId          String  @unique @map("user_id")
+  shopName        String  @map("shop_name")
+  shopDescription String? @map("shop_description")
+  shopAvatar      String? @map("shop_avatar")
+  shopBanner      String? @map("shop_banner")
 
   // 认证信息
-  realName        String?   @map("real_name")
-  idCardNumber    String?   @map("id_card_number")
-  contactTelegram String?   @map("contact_telegram")
-  contactEmail    String?   @map("contact_email")
+  realName        String? @map("real_name")
+  idCardNumber    String? @map("id_card_number")
+  contactTelegram String? @map("contact_telegram")
+  contactEmail    String? @map("contact_email")
 
   // 等级与状态
-  level              SellerLevel      @default(NORMAL)
-  applicationStatus  ApplicationStatus @default(PENDING) @map("application_status")
-  applicationNote    String?          @map("application_note")
-  approvedAt         DateTime?        @map("approved_at")
-  approvedBy         String?          @map("approved_by")
+  level             SellerLevel       @default(NORMAL)
+  applicationStatus ApplicationStatus @default(PENDING) @map("application_status")
+  applicationNote   String?           @map("application_note")
+  approvedAt        DateTime?         @map("approved_at")
+  approvedBy        String?           @map("approved_by")
 
   // 财务
-  balance         Decimal   @default(0.00) @db.Decimal(12, 2)
-  frozenBalance   Decimal   @default(0.00) @map("frozen_balance") @db.Decimal(12, 2)
-  totalSales      Decimal   @default(0.00) @map("total_sales") @db.Decimal(12, 2)
-  totalEarnings   Decimal   @default(0.00) @map("total_earnings") @db.Decimal(12, 2)
-  totalWithdrawn  Decimal   @default(0.00) @map("total_withdrawn") @db.Decimal(12, 2)
+  balance        Decimal @default(0.00) @db.Decimal(12, 2)
+  frozenBalance  Decimal @default(0.00) @map("frozen_balance") @db.Decimal(12, 2)
+  totalSales     Decimal @default(0.00) @map("total_sales") @db.Decimal(12, 2)
+  totalEarnings  Decimal @default(0.00) @map("total_earnings") @db.Decimal(12, 2)
+  totalWithdrawn Decimal @default(0.00) @map("total_withdrawn") @db.Decimal(12, 2)
 
   // 统计
-  productCount    Int       @default(0) @map("product_count")
-  orderCount      Int       @default(0) @map("order_count")
-  soldCount       Int       @default(0) @map("sold_count")
-  rating          Decimal   @default(5.0) @db.Decimal(2, 1)
-  ratingCount     Int       @default(0) @map("rating_count")
+  productCount Int     @default(0) @map("product_count")
+  orderCount   Int     @default(0) @map("order_count")
+  soldCount    Int     @default(0) @map("sold_count")
+  rating       Decimal @default(5.0) @db.Decimal(2, 1)
+  ratingCount  Int     @default(0) @map("rating_count")
 
   // 佣金
-  commissionRate  Decimal   @default(10.00) @map("commission_rate") @db.Decimal(4, 2)
+  commissionRate Decimal @default(10.00) @map("commission_rate") @db.Decimal(4, 2)
 
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  user            User      @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@map("seller_profiles")
 }
@@ -175,96 +175,116 @@ enum ApplicationStatus {
 // ==================== 分类 ====================
 
 model Category {
-  id          String     @id @default(uuid())
-  parentId    String?    @map("parent_id")
-  name        String
-  slug        String     @unique
-  icon        String?
-  color       String?
-  description String?
-  sortOrder   Int        @default(0) @map("sort_order")
-  isActive    Boolean    @default(true) @map("is_active")
-  productCount Int       @default(0) @map("product_count")
+  id           String  @id @default(uuid())
+  parentId     String? @map("parent_id")
+  name         String
+  slug         String  @unique
+  icon         String?
+  color        String?
+  description  String?
+  sortOrder    Int     @default(0) @map("sort_order")
+  isActive     Boolean @default(true) @map("is_active")
+  productCount Int     @default(0) @map("product_count")
 
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryHierarchy")
-  products    Product[]
-  blogs       Blog[]
+  parent       Category?             @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children     Category[]            @relation("CategoryHierarchy")
+  products     Product[]
+  blogs        Blog[]
+  translations CategoryTranslation[]
 
   @@map("categories")
+}
+
+// 分类多语言表
+model CategoryTranslation {
+  id          String   @id @default(uuid())
+  categoryId  String   @map("category_id")
+  language    String   @db.VarChar(10)
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, language])
+  @@index([categoryId])
+  @@index([language])
+  @@map("category_translations")
 }
 
 // ==================== 商品 ====================
 
 model Product {
-  id            String        @id @default(uuid())
-  sellerId      String        @map("seller_id")
-  categoryId    String        @map("category_id")
+  id         String @id @default(uuid())
+  sellerId   String @map("seller_id")
+  categoryId String @map("category_id")
 
   // 基本信息
-  title         String
-  description   String        @db.Text
-  platform      String
-  accountType   String?       @map("account_type")
-  region        String?
-  tags          Json?
+  title       String
+  description String  @db.Text
+  platform    String
+  accountType String? @map("account_type")
+  region      String?
+  tags        Json?
 
   // 账号属性
-  attributes    Json?
+  attributes Json?
 
   // 商品凭证（账号信息）
-  credentials   Json?
+  credentials Json?
 
   // 价格
-  price         Decimal       @db.Decimal(10, 2)
-  originalPrice Decimal?      @map("original_price") @db.Decimal(10, 2)
-  currency      String        @default("USD")
+  price         Decimal  @db.Decimal(10, 2)
+  originalPrice Decimal? @map("original_price") @db.Decimal(10, 2)
+  currency      String   @default("USD")
 
   // 库存
-  stock         Int           @default(1)
-  soldCount     Int           @default(0) @map("sold_count")
-  
+  stock     Int @default(1)
+  soldCount Int @default(0) @map("sold_count")
+
   // 自动发货
-  autoDeliver   Boolean       @default(true) @map("auto_deliver")
-  inventoryCount Int          @default(0) @map("inventory_count")
+  autoDeliver    Boolean @default(true) @map("auto_deliver")
+  inventoryCount Int     @default(0) @map("inventory_count")
 
   // 图片
-  images        Json?
-  thumbnailUrl  String?       @map("thumbnail_url")
+  images       Json?
+  thumbnailUrl String? @map("thumbnail_url")
 
   // 状态
-  status        ProductStatus @default(DRAFT)
-  rejectReason  String?       @map("reject_reason")
-  auditedBy     String?       @map("audited_by")
-  auditedAt     DateTime?     @map("audited_at")
+  status       ProductStatus @default(DRAFT)
+  rejectReason String?       @map("reject_reason")
+  auditedBy    String?       @map("audited_by")
+  auditedAt    DateTime?     @map("audited_at")
 
   // SEO
-  metaTitle       String?     @map("meta_title")
-  metaDescription String?     @map("meta_description")
+  metaTitle       String? @map("meta_title")
+  metaDescription String? @map("meta_description")
 
   // 统计
-  viewCount       Int         @default(0) @map("view_count")
-  favoriteCount   Int         @default(0) @map("favorite_count")
+  viewCount     Int @default(0) @map("view_count")
+  favoriteCount Int @default(0) @map("favorite_count")
 
   // 促销信息
-  promotionLabel  String?     @map("promotion_label")
-  promotionStart  DateTime?   @map("promotion_start")
-  promotionEnd    DateTime?   @map("promotion_end")
+  promotionLabel String?   @map("promotion_label")
+  promotionStart DateTime? @map("promotion_start")
+  promotionEnd   DateTime? @map("promotion_end")
 
-  publishedAt     DateTime?   @map("published_at")
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  seller          User        @relation(fields: [sellerId], references: [id])
-  category        Category    @relation(fields: [categoryId], references: [id])
-  orderItems      OrderItem[]
-  reviews         Review[]
-  favorites       Favorite[]
-  cartItems       CartItem[]
-  inventories     ProductInventory[]
+  seller       User                  @relation(fields: [sellerId], references: [id])
+  category     Category              @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+  reviews      Review[]
+  favorites    Favorite[]
+  cartItems    CartItem[]
+  inventories  ProductInventory[]
+  translations ProductTranslation[]
 
   @@index([sellerId])
   @@index([categoryId])
@@ -276,6 +296,26 @@ model Product {
   @@index([platform, status])
   @@index([createdAt])
   @@map("products")
+}
+
+// 商品多语言表
+model ProductTranslation {
+  id          String   @id @default(uuid())
+  productId   String   @map("product_id")
+  language    String   @db.VarChar(10)
+  title       String   @db.VarChar(200)
+  description String   @db.Text
+  metaTitle       String? @map("meta_title") @db.VarChar(200)
+  metaDescription String? @map("meta_description") @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, language])
+  @@index([productId])
+  @@index([language])
+  @@map("product_translations")
 }
 
 enum ProductStatus {
@@ -291,48 +331,48 @@ enum ProductStatus {
 // ==================== 订单 ====================
 
 model Order {
-  id              String        @id @default(uuid())
-  orderNo         String        @unique @map("order_no")
-  buyerId         String        @map("buyer_id")
+  id      String @id @default(uuid())
+  orderNo String @unique @map("order_no")
+  buyerId String @map("buyer_id")
 
   // 金额
-  totalAmount     Decimal       @map("total_amount") @db.Decimal(10, 2)
-  payAmount       Decimal       @map("pay_amount") @db.Decimal(10, 2)
-  commission      Decimal       @default(0.00) @db.Decimal(10, 2)
-  currency        String        @default("USD")
+  totalAmount Decimal @map("total_amount") @db.Decimal(10, 2)
+  payAmount   Decimal @map("pay_amount") @db.Decimal(10, 2)
+  commission  Decimal @default(0.00) @db.Decimal(10, 2)
+  currency    String  @default("USD")
 
   // 支付
-  paymentMethod   String?       @map("payment_method")
-  paymentStatus   PaymentStatus @default(UNPAID) @map("payment_status")
-  paidAt          DateTime?     @map("paid_at")
+  paymentMethod String?       @map("payment_method")
+  paymentStatus PaymentStatus @default(UNPAID) @map("payment_status")
+  paidAt        DateTime?     @map("paid_at")
 
   // 订单状态
-  orderStatus     OrderStatus   @default(CREATED) @map("order_status")
+  orderStatus OrderStatus @default(CREATED) @map("order_status")
 
   // 退款
-  refundReason    String?       @map("refund_reason") @db.Text
-  refundAmount    Decimal?      @map("refund_amount") @db.Decimal(10, 2)
-  refundedAt      DateTime?     @map("refunded_at")
+  refundReason String?   @map("refund_reason") @db.Text
+  refundAmount Decimal?  @map("refund_amount") @db.Decimal(10, 2)
+  refundedAt   DateTime? @map("refunded_at")
 
   // 备注
-  buyerRemark     String?       @map("buyer_remark")
-  adminRemark     String?       @map("admin_remark")
+  buyerRemark String? @map("buyer_remark")
+  adminRemark String? @map("admin_remark")
 
   // 自动操作
-  autoCancelAt    DateTime?     @map("auto_cancel_at")
-  autoConfirmAt   DateTime?     @map("auto_confirm_at")
+  autoCancelAt  DateTime? @map("auto_cancel_at")
+  autoConfirmAt DateTime? @map("auto_confirm_at")
 
-  completedAt     DateTime?     @map("completed_at")
-  cancelledAt     DateTime?     @map("cancelled_at")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+  cancelledAt DateTime? @map("cancelled_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  buyer           User          @relation("BuyerOrders", fields: [buyerId], references: [id])
-  orderItems      OrderItem[]
-  payments        Payment[]
-  reviews         Review[]
-  refundRequests  RefundRequest[]
-  inventories     ProductInventory[]
+  buyer          User               @relation("BuyerOrders", fields: [buyerId], references: [id])
+  orderItems     OrderItem[]
+  payments       Payment[]
+  reviews        Review[]
+  refundRequests RefundRequest[]
+  inventories    ProductInventory[]
 
   @@index([buyerId])
   @@index([orderStatus])
@@ -363,43 +403,43 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id                String      @id @default(uuid())
-  orderId           String      @map("order_id")
-  productId         String      @map("product_id")
-  sellerId          String      @map("seller_id")
+  id        String @id @default(uuid())
+  orderId   String @map("order_id")
+  productId String @map("product_id")
+  sellerId  String @map("seller_id")
 
   // 快照
-  productTitle      String      @map("product_title")
-  productSnapshot   Json?       @map("product_snapshot")
+  productTitle    String @map("product_title")
+  productSnapshot Json?  @map("product_snapshot")
 
   // 金额
-  quantity          Int         @default(1)
-  unitPrice         Decimal     @map("unit_price") @db.Decimal(10, 2)
-  subtotal          Decimal     @db.Decimal(10, 2)
+  quantity  Int     @default(1)
+  unitPrice Decimal @map("unit_price") @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
 
   // 交付
-  deliveredCredentials Json?    @map("delivered_credentials")
-  deliveredAt       DateTime?   @map("delivered_at")
-  deliveryConfirmed Boolean     @default(false) @map("delivery_confirmed")
-  confirmedAt       DateTime?   @map("confirmed_at")
-  
+  deliveredCredentials Json?     @map("delivered_credentials")
+  deliveredAt          DateTime? @map("delivered_at")
+  deliveryConfirmed    Boolean   @default(false) @map("delivery_confirmed")
+  confirmedAt          DateTime? @map("confirmed_at")
+
   // 自动发货
-  inventoryId   String?       @map("inventory_id")
-  autoDelivered Boolean       @default(false) @map("auto_delivered")
+  inventoryId   String? @map("inventory_id")
+  autoDelivered Boolean @default(false) @map("auto_delivered")
 
   // 卖家结算
-  sellerAmount      Decimal     @map("seller_amount") @db.Decimal(10, 2)
-  commissionAmount  Decimal     @map("commission_amount") @db.Decimal(10, 2)
-  commissionRate    Decimal     @map("commission_rate") @db.Decimal(4, 2)
-  settled           Boolean     @default(false)
-  settledAt         DateTime?   @map("settled_at")
+  sellerAmount     Decimal   @map("seller_amount") @db.Decimal(10, 2)
+  commissionAmount Decimal   @map("commission_amount") @db.Decimal(10, 2)
+  commissionRate   Decimal   @map("commission_rate") @db.Decimal(4, 2)
+  settled          Boolean   @default(false)
+  settledAt        DateTime? @map("settled_at")
 
-  createdAt         DateTime    @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  order             Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product           Product     @relation(fields: [productId], references: [id])
-  seller            User        @relation("SellerOrderItems", fields: [sellerId], references: [id])
-  inventory         ProductInventory? @relation(fields: [inventoryId], references: [id])
+  order     Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product           @relation(fields: [productId], references: [id])
+  seller    User              @relation("SellerOrderItems", fields: [sellerId], references: [id])
+  inventory ProductInventory? @relation(fields: [inventoryId], references: [id])
 
   @@index([orderId])
   @@index([sellerId])
@@ -411,33 +451,33 @@ model OrderItem {
 // ==================== 支付 ====================
 
 model Payment {
-  id                String        @id @default(uuid())
-  paymentNo         String        @unique @map("payment_no")
-  orderId           String        @map("order_id")
-  userId            String        @map("user_id")
+  id        String @id @default(uuid())
+  paymentNo String @unique @map("payment_no")
+  orderId   String @map("order_id")
+  userId    String @map("user_id")
 
   // 支付信息
-  method            String
-  amount            Decimal       @db.Decimal(10, 2)
-  currency          String
-  status            PaymentRecordStatus @default(PENDING)
+  method   String
+  amount   Decimal             @db.Decimal(10, 2)
+  currency String
+  status   PaymentRecordStatus @default(PENDING)
 
   // 第三方信息
-  providerOrderId   String?       @map("provider_order_id")
-  providerData      Json?         @map("provider_data")
+  providerOrderId String? @map("provider_order_id")
+  providerData    Json?   @map("provider_data")
 
   // USDT 专用
-  walletAddress     String?       @map("wallet_address")
-  txHash            String?       @map("tx_hash")
-  usdtAmount        Decimal?      @map("usdt_amount") @db.Decimal(12, 6)
-  exchangeRate      Decimal?      @map("exchange_rate") @db.Decimal(10, 4)
+  walletAddress String?  @map("wallet_address")
+  txHash        String?  @map("tx_hash")
+  usdtAmount    Decimal? @map("usdt_amount") @db.Decimal(12, 6)
+  exchangeRate  Decimal? @map("exchange_rate") @db.Decimal(10, 4)
 
-  expiredAt         DateTime?     @map("expired_at")
-  paidAt            DateTime?     @map("paid_at")
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
+  expiredAt DateTime? @map("expired_at")
+  paidAt    DateTime? @map("paid_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
-  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([status])
@@ -458,40 +498,40 @@ enum PaymentRecordStatus {
 // ==================== 账号库存系统 ====================
 
 model ProductInventory {
-  id          String   @id @default(uuid())
-  productId   String   @map("product_id")
-  sellerId    String   @map("seller_id")
-  
+  id        String @id @default(uuid())
+  productId String @map("product_id")
+  sellerId  String @map("seller_id")
+
   // 账号信息（加密存储）
-  accountData String   @db.Text @map("account_data")
-  accountHash String   @unique @map("account_hash")
-  
+  accountData String @map("account_data") @db.Text
+  accountHash String @unique @map("account_hash")
+
   // 账号格式化数据（JSON）
-  accountInfo Json?    @map("account_info")
-  
+  accountInfo Json? @map("account_info")
+
   // 状态
-  status      InventoryStatus @default(AVAILABLE)
-  
+  status InventoryStatus @default(AVAILABLE)
+
   // 订单关联
-  orderId     String?  @map("order_id")
-  orderItemId String?  @map("order_item_id")
+  orderId     String?   @map("order_id")
+  orderItemId String?   @map("order_item_id")
   soldAt      DateTime? @map("sold_at")
-  
+
   // 失效管理
-  isValid     Boolean  @default(true) @map("is_valid")
-  invalidReason String? @map("invalid_reason")
-  invalidAt   DateTime? @map("invalid_at")
-  
+  isValid       Boolean   @default(true) @map("is_valid")
+  invalidReason String?   @map("invalid_reason")
+  invalidAt     DateTime? @map("invalid_at")
+
   // 时间戳
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   // 关联
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  order       Order?   @relation(fields: [orderId], references: [id])
-  orderItems  OrderItem[]
-  
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller     User        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  order      Order?      @relation(fields: [orderId], references: [id])
+  orderItems OrderItem[]
+
   @@index([productId, status])
   @@index([sellerId, status])
   @@index([accountHash])
@@ -500,24 +540,24 @@ model ProductInventory {
 }
 
 enum InventoryStatus {
-  AVAILABLE  // 可用
-  RESERVED   // 预留（订单创建但未支付）
-  SOLD       // 已售出
-  INVALID    // 失效
+  AVAILABLE // 可用
+  RESERVED // 预留（订单创建但未支付）
+  SOLD // 已售出
+  INVALID // 失效
 }
 
 // ==================== 购物车 ====================
 
 model CartItem {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  productId   String    @map("product_id")
-  quantity    Int       @default(1)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product     Product   @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId])
   @@map("cart_items")
@@ -526,35 +566,35 @@ model CartItem {
 // ==================== 工单系统 ====================
 
 model Ticket {
-  id            String        @id @default(uuid())
-  ticketNo      String        @unique @map("ticket_no")
-  userId        String        @map("user_id")
-  orderId       String?       @map("order_id")
+  id       String  @id @default(uuid())
+  ticketNo String  @unique @map("ticket_no")
+  userId   String  @map("user_id")
+  orderId  String? @map("order_id")
 
   // 工单信息
-  type          TicketType
-  subject       String
-  content       String        @db.Text
-  priority      TicketPriority @default(MEDIUM)
-  status        TicketStatus  @default(OPEN)
+  type     TicketType
+  subject  String
+  content  String         @db.Text
+  priority TicketPriority @default(MEDIUM)
+  status   TicketStatus   @default(OPEN)
 
   // SLA
-  slaLevel      String?       @map("sla_level")
-  slaDeadline   DateTime?     @map("sla_deadline")
+  slaLevel    String?   @map("sla_level")
+  slaDeadline DateTime? @map("sla_deadline")
 
   // 分配
-  assignedTo    String?       @map("assigned_to")
+  assignedTo String? @map("assigned_to")
 
   // 时间
-  resolvedAt    DateTime?     @map("resolved_at")
-  closedAt      DateTime?     @map("closed_at")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  resolvedAt DateTime? @map("resolved_at")
+  closedAt   DateTime? @map("closed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   // 关联
-  user          User          @relation("UserTickets", fields: [userId], references: [id])
-  assignee      User?         @relation("AssignedTickets", fields: [assignedTo], references: [id])
-  messages      TicketMessage[]
+  user     User            @relation("UserTickets", fields: [userId], references: [id])
+  assignee User?           @relation("AssignedTickets", fields: [assignedTo], references: [id])
+  messages TicketMessage[]
 
   @@index([userId, status])
   @@index([status, priority])
@@ -586,16 +626,16 @@ enum TicketStatus {
 }
 
 model TicketMessage {
-  id          String    @id @default(uuid())
-  ticketId    String    @map("ticket_id")
-  senderId    String    @map("sender_id")
-  content     String    @db.Text
-  isInternal  Boolean   @default(false) @map("is_internal")
+  id          String   @id @default(uuid())
+  ticketId    String   @map("ticket_id")
+  senderId    String   @map("sender_id")
+  content     String   @db.Text
+  isInternal  Boolean  @default(false) @map("is_internal")
   attachments Json?
-  createdAt   DateTime  @default(now()) @map("created_at")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  ticket      Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  sender      User      @relation(fields: [senderId], references: [id])
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender User   @relation(fields: [senderId], references: [id])
 
   @@index([ticketId])
   @@map("ticket_messages")
@@ -604,24 +644,24 @@ model TicketMessage {
 // ==================== 评价系统 ====================
 
 model Review {
-  id            String    @id @default(uuid())
-  userId        String    @map("user_id")
-  productId     String    @map("product_id")
-  sellerId      String    @map("seller_id")
-  orderId       String    @unique @map("order_id")
+  id        String @id @default(uuid())
+  userId    String @map("user_id")
+  productId String @map("product_id")
+  sellerId  String @map("seller_id")
+  orderId   String @unique @map("order_id")
 
   // 评价内容
-  rating        Int
-  content       String?   @db.Text
-  tags          Json?
-  isAnonymous   Boolean   @default(false) @map("is_anonymous")
+  rating      Int
+  content     String? @db.Text
+  tags        Json?
+  isAnonymous Boolean @default(false) @map("is_anonymous")
 
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  user          User      @relation(fields: [userId], references: [id])
-  product       Product   @relation(fields: [productId], references: [id])
-  order         Order     @relation(fields: [orderId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
 
   @@index([productId, createdAt])
   @@index([sellerId])
@@ -632,13 +672,13 @@ model Review {
 // ==================== 收藏系统 ====================
 
 model Favorite {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  productId   String    @map("product_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product     Product   @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId])
   @@map("favorites")
@@ -647,17 +687,17 @@ model Favorite {
 // ==================== 通知系统 ====================
 
 model Notification {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  type        String
-  title       String
-  content     String    @db.Text
-  data        Json?
-  isRead      Boolean   @default(false) @map("is_read")
-  readAt      DateTime? @map("read_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  type      String
+  title     String
+  content   String    @db.Text
+  data      Json?
+  isRead    Boolean   @default(false) @map("is_read")
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
   @@map("notifications")
@@ -666,35 +706,35 @@ model Notification {
 // ==================== 提现系统 ====================
 
 model Withdrawal {
-  id              String            @id @default(uuid())
-  withdrawalNo    String            @unique @map("withdrawal_no")
-  sellerId        String            @map("seller_id")
+  id           String @id @default(uuid())
+  withdrawalNo String @unique @map("withdrawal_no")
+  sellerId     String @map("seller_id")
 
   // 提现信息
-  amount          Decimal           @db.Decimal(10, 2)
-  fee             Decimal           @default(0.00) @db.Decimal(10, 2)
-  actualAmount    Decimal           @map("actual_amount") @db.Decimal(10, 2)
-  currency        String            @default("USD")
+  amount       Decimal @db.Decimal(10, 2)
+  fee          Decimal @default(0.00) @db.Decimal(10, 2)
+  actualAmount Decimal @map("actual_amount") @db.Decimal(10, 2)
+  currency     String  @default("USD")
 
   // 收款方式
-  method          String
-  accountInfo     Json              @map("account_info")
+  method      String
+  accountInfo Json   @map("account_info")
 
   // 状态
-  status          WithdrawalStatus  @default(PENDING)
-  rejectReason    String?           @map("reject_reason")
-  auditedBy       String?           @map("audited_by")
-  auditedAt       DateTime?         @map("audited_at")
-  completedAt     DateTime?         @map("completed_at")
+  status       WithdrawalStatus @default(PENDING)
+  rejectReason String?          @map("reject_reason")
+  auditedBy    String?          @map("audited_by")
+  auditedAt    DateTime?        @map("audited_at")
+  completedAt  DateTime?        @map("completed_at")
 
   // 打款凭证
-  transferProof   String?           @map("transfer_proof")
-  txHash          String?           @map("tx_hash")
+  transferProof String? @map("transfer_proof")
+  txHash        String? @map("tx_hash")
 
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  seller          User              @relation(fields: [sellerId], references: [id])
+  seller User @relation(fields: [sellerId], references: [id])
 
   @@index([sellerId])
   @@index([status])
@@ -712,22 +752,22 @@ enum WithdrawalStatus {
 // ==================== 卖家资金流水 ====================
 
 model SellerTransaction {
-  id              String              @id @default(uuid())
-  sellerId        String              @map("seller_id")
-  type            TransactionType
-  amount          Decimal             @db.Decimal(10, 2)
-  balanceAfter    Decimal             @map("balance_after") @db.Decimal(12, 2)
-  currency        String              @default("USD")
+  id           String          @id @default(uuid())
+  sellerId     String          @map("seller_id")
+  type         TransactionType
+  amount       Decimal         @db.Decimal(10, 2)
+  balanceAfter Decimal         @map("balance_after") @db.Decimal(12, 2)
+  currency     String          @default("USD")
 
   // 关联
-  orderId         String?             @map("order_id")
-  orderItemId     String?             @map("order_item_id")
-  withdrawalId    String?             @map("withdrawal_id")
+  orderId      String? @map("order_id")
+  orderItemId  String? @map("order_item_id")
+  withdrawalId String? @map("withdrawal_id")
 
-  description     String?
-  createdAt       DateTime            @default(now()) @map("created_at")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  seller          User                @relation(fields: [sellerId], references: [id])
+  seller User @relation(fields: [sellerId], references: [id])
 
   @@index([sellerId])
   @@index([type])
@@ -745,54 +785,54 @@ enum TransactionType {
 // ==================== 退款系统 ====================
 
 model RefundRequest {
-  id              String          @id @default(uuid())
-  refundNo        String          @unique @map("refund_no")
-  orderId         String          @map("order_id")
-  orderItemId     String?         @map("order_item_id")
-  userId          String          @map("user_id")
-  sellerId        String          @map("seller_id")
+  id          String  @id @default(uuid())
+  refundNo    String  @unique @map("refund_no")
+  orderId     String  @map("order_id")
+  orderItemId String? @map("order_item_id")
+  userId      String  @map("user_id")
+  sellerId    String  @map("seller_id")
 
   // 退款信息
-  refundType      String          @default("REFUND_ONLY") @map("refund_type") // REFUND_ONLY, RETURN_REFUND
-  reason          String          @db.Text
-  description     String?         @db.Text
-  evidence        Json?           // 退款凭证图片
+  refundType  String  @default("REFUND_ONLY") @map("refund_type") // REFUND_ONLY, RETURN_REFUND
+  reason      String  @db.Text
+  description String? @db.Text
+  evidence    Json? // 退款凭证图片
 
   // 金额
-  refundAmount    Decimal         @map("refund_amount") @db.Decimal(10, 2)
-  currency        String          @default("USD")
+  refundAmount Decimal @map("refund_amount") @db.Decimal(10, 2)
+  currency     String  @default("USD")
 
   // 状态
-  status          RefundStatus    @default(PENDING)
+  status RefundStatus @default(PENDING)
 
   // 卖家响应
-  sellerResponse    String?      @map("seller_response") @db.Text
-  sellerRespondedAt DateTime?    @map("seller_responded_at")
+  sellerResponse    String?   @map("seller_response") @db.Text
+  sellerRespondedAt DateTime? @map("seller_responded_at")
 
   // 平台介入
-  escalateReason   String?       @map("escalate_reason") @db.Text
-  escalatedAt      DateTime?     @map("escalated_at")
+  escalateReason String?   @map("escalate_reason") @db.Text
+  escalatedAt    DateTime? @map("escalated_at")
 
   // 管理员处理
-  adminResponse    String?       @map("admin_response") @db.Text
-  processedBy      String?       @map("processed_by")
-  processedAt      DateTime?     @map("processed_at")
-  refundCompletedAt DateTime?    @map("refund_completed_at")
+  adminResponse     String?   @map("admin_response") @db.Text
+  processedBy       String?   @map("processed_by")
+  processedAt       DateTime? @map("processed_at")
+  refundCompletedAt DateTime? @map("refund_completed_at")
 
   // 取消
-  cancelledAt      DateTime?     @map("cancelled_at")
+  cancelledAt DateTime? @map("cancelled_at")
 
   // 拒绝原因
-  rejectReason    String?         @map("reject_reason") @db.Text
+  rejectReason String? @map("reject_reason") @db.Text
 
   // 时间
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // 关联
-  order           Order           @relation(fields: [orderId], references: [id])
-  buyer           User            @relation("RefundBuyer", fields: [userId], references: [id])
-  seller          User            @relation("RefundSeller", fields: [sellerId], references: [id])
+  order  Order @relation(fields: [orderId], references: [id])
+  buyer  User  @relation("RefundBuyer", fields: [userId], references: [id])
+  seller User  @relation("RefundSeller", fields: [sellerId], references: [id])
 
   @@index([orderId])
   @@index([userId])
@@ -803,25 +843,25 @@ model RefundRequest {
 }
 
 enum RefundStatus {
-  PENDING         // 待卖家响应
-  SELLER_AGREED   // 卖家同意
+  PENDING // 待卖家响应
+  SELLER_AGREED // 卖家同意
   SELLER_REJECTED // 卖家拒绝
-  DISPUTED        // 平台介入
-  PROCESSING      // 处理中
-  COMPLETED       // 已完成
-  REJECTED        // 已拒绝
-  CANCELLED       // 已取消
+  DISPUTED // 平台介入
+  PROCESSING // 处理中
+  COMPLETED // 已完成
+  REJECTED // 已拒绝
+  CANCELLED // 已取消
 }
 
 // ==================== 系统配置 ====================
 
 model SystemConfig {
-  id          String    @id @default(uuid())
-  key         String    @unique
+  id          String   @id @default(uuid())
+  key         String   @unique
   value       Json
   description String?
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("system_configs")
 }
@@ -829,44 +869,45 @@ model SystemConfig {
 // ==================== 博客系统 ====================
 
 model Blog {
-  id            String      @id @default(uuid())
-  authorId      String      @map("author_id")
-  categoryId    String?     @map("category_id")
+  id         String  @id @default(uuid())
+  authorId   String  @map("author_id")
+  categoryId String? @map("category_id")
 
   // 基本信息
-  title         String      @db.VarChar(200)
-  slug          String      @unique @db.VarChar(200)
-  excerpt       String?     @db.Text
-  content       String      @db.Text
-  coverImage    String?     @map("cover_image") @db.VarChar(500)
+  title      String  @db.VarChar(200)
+  slug       String  @unique @db.VarChar(200)
+  excerpt    String? @db.Text
+  content    String  @db.Text
+  coverImage String? @map("cover_image") @db.VarChar(500)
 
   // 状态
-  status        BlogStatus  @default(DRAFT)
+  status BlogStatus @default(DRAFT)
 
   // SEO
-  metaTitle       String?   @map("meta_title") @db.VarChar(200)
-  metaDescription String?   @map("meta_description") @db.VarChar(500)
+  metaTitle       String? @map("meta_title") @db.VarChar(200)
+  metaDescription String? @map("meta_description") @db.VarChar(500)
 
   // 统计
-  viewCount       Int       @default(0) @map("view_count")
-  likeCount       Int       @default(0) @map("like_count")
-  commentCount    Int       @default(0) @map("comment_count")
-  readingTime     Int       @default(0) @map("reading_time") // 阅读时间（分钟）
+  viewCount    Int @default(0) @map("view_count")
+  likeCount    Int @default(0) @map("like_count")
+  commentCount Int @default(0) @map("comment_count")
+  readingTime  Int @default(0) @map("reading_time") // 阅读时间（分钟）
 
   // 内容格式
-  contentType     ContentType @default(MARKDOWN) @map("content_type")
+  contentType ContentType @default(MARKDOWN) @map("content_type")
 
-  publishedAt     DateTime? @map("published_at")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   // 关联
-  author        User          @relation(fields: [authorId], references: [id])
-  category      Category?     @relation(fields: [categoryId], references: [id])
-  tags          BlogTag[]
-  comments      BlogComment[]
-  likes         BlogLike[]
-  views         BlogView[]
+  author       User               @relation(fields: [authorId], references: [id])
+  category     Category?          @relation(fields: [categoryId], references: [id])
+  tags         BlogTag[]
+  comments     BlogComment[]
+  likes        BlogLike[]
+  views        BlogView[]
+  translations BlogTranslation[]
 
   @@index([authorId])
   @@index([categoryId])
@@ -874,6 +915,27 @@ model Blog {
   @@index([publishedAt])
   @@index([viewCount])
   @@map("blogs")
+}
+
+// 博客多语言表
+model BlogTranslation {
+  id              String   @id @default(uuid())
+  blogId          String   @map("blog_id")
+  language        String   @db.VarChar(10)
+  title           String   @db.VarChar(200)
+  excerpt         String?  @db.Text
+  content         String   @db.Text
+  metaTitle       String?  @map("meta_title") @db.VarChar(200)
+  metaDescription String?  @map("meta_description") @db.VarChar(500)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([blogId, language])
+  @@index([blogId])
+  @@index([language])
+  @@map("blog_translations")
 }
 
 enum BlogStatus {
@@ -890,17 +952,17 @@ enum ContentType {
 
 // 标签表
 model Tag {
-  id          String    @id @default(uuid())
-  name        String    @unique @db.VarChar(50)
-  slug        String    @unique @db.VarChar(50)
-  description String?   @db.VarChar(200)
-  color       String?   @db.VarChar(20)
-  postCount   Int       @default(0) @map("post_count")
-  
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id          String  @id @default(uuid())
+  name        String  @unique @db.VarChar(50)
+  slug        String  @unique @db.VarChar(50)
+  description String? @db.VarChar(200)
+  color       String? @db.VarChar(20)
+  postCount   Int     @default(0) @map("post_count")
 
-  blogs       BlogTag[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  blogs BlogTag[]
 
   @@index([postCount])
   @@map("tags")
@@ -913,8 +975,8 @@ model BlogTag {
   tagId     String   @map("tag_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([blogId, tagId])
   @@index([blogId])
@@ -924,22 +986,22 @@ model BlogTag {
 
 // 博客评论
 model BlogComment {
-  id          String    @id @default(uuid())
-  blogId      String    @map("blog_id")
-  userId      String    @map("user_id")
-  parentId    String?   @map("parent_id") // 父评论ID，支持嵌套回复
-  
-  content     String    @db.Text
-  isApproved  Boolean   @default(true) @map("is_approved")
-  likeCount   Int       @default(0) @map("like_count")
-  
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id       String  @id @default(uuid())
+  blogId   String  @map("blog_id")
+  userId   String  @map("user_id")
+  parentId String? @map("parent_id") // 父评论ID，支持嵌套回复
 
-  blog        Blog      @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  user        User      @relation(fields: [userId], references: [id])
-  parent      BlogComment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies     BlogComment[] @relation("CommentReplies")
+  content    String  @db.Text
+  isApproved Boolean @default(true) @map("is_approved")
+  likeCount  Int     @default(0) @map("like_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  blog    Blog          @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id])
+  parent  BlogComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies BlogComment[] @relation("CommentReplies")
 
   @@index([blogId])
   @@index([userId])
@@ -955,8 +1017,8 @@ model BlogLike {
   userId    String   @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([blogId, userId])
   @@index([blogId])
@@ -966,14 +1028,14 @@ model BlogLike {
 
 // 博客浏览记录（防刷）
 model BlogView {
-  id          String   @id @default(uuid())
-  blogId      String   @map("blog_id")
-  userId      String?  @map("user_id") // 可选，未登录用户为null
-  ipAddress   String   @map("ip_address") @db.VarChar(45)
-  userAgent   String?  @map("user_agent") @db.VarChar(500)
-  createdAt   DateTime @default(now()) @map("created_at")
+  id        String   @id @default(uuid())
+  blogId    String   @map("blog_id")
+  userId    String?  @map("user_id") // 可选，未登录用户为null
+  ipAddress String   @map("ip_address") @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
 
-  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
 
   @@index([blogId])
   @@index([userId])
@@ -985,38 +1047,38 @@ model BlogView {
 // ==================== 站内消息系统 ====================
 
 model Message {
-  id            String        @id @default(uuid())
-  conversationId String?      @map("conversation_id")
-  
+  id             String  @id @default(uuid())
+  conversationId String? @map("conversation_id")
+
   // 发送者和接收者
-  senderId      String        @map("sender_id")
-  receiverId    String        @map("receiver_id")
-  
+  senderId   String @map("sender_id")
+  receiverId String @map("receiver_id")
+
   // 消息内容
-  content       String        @db.Text
-  messageType   MessageType   @default(TEXT)
-  attachments   Json?
-  
+  content     String      @db.Text
+  messageType MessageType @default(TEXT)
+  attachments Json?
+
   // 关联
-  orderId       String?       @map("order_id")
-  productId     String?       @map("product_id")
-  
+  orderId   String? @map("order_id")
+  productId String? @map("product_id")
+
   // 状态
-  isRead        Boolean       @default(false) @map("is_read")
-  readAt        DateTime?     @map("read_at")
-  
+  isRead Boolean   @default(false) @map("is_read")
+  readAt DateTime? @map("read_at")
+
   // 删除标记（软删除）
-  senderDeleted    Boolean   @default(false) @map("sender_deleted")
-  receiverDeleted  Boolean   @default(false) @map("receiver_deleted")
-  
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-  
+  senderDeleted   Boolean @default(false) @map("sender_deleted")
+  receiverDeleted Boolean @default(false) @map("receiver_deleted")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   // 关系
-  sender        User          @relation("MessageSender", fields: [senderId], references: [id])
-  receiver      User          @relation("MessageReceiver", fields: [receiverId], references: [id])
-  conversation  Conversation? @relation(fields: [conversationId], references: [id])
-  
+  sender       User          @relation("MessageSender", fields: [senderId], references: [id])
+  receiver     User          @relation("MessageReceiver", fields: [receiverId], references: [id])
+  conversation Conversation? @relation(fields: [conversationId], references: [id])
+
   @@index([senderId])
   @@index([receiverId])
   @@index([conversationId])
@@ -1035,29 +1097,29 @@ enum MessageType {
 
 // 消息会话
 model Conversation {
-  id            String    @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // 参与者
-  user1Id       String    @map("user1_id")
-  user2Id       String    @map("user2_id")
-  
+  user1Id String @map("user1_id")
+  user2Id String @map("user2_id")
+
   // 最后一条消息
   lastMessage   String?   @map("last_message")
   lastMessageAt DateTime? @map("last_message_at")
-  
+
   // 未读计数
-  user1Unread   Int       @default(0) @map("user1_unread")
-  user2Unread   Int       @default(0) @map("user2_unread")
-  
+  user1Unread Int @default(0) @map("user1_unread")
+  user2Unread Int @default(0) @map("user2_unread")
+
   // 关联订单
-  orderId       String?   @map("order_id")
-  
+  orderId String? @map("order_id")
+
   // 关联消息
-  messages      Message[]
-  
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  
+  messages Message[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@unique([user1Id, user2Id])
   @@index([user1Id])
   @@index([user2Id])
@@ -1068,74 +1130,74 @@ model Conversation {
 // ==================== 卖家信用分系统 ====================
 
 model SellerCredit {
-  id              String          @id @default(uuid())
-  sellerId        String          @unique @map("seller_id")
-  
+  id       String @id @default(uuid())
+  sellerId String @unique @map("seller_id")
+
   // 基础信用分
-  creditScore     Int             @default(100) @map("credit_score") // 初始100分，满分200
-  creditLevel     CreditLevel     @default(NORMAL)
-  
+  creditScore Int         @default(100) @map("credit_score") // 初始100分，满分200
+  creditLevel CreditLevel @default(NORMAL)
+
   // 评分明细
-  positivePoints  Int             @default(0) @map("positive_points")  // 正面积分
-  negativePoints  Int             @default(0) @map("negative_points")  // 负面积分
-  
+  positivePoints Int @default(0) @map("positive_points") // 正面积分
+  negativePoints Int @default(0) @map("negative_points") // 负面积分
+
   // 统计指标
-  totalOrders     Int             @default(0) @map("total_orders")
-  completedOrders Int             @default(0) @map("completed_orders")
-  refundedOrders  Int             @default(0) @map("refunded_orders")
-  disputedOrders  Int             @default(0) @map("disputed_orders")
-  
+  totalOrders     Int @default(0) @map("total_orders")
+  completedOrders Int @default(0) @map("completed_orders")
+  refundedOrders  Int @default(0) @map("refunded_orders")
+  disputedOrders  Int @default(0) @map("disputed_orders")
+
   // 响应指标
-  avgResponseTime Int             @default(0) @map("avg_response_time") // 平均响应时间（分钟）
-  responseRate    Decimal         @default(100.00) @map("response_rate") @db.Decimal(5, 2) // 响应率%
-  
+  avgResponseTime Int     @default(0) @map("avg_response_time") // 平均响应时间（分钟）
+  responseRate    Decimal @default(100.00) @map("response_rate") @db.Decimal(5, 2) // 响应率%
+
   // 评价指标
-  avgRating       Decimal         @default(5.0) @map("avg_rating") @db.Decimal(2, 1)
-  fiveStarRate    Decimal         @default(0.00) @map("five_star_rate") @db.Decimal(5, 2) // 五星好评率%
-  ratingCount     Int             @default(0) @map("rating_count") // 评价数量
-  
+  avgRating    Decimal @default(5.0) @map("avg_rating") @db.Decimal(2, 1)
+  fiveStarRate Decimal @default(0.00) @map("five_star_rate") @db.Decimal(5, 2) // 五星好评率%
+  ratingCount  Int     @default(0) @map("rating_count") // 评价数量
+
   // 违规记录
-  violations      Int             @default(0) // 违规次数
-  warnings        Int             @default(0) // 警告次数
-  
+  violations Int @default(0) // 违规次数
+  warnings   Int @default(0) // 警告次数
+
   // 时间戳
-  lastCalculated  DateTime        @default(now()) @map("last_calculated")
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
-  
+  lastCalculated DateTime @default(now()) @map("last_calculated")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
   @@index([creditScore])
   @@index([creditLevel])
   @@map("seller_credits")
 }
 
 enum CreditLevel {
-  POOR       // 差：0-60分
-  NORMAL     // 普通：61-100分
-  GOOD       // 良好：101-140分
-  EXCELLENT  // 优秀：141-180分
-  PREMIUM    // 卓越：181-200分
+  POOR // 差：0-60分
+  NORMAL // 普通：61-100分
+  GOOD // 良好：101-140分
+  EXCELLENT // 优秀：141-180分
+  PREMIUM // 卓越：181-200分
 }
 
 // 信用分变动记录
 model CreditTransaction {
-  id              String            @id @default(uuid())
-  sellerId        String            @map("seller_id")
-  
+  id       String @id @default(uuid())
+  sellerId String @map("seller_id")
+
   // 变动信息
-  change          Int               // 正数为加分，负数为减分
-  reason          CreditChangeReason
-  description     String?
-  
+  change      Int // 正数为加分，负数为减分
+  reason      CreditChangeReason
+  description String?
+
   // 关联
-  orderId         String?           @map("order_id")
-  reviewId        String?           @map("review_id")
-  ticketId        String?           @map("ticket_id")
-  
+  orderId  String? @map("order_id")
+  reviewId String? @map("review_id")
+  ticketId String? @map("ticket_id")
+
   // 变动后分数
-  scoreAfter      Int               @map("score_after")
-  
-  createdAt       DateTime          @default(now()) @map("created_at")
-  
+  scoreAfter Int @map("score_after")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
   @@index([sellerId])
   @@index([reason])
   @@index([createdAt])
@@ -1144,42 +1206,42 @@ model CreditTransaction {
 
 enum CreditChangeReason {
   // 加分项
-  ORDER_COMPLETED        // 完成订单 +2
-  FIVE_STAR_REVIEW       // 五星好评 +5
-  GOOD_REVIEW            // 好评（4星） +3
-  QUICK_RESPONSE         // 快速响应 +1
-  LONG_TERM_SELLER       // 长期经营 +10/月
-  
+  ORDER_COMPLETED // 完成订单 +2
+  FIVE_STAR_REVIEW // 五星好评 +5
+  GOOD_REVIEW // 好评（4星） +3
+  QUICK_RESPONSE // 快速响应 +1
+  LONG_TERM_SELLER // 长期经营 +10/月
+
   // 减分项
-  ORDER_REFUNDED         // 订单退款 -3
-  ORDER_DISPUTED         // 订单纠纷 -5
-  BAD_REVIEW             // 差评（1-2星） -5
-  SLOW_RESPONSE          // 响应超时 -2
-  COMPLAINT              // 被投诉 -10
-  VIOLATION              // 违规处罚 -20
-  FRAUD_DETECTED         // 欺诈行为 -50
+  ORDER_REFUNDED // 订单退款 -3
+  ORDER_DISPUTED // 订单纠纷 -5
+  BAD_REVIEW // 差评（1-2星） -5
+  SLOW_RESPONSE // 响应超时 -2
+  COMPLAINT // 被投诉 -10
+  VIOLATION // 违规处罚 -20
+  FRAUD_DETECTED // 欺诈行为 -50
 }
 
 // ==================== 风控系统 ====================
 
 model RiskAssessment {
-  id              String    @id @default(uuid())
-  userId          String    @map("user_id")
-  
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+
   // 风险类型
-  type            String    // ORDER, WITHDRAWAL, LOGIN 等
-  
+  type String // ORDER, WITHDRAWAL, LOGIN 等
+
   // 风险评估结果
-  score           Int       // 0-100, 越高越危险
-  level           String    // LOW, MEDIUM, HIGH, CRITICAL
-  factors         Json      // 风险因素列表
-  
+  score   Int // 0-100, 越高越危险
+  level   String // LOW, MEDIUM, HIGH, CRITICAL
+  factors Json // 风险因素列表
+
   // 行为数据
-  ipAddress       String?   @map("ip_address")
-  deviceId        String?   @map("device_id")
-  userAgent       String?   @map("user_agent")
-  
-  createdAt       DateTime  @default(now()) @map("created_at")
+  ipAddress String? @map("ip_address")
+  deviceId  String? @map("device_id")
+  userAgent String? @map("user_agent")
+
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([userId])
   @@index([type])
@@ -1188,17 +1250,17 @@ model RiskAssessment {
 }
 
 model BlacklistedIp {
-  id              String    @id @default(uuid())
-  ip              String    @unique
-  reason          String
-  
+  id     String @id @default(uuid())
+  ip     String @unique
+  reason String
+
   // 过期时间（自动解除黑名单）
-  expiresAt       DateTime  @map("expires_at")
-  
+  expiresAt DateTime @map("expires_at")
+
   // 添加者
-  addedBy         String?   @map("added_by")
-  
-  createdAt       DateTime  @default(now()) @map("created_at")
+  addedBy String? @map("added_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([ip])
   @@index([expiresAt])
@@ -1208,14 +1270,14 @@ model BlacklistedIp {
 // ==================== 支付通道配置 ====================
 
 model PaymentGateway {
-  id          String   @id @default(cuid())
-  code        String   @unique // YIPAY, MAPAY, HUPIJIAO, PAYPAL, STRIPE
-  name        String   // 易支付, 码支付, 虎皮椒, PayPal, Stripe
-  enabled     Boolean  @default(false)
-  config      Json     // 通道配置（API密钥等）
-  sort        Int      @default(0)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(cuid())
+  code      String   @unique // YIPAY, MAPAY, HUPIJIAO, PAYPAL, STRIPE
+  name      String // 易支付, 码支付, 虎皮椒, PayPal, Stripe
+  enabled   Boolean  @default(false)
+  config    Json // 通道配置（API密钥等）
+  sort      Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([code])
   @@index([enabled])
@@ -1225,19 +1287,19 @@ model PaymentGateway {
 // ==================== 审计日志 ====================
 
 model AuditLog {
-  id              String    @id @default(uuid())
-  operatorId      String    @map("operator_id")
-  operatorRole    String    @map("operator_role")
-  module          String
-  action          String
-  targetType      String?   @map("target_type")
-  targetId        String?   @map("target_id")
-  description     String?
-  beforeData      Json?     @map("before_data")
-  afterData       Json?     @map("after_data")
-  ipAddress       String?   @map("ip_address")
-  userAgent       String?   @map("user_agent")
-  createdAt       DateTime  @default(now()) @map("created_at")
+  id           String   @id @default(uuid())
+  operatorId   String   @map("operator_id")
+  operatorRole String   @map("operator_role")
+  module       String
+  action       String
+  targetType   String?  @map("target_type")
+  targetId     String?  @map("target_id")
+  description  String?
+  beforeData   Json?    @map("before_data")
+  afterData    Json?    @map("after_data")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   @@index([operatorId])
   @@index([module, action])

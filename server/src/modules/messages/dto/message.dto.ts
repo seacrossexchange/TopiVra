@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsUUID, MaxLength, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsUUID,
+  MaxLength,
+  IsArray,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { MessageType } from '@prisma/client';
 
@@ -13,7 +20,11 @@ export class SendMessageDto {
   @MaxLength(5000)
   content: string;
 
-  @ApiPropertyOptional({ description: '消息类型', enum: MessageType, default: MessageType.TEXT })
+  @ApiPropertyOptional({
+    description: '消息类型',
+    enum: MessageType,
+    default: MessageType.TEXT,
+  })
   @IsEnum(MessageType)
   @IsOptional()
   messageType?: MessageType;

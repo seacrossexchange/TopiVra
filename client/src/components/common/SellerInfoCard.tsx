@@ -55,8 +55,10 @@ export function SellerInfoCard({
       const info = await sellersService.getPublicSellerInfo(sellerId);
       setSellerInfo(info);
     } catch (error) {
-      console.error('Failed to fetch seller info:', error);
-      // Use fallback data if API fails
+      // 获取卖家信息失败，使用降级数据
+      if (import.meta.env.DEV) {
+        console.error('Failed to fetch seller info:', error);
+      }
     } finally {
       setLoading(false);
     }

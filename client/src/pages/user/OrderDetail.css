@@ -234,6 +234,69 @@
   }
 }
 
+/* SSE 自动发货进度卡片 */
+.delivery-stream-card {
+  margin-bottom: var(--spacing-lg);
+  border-left: 3px solid var(--color-primary);
+}
+
+.delivery-stream-events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: var(--spacing-xs);
+}
+
+.stream-event {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  line-height: 1.5;
+  animation: fadeSlideIn 0.2s ease;
+}
+
+.stream-event--started {
+  color: var(--text-secondary);
+}
+
+.stream-event--item_processing {
+  color: var(--color-primary);
+  background: var(--color-primary-light, #e6f4ff);
+}
+
+.stream-event--item_success {
+  background: #f6ffed;
+}
+
+.stream-event--item_failed {
+  background: #fff2f0;
+}
+
+.stream-event--completed {
+  background: #f6ffed;
+  font-weight: var(--font-weight-medium);
+}
+
+.stream-event--partial_failed {
+  background: #fffbe6;
+  font-weight: var(--font-weight-medium);
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* 暗色主题 */
 [data-theme='dark'] .product-item {
   background: var(--bg-tertiary);

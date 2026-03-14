@@ -320,6 +320,11 @@ export class TicketsService {
       throw new ForbiddenException('无权关闭此工单');
     }
 
+    // 已关闭的工单不能重复关闭
+    if (ticket.status === 'CLOSED') {
+      throw new BadRequestException('工单已关闭');
+    }
+
     const updated = await this.prisma.ticket.update({
       where: { id },
       data: {

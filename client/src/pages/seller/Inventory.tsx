@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Card, Table, Button, Space, Tag, Input, Select, Modal, message,
-  Upload, Statistic, Row, Col, Tabs, Typography, Tooltip, Popconfirm
+  Statistic, Row, Col, Typography, Tooltip, Popconfirm
 } from 'antd';
 import {
   PlusOutlined, SearchOutlined, UploadOutlined, DownloadOutlined,
@@ -16,7 +16,6 @@ import AddInventoryModal from '@/components/seller/AddInventoryModal';
 import BatchImportModal from '@/components/seller/BatchImportModal';
 
 const { Text } = Typography;
-const { TabPane } = Tabs;
 
 interface Product {
   id: string;
@@ -52,7 +51,6 @@ export default function SellerInventoryPage() {
   const [productFilter, setProductFilter] = useState<string>('all');
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [batchModalOpen, setBatchModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<string>('');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -136,7 +134,7 @@ export default function SellerInventoryPage() {
       link.remove();
       
       message.success(t('inventory.exportSuccess'));
-    } catch (error) {
+    } catch {
       message.error(t('common.error'));
     }
   };
@@ -383,4 +381,13 @@ export default function SellerInventoryPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 

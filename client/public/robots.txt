@@ -1,0 +1,28 @@
+# TopiVra Robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://topivra.com/sitemap.xml
+
+# 禁止爬取的路径
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /user/
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /cart/
+
+# 允许爬取的路径
+Allow: /products/
+Allow: /about
+Allow: /contact
+Allow: /tutorials
+Allow: /tools
+Allow: /apply-seller
+
+# 爬取延迟（毫秒）
+Crawl-delay: 1
+
+
+

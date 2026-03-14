@@ -1,0 +1,34 @@
+{
+  "USER_NOT_FOUND": "Pengguna tidak ditemukan",
+  "INVALID_CREDENTIALS": "Email atau kata sandi salah",
+  "EMAIL_ALREADY_EXISTS": "Email sudah terdaftar",
+  "UNAUTHORIZED": "Akses tidak sah",
+  "FORBIDDEN": "Anda tidak memiliki izin untuk melakukan tindakan ini",
+  "PRODUCT_NOT_FOUND": "Produk tidak ditemukan",
+  "ORDER_NOT_FOUND": "Pesanan tidak ditemukan",
+  "INSUFFICIENT_STOCK": "Stok tidak mencukupi",
+  "PAYMENT_FAILED": "Pembayaran gagal",
+  "INVALID_PAYMENT_METHOD": "Metode pembayaran tidak valid",
+  "ORDER_ALREADY_PAID": "Pesanan sudah dibayar",
+  "ORDER_ALREADY_CANCELLED": "Pesanan sudah dibatalkan",
+  "CANNOT_CANCEL_ORDER": "Tidak dapat membatalkan pesanan ini",
+  "SELLER_NOT_FOUND": "Penjual tidak ditemukan",
+  "SELLER_NOT_APPROVED": "Penjual belum disetujui",
+  "TICKET_NOT_FOUND": "Tiket tidak ditemukan",
+  "REFUND_NOT_FOUND": "Permintaan refund tidak ditemukan",
+  "REFUND_ALREADY_PROCESSED": "Refund sudah diproses",
+  "INVALID_REFUND_STATUS": "Status refund tidak valid",
+  "INSUFFICIENT_BALANCE": "Saldo tidak mencukupi",
+  "WITHDRAWAL_FAILED": "Penarikan gagal",
+  "INVALID_FILE_TYPE": "Tipe file tidak didukung",
+  "FILE_TOO_LARGE": "File terlalu besar",
+  "VALIDATION_ERROR": "Kesalahan validasi data",
+  "INTERNAL_SERVER_ERROR": "Kesalahan server internal",
+  "RATE_LIMIT_EXCEEDED": "Terlalu banyak permintaan, silakan coba lagi nanti",
+  "TOKEN_EXPIRED": "Token kedaluwarsa, silakan login lagi",
+  "INVALID_TOKEN": "Token tidak valid",
+  "WEAK_PASSWORD": "Kata sandi terlalu lemah"
+}
+
+
+

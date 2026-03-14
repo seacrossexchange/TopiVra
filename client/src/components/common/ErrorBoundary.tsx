@@ -28,7 +28,10 @@ class ErrorBoundaryClass extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({ errorInfo });
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // 错误已被捕获，在生产环境应上报到 Sentry
+    if (import.meta.env.DEV) {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+    }
   }
 
   handleReset = (): void => {
@@ -88,7 +91,10 @@ class ErrorBoundaryClass extends Component<Props, State> {
 function useGlobalErrorHandlers() {
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {
-      console.error('[GlobalError] 未捕获的脚本错误:', event.error ?? event.message);
+      if (import.meta.env.DEV) {
+        console.error('[GlobalError] 未捕获的脚本错误:', event.error ?? event.message);
+      }
+      // 生产环境应上报到 Sentry
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
@@ -100,7 +106,10 @@ function useGlobalErrorHandlers() {
       ) {
         return;
       }
-      console.error('[GlobalError] 未处理的 Promise 异常:', reason);
+      if (import.meta.env.DEV) {
+        console.error('[GlobalError] 未处理的 Promise 异常:', reason);
+      }
+      // 生产环境应上报到 Sentry
     };
 
     window.addEventListener('error', handleWindowError);

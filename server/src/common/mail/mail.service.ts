@@ -79,8 +79,9 @@ export class MailService {
 
       this.logger.log(`验证码邮件已发送至 ${email}`);
       return true;
-    } catch (error) {
-      this.logger.error(`发送验证码邮件失败: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`发送验证码邮件失败: ${err.message}`, err.stack);
       return false;
     }
   }
@@ -122,8 +123,9 @@ export class MailService {
 
       this.logger.log(`密码重置验证码邮件已发送至 ${email}`);
       return true;
-    } catch (error) {
-      this.logger.error(`发送密码重置邮件失败: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`发送密码重置邮件失败: ${err.message}`, err.stack);
       return false;
     }
   }
@@ -151,8 +153,9 @@ export class MailService {
 
       this.logger.log(`订单通知邮件已发送至 ${email}`);
       return true;
-    } catch (error) {
-      this.logger.error(`发送订单通知邮件失败: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`发送订单通知邮件失败: ${err.message}`, err.stack);
       return false;
     }
   }

@@ -6,8 +6,8 @@ export const ERROR_MESSAGES = {
   'Email already exists': '该邮箱已被注册，请使用其他邮箱或直接登录',
   'Invalid token': '登录已过期，请重新登录',
   'Token expired': '登录已过期，请重新登录',
-  'Unauthorized': '请先登录后再进行操作',
-  'Forbidden': '您没有权限执行此操作',
+  Unauthorized: '请先登录后再进行操作',
+  Forbidden: '您没有权限执行此操作',
   'Account locked': '账号已被锁定，请联系客服',
   'Email not verified': '请先验证邮箱后再登录',
   'Invalid verification code': '验证码错误或已过期，请重新获取',
@@ -98,14 +98,14 @@ export const ERROR_MESSAGES = {
  */
 export function getFriendlyErrorMessage(error: string | Error): string {
   const errorMessage = typeof error === 'string' ? error : error.message;
-  
+
   // 查找匹配的友好消息
   for (const [key, value] of Object.entries(ERROR_MESSAGES)) {
     if (errorMessage.includes(key)) {
       return value;
     }
   }
-  
+
   // 如果没有匹配，返回通用错误消息
   return '操作失败，请稍后重试';
 }
@@ -147,7 +147,10 @@ export function formatFriendlyError(
   return {
     message: getFriendlyErrorMessage(error),
     suggestion,
-    code: typeof error === 'object' && 'code' in error ? String(error.code) : undefined,
+    code:
+      typeof error === 'object' && 'code' in error
+        ? String(error.code)
+        : undefined,
   };
 }
 
@@ -166,13 +169,12 @@ export const ERROR_SUGGESTIONS = {
  */
 export function getErrorSuggestion(error: string | Error): string | undefined {
   const errorMessage = typeof error === 'string' ? error : error.message;
-  
+
   for (const [key, value] of Object.entries(ERROR_SUGGESTIONS)) {
     if (errorMessage.includes(key)) {
       return value;
     }
   }
-  
+
   return undefined;
 }
-

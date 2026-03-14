@@ -133,8 +133,8 @@ bash scripts/deploy/restore.sh backups/mysql_backup_*.sql
 
 ```bash
 # 检查服务健康
-curl http://localhost:3001/health/live
-curl http://localhost:3001/health/ready
+curl http://localhost:8000/health/live
+curl http://localhost:8000/health/ready
 
 # 完整诊断
 bash scripts/deploy/diagnose.sh
@@ -164,7 +164,7 @@ docker ps -a
 docker-compose logs server
 
 # 检查端口占用
-netstat -ano | findstr :3001
+netstat -ano | findstr :8000
 netstat -ano | findstr :3306
 ```
 

@@ -67,7 +67,10 @@ export const useAuthStore = create<AuthState>()(
             const { data: userProfile } = await authApi.getMe();
             set({ user: userProfile });
           } catch (error) {
-            console.warn('获取用户信息失败:', error);
+            // 获取用户信息失败不影响登录流程
+            if (import.meta.env.DEV) {
+              console.warn('获取用户信息失败:', error);
+            }
           }
           
           return {};

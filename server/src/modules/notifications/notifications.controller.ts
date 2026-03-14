@@ -42,10 +42,7 @@ export class NotificationsController {
   @Patch(':id/read')
   @ApiOperation({ summary: '标记单条通知为已读' })
   @ApiParam({ name: 'id', description: '通知ID' })
-  async markAsRead(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async markAsRead(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.notificationsService.markAsRead(id, userId);
   }
 
@@ -55,11 +52,3 @@ export class NotificationsController {
     return this.notificationsService.markAllAsRead(userId);
   }
 }
-
-
-
-
-
-
-
-

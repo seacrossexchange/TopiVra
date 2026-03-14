@@ -31,8 +31,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.client.on('error', (err) => {
         this.logger.error(`Redis 连接错误: ${err.message}`);
       });
-    } catch (error) {
-      this.logger.error(`Redis 初始化失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Redis 初始化失败: ${(error as Error).message}`);
     }
   }
 
@@ -157,7 +157,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Hash incr
-  async hincrby(key: string, field: string, increment: number): Promise<number> {
+  async hincrby(
+    key: string,
+    field: string,
+    increment: number,
+  ): Promise<number> {
     if (!this.client) return 0;
     return this.client.hincrby(key, field, increment);
   }

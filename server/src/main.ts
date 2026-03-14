@@ -3,6 +3,7 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
+import * as compression from 'compression';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters';
 import { SanitizePipe } from './common/pipes';
@@ -17,7 +18,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // ==================== 安全检查 ====================
-  
+
   // 检查必需的环境变量
   const jwtSecret = configService.get<string>('JWT_SECRET');
   const jwtRefreshSecret = configService.get<string>('JWT_REFRESH_SECRET');
@@ -29,7 +30,10 @@ async function bootstrap() {
     process.exit(1);
   }
 
-  if (!jwtRefreshSecret || jwtRefreshSecret === 'your-refresh-secret-minimum-32-characters') {
+  if (
+    !jwtRefreshSecret ||
+    jwtRefreshSecret === 'your-refresh-secret-minimum-32-characters'
+  ) {
     logger.error('❌ JWT_REFRESH_SECRET 未配置或使用默认值！');
     logger.error('请在 .env 文件中设置强密码（至少32个字符）');
     process.exit(1);
@@ -57,6 +61,10 @@ async function bootstrap() {
     }),
   );
   logger.log('✅ Helmet 安全头已启用');
+
+  // 响应压缩（gzip/brotli）
+  app.use(compression());
+  logger.log('✅ 响应压缩已启用');
 
   // Sentry 初始化（需要先安装 @sentry/node：npm i @sentry/node）
   const sentryDsn = configService.get<string>('SENTRY_DSN');
@@ -132,10 +140,8 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger API 文档配置 - 仅在非生产环境启用
-  const enableSwagger = configService.get<string>('ENABLE_SWAGGER') !== 'false';
-
-  if (nodeEnv !== 'production' || enableSwagger) {
+  // Swagger API 文档配置 - 强制在生产环境禁用
+  if (nodeEnv !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('TokBazaar API')
       .setDescription('TokBazaar 全球数字账号交易平台 API 文档')
@@ -167,15 +173,15 @@ async function bootstrap() {
         operationsSorter: 'alpha',
       },
     });
+    logger.log(`📚 API 文档: http://localhost:${port}/${apiPrefix}/docs`);
   } else {
-    logger.warn('⚠️ Swagger 已在生产环境中禁用');
+    logger.log('🔒 Swagger 已在生产环境中禁用（安全考虑）');
   }
 
   // 启动服务
   await app.listen(port);
 
   logger.log(`🚀 服务已启动: http://localhost:${port}`);
-  logger.log(`📚 API 文档: http://localhost:${port}/${apiPrefix}/docs`);
   logger.log(`🔧 环境: ${configService.get('NODE_ENV') || 'development'}`);
 }
 

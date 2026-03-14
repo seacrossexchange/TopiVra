@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Table, Tag, Button, Space, Input, Select, message } from 'antd';
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import dayjs from 'dayjs';
+import { useI18n } from '@/hooks/useI18n';
 import apiClient from '@/services/apiClient';
 import PageLoading from '@/components/common/PageLoading';
 import PageError from '@/components/common/PageError';
@@ -39,7 +38,7 @@ interface OrderItem {
 }
 
 export default function Orders() {
-  const { t } = useTranslation();
+  const { t, formatCurrency, formatDateTime } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchText, setSearchText] = useState('');
@@ -138,7 +137,7 @@ export default function Orders() {
       dataIndex: 'totalAmount',
       key: 'totalAmount',
       width: 100,
-      render: (amount: number) => `$${(amount || 0).toFixed(2)}`,
+      render: (amount: number) => formatCurrency(amount || 0),
     },
     {
       title: t('order.status'),
@@ -159,7 +158,7 @@ export default function Orders() {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 160,
-      render: (date: string) => date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-',
+      render: (date: string) => date ? formatDateTime(date) : '-',
     },
     {
       title: t('order.action'),

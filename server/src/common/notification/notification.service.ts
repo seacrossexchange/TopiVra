@@ -63,8 +63,9 @@ export class NotificationService {
       this.logger.debug(
         `通知已发送给用户 ${userId}: ${payload.type} - ${payload.title}`,
       );
-    } catch (error) {
-      this.logger.error(`发送通知失败: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      this.logger.error(`发送通知失败: ${err.message}`, err.stack);
     }
   }
 
@@ -83,19 +84,16 @@ export class NotificationService {
   /**
    * 订单状态变更通知
    */
-  async notifyOrderStatusChange(
-    params: {
-      orderId: string;
-      orderNo: string;
-      buyerId: string;
-      buyerEmail?: string;
-      sellerIds: string[];
-      status: string;
-      message: string;
-    },
-  ): Promise<void> {
-    const { orderId, orderNo, buyerId, buyerEmail, sellerIds, status, message } =
-      params;
+  async notifyOrderStatusChange(params: {
+    orderId: string;
+    orderNo: string;
+    buyerId: string;
+    buyerEmail?: string;
+    sellerIds: string[];
+    status: string;
+    message: string;
+  }): Promise<void> {
+    const { orderId, orderNo, buyerId, sellerIds, status, message } = params;
 
     const type = this.getStatusNotificationType(status);
     if (!type) return;
@@ -147,8 +145,8 @@ export class NotificationService {
           },
         },
       });
-    } catch (error) {
-      this.logger.error(`创建通知记录失败: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`创建通知记录失败: ${(error as Error).message}`);
     }
   }
 

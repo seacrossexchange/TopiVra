@@ -30,7 +30,7 @@ export class InventoryController {
    */
   @Post('add')
   @Roles('SELLER')
-  async addAccount(@Request() req, @Body() dto: AddAccountDto) {
+  async addAccount(@Request() req: any, @Body() dto: AddAccountDto) {
     return this.inventoryService.addAccount({
       ...dto,
       sellerId: req.user.userId,
@@ -42,7 +42,10 @@ export class InventoryController {
    */
   @Post('batch-add')
   @Roles('SELLER')
-  async batchAddAccounts(@Request() req, @Body() dto: BatchAddAccountsDto) {
+  async batchAddAccounts(
+    @Request() req: any,
+    @Body() dto: BatchAddAccountsDto,
+  ) {
     return this.inventoryService.batchAddAccounts({
       ...dto,
       sellerId: req.user.userId,
@@ -54,7 +57,10 @@ export class InventoryController {
    */
   @Get('list')
   @Roles('SELLER')
-  async getInventoryList(@Request() req, @Query() query: InventoryQueryDto) {
+  async getInventoryList(
+    @Request() req: any,
+    @Query() query: InventoryQueryDto,
+  ) {
     return this.inventoryService.findBySeller(req.user.userId, query);
   }
 
@@ -63,7 +69,10 @@ export class InventoryController {
    */
   @Get('stats/:productId')
   @Roles('SELLER')
-  async getInventoryStats(@Request() req, @Param('productId') productId: string) {
+  async getInventoryStats(
+    @Request() req: any,
+    @Param('productId') productId: string,
+  ) {
     return this.inventoryService.getInventoryStats(productId, req.user.userId);
   }
 
@@ -72,7 +81,7 @@ export class InventoryController {
    */
   @Delete(':id')
   @Roles('SELLER')
-  async deleteAccount(@Request() req, @Param('id') id: string) {
+  async deleteAccount(@Request() req: any, @Param('id') id: string) {
     return this.inventoryService.deleteAccount(id, req.user.userId);
   }
 
@@ -82,7 +91,7 @@ export class InventoryController {
   @Post(':id/mark-invalid')
   @Roles('SELLER')
   async markAsInvalid(
-    @Request() req,
+    @Request() req: any,
     @Param('id') id: string,
     @Body() dto: MarkInvalidDto,
   ) {
@@ -98,4 +107,3 @@ export class InventoryController {
     return this.inventoryService.checkDuplicate(body.accountData);
   }
 }
-

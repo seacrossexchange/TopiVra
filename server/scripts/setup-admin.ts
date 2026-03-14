@@ -21,10 +21,12 @@ async function main() {
   console.log(`📧 找到用户: ${firstUser.email} (${firstUser.username})`);
   console.log(`🆔 用户ID: ${firstUser.id}`);
   console.log(`📅 注册时间: ${firstUser.createdAt}`);
-  console.log(`👤 当前角色: ${firstUser.roles.map(r => r.role).join(', ')}\n`);
+  console.log(
+    `👤 当前角色: ${firstUser.roles.map((r) => r.role).join(', ')}\n`,
+  );
 
   // 检查是否已经是管理员
-  const hasAdminRole = firstUser.roles.some(r => r.role === 'ADMIN');
+  const hasAdminRole = firstUser.roles.some((r) => r.role === 'ADMIN');
 
   if (hasAdminRole) {
     console.log('✅ 该用户已经是管理员了！');
@@ -44,7 +46,9 @@ async function main() {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`📧 邮箱: ${firstUser.email}`);
   console.log(`👤 用户名: ${firstUser.username}`);
-  console.log(`🔑 角色: ADMIN, ${firstUser.roles.map(r => r.role).join(', ')}`);
+  console.log(
+    `🔑 角色: ADMIN, ${firstUser.roles.map((r) => r.role).join(', ')}`,
+  );
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   console.log('💡 提示: 使用此账号登录即可访问管理员后台 (/admin)');
 }
@@ -57,7 +61,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
-
-
-

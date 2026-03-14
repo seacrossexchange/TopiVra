@@ -1,6 +1,15 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma';
-import { SendMessageDto, MessageQueryDto, ConversationQueryDto, MarkAsReadDto } from './dto/message.dto';
+import {
+  SendMessageDto,
+  MessageQueryDto,
+  ConversationQueryDto,
+  MarkAsReadDto,
+} from './dto/message.dto';
 import { MessageType } from '@prisma/client';
 
 @Injectable()
@@ -22,7 +31,10 @@ export class MessagesService {
     }
 
     // 获取或创建会话
-    const conversation = await this.getOrCreateConversation(senderId, dto.receiverId);
+    const conversation = await this.getOrCreateConversation(
+      senderId,
+      dto.receiverId,
+    );
 
     // 创建消息
     const message = await this.prisma.message.create({
@@ -61,7 +73,8 @@ export class MessagesService {
    */
   private async getOrCreateConversation(user1Id: string, user2Id: string) {
     // 确保 user1Id < user2Id 以保证唯一性
-    const [smallerId, largerId] = user1Id < user2Id ? [user1Id, user2Id] : [user2Id, user1Id];
+    const [smallerId, largerId] =
+      user1Id < user2Id ? [user1Id, user2Id] : [user2Id, user1Id];
 
     let conversation = await this.prisma.conversation.findUnique({
       where: {
@@ -120,7 +133,7 @@ export class MessagesService {
           unreadCount,
           createdAt: conv.createdAt,
         };
-      })
+      }),
     );
 
     return conversationsWithUsers;
@@ -135,10 +148,7 @@ export class MessagesService {
 
     const where: any = {
       OR: [{ senderId: userId }, { receiverId: userId }],
-      AND: [
-        { senderDeleted: false },
-        { receiverDeleted: false },
-      ],
+      AND: [{ senderDeleted: false }, { receiverDeleted: false }],
     };
 
     if (otherUserId) {
@@ -172,6 +182,10 @@ export class MessagesService {
    * 标记消息为已读
    */
   async markAsRead(userId: string, dto: MarkAsReadDto) {
+    if (!dto.messageIds || dto.messageIds.length === 0) {
+      return { updated: 0 };
+    }
+
     const result = await this.prisma.message.updateMany({
       where: {
         id: { in: dto.messageIds },

@@ -7,6 +7,8 @@ import {
   Param,
   Query,
   UseGuards,
+  Res,
+  Header,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,6 +16,8 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
+import { Response } from 'express';
+import { DeliveryEventsService } from './delivery-events.service';
 import { OrdersService } from './orders.service';
 import {
   CreateOrderDto,
@@ -40,7 +44,10 @@ import { OrderRateLimitGuard } from '../../common/guards/order-rate-limit.guard'
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly deliveryEventsService: DeliveryEventsService,
+  ) {}
 
   // ==================== 买家端 ====================
 
@@ -75,6 +82,43 @@ export class OrdersController {
   @ApiParam({ name: 'id', description: '订单ID' })
   async findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.ordersService.findOne(id, userId);
+  }
+
+  @Get(':id/delivery-stream')
+  @Header('Content-Type', 'text/event-stream')
+  @Header('Cache-Control', 'no-cache')
+  @Header('Connection', 'keep-alive')
+  @ApiOperation({ summary: '订单自动发货实时事件流（SSE）' })
+  @ApiParam({ name: 'id', description: '订单ID' })
+  async deliveryStream(@Param('id') id: string, @Res() res: Response) {
+    res.flushHeaders();
+
+    const subscription = this.deliveryEventsService
+      .streamForOrder(id)
+      .subscribe({
+        next: (event) => {
+          res.write(`data: ${JSON.stringify(event)}\n\n`);
+          // 发货完成或全部失败后关闭连接
+          if (
+            event.type === 'COMPLETED' ||
+            event.type === 'PARTIAL_FAILED' ||
+            event.type === 'ERROR'
+          ) {
+            res.end();
+          }
+        },
+        error: (err) => {
+          res.write(
+            `data: ${JSON.stringify({ type: 'ERROR', error: err.message, orderId: id, timestamp: Date.now() })}\n\n`,
+          );
+          res.end();
+        },
+      });
+
+    // 客户端断开时取消订阅
+    res.on('close', () => {
+      subscription.unsubscribe();
+    });
   }
 
   @Put(':id/cancel')

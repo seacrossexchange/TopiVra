@@ -38,16 +38,16 @@ export class CreateTicketDto {
   @IsString()
   @IsNotEmpty({ message: '工单标题不能为空' })
   @MaxLength(200)
-  subject: string;
+  subject!: string;
 
   @ApiProperty({ description: '工单类型', enum: TicketType })
   @IsEnum(TicketType, { message: '工单类型无效' })
-  type: TicketType;
+  type!: TicketType;
 
   @ApiProperty({ description: '工单内容' })
   @IsString()
   @IsNotEmpty({ message: '工单内容不能为空' })
-  content: string;
+  content!: string;
 
   @ApiPropertyOptional({
     description: '工单优先级',
@@ -63,7 +63,7 @@ export class ReplyTicketDto {
   @ApiProperty({ description: '回复内容' })
   @IsString()
   @IsNotEmpty({ message: '回复内容不能为空' })
-  content: string;
+  content!: string;
 
   @ApiPropertyOptional({ description: '是否内部备注', default: false })
   @IsOptional()

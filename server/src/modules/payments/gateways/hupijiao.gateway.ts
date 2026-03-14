@@ -2,7 +2,13 @@
  * 虎皮椒支付通道实现
  * 个人免签约支付方式（迅虎支付）
  */
-import { BasePaymentGateway, CreatePaymentParams, PaymentResult, NotifyVerifyResult, QueryOrderResult } from './base.gateway';
+import {
+  BasePaymentGateway,
+  CreatePaymentParams,
+  PaymentResult,
+  NotifyVerifyResult,
+  QueryOrderResult,
+} from './base.gateway';
 import * as crypto from 'crypto';
 
 export class HupijiaoGateway extends BasePaymentGateway {
@@ -39,7 +45,9 @@ export class HupijiaoGateway extends BasePaymentGateway {
     // 生成签名
     data['hash'] = this.generateSign(data);
 
-    this.logger.log(`创建虎皮椒订单: ${params.orderId}, 金额: ${params.amount}`);
+    this.logger.log(
+      `创建虎皮椒订单: ${params.orderId}, 金额: ${params.amount}`,
+    );
 
     try {
       const axios = (await import('axios')).default;
@@ -169,9 +177,14 @@ export class HupijiaoGateway extends BasePaymentGateway {
         const tradeStatus = result.data.status || result.data.trade_status;
         return {
           exists: true,
-          status: tradeStatus === 'OTS' || tradeStatus === 'SUCCESS' ? 'SUCCESS' : 'PENDING',
+          status:
+            tradeStatus === 'OTS' || tradeStatus === 'SUCCESS'
+              ? 'SUCCESS'
+              : 'PENDING',
           amount: parseFloat(result.data.total_fee),
-          paidAt: result.data.pay_time ? new Date(result.data.pay_time) : undefined,
+          paidAt: result.data.pay_time
+            ? new Date(result.data.pay_time)
+            : undefined,
           rawData: result,
         };
       }
@@ -199,15 +212,24 @@ export class HupijiaoGateway extends BasePaymentGateway {
 
     // 按键名排序
     const sortedKeys = Object.keys(data)
-      .filter(key => data[key] !== undefined && data[key] !== '' && key !== 'hash' && key !== 'sign')
+      .filter(
+        (key) =>
+          data[key] !== undefined &&
+          data[key] !== '' &&
+          key !== 'hash' &&
+          key !== 'sign',
+      )
       .sort();
 
     // 构建签名字符串
-    const signStr = sortedKeys
-      .map(key => `${key}=${data[key]}`)
-      .join('&') + appSecret;
+    const signStr =
+      sortedKeys.map((key) => `${key}=${data[key]}`).join('&') + appSecret;
 
     // MD5 加密并转大写
-    return crypto.createHash('md5').update(signStr, 'utf8').digest('hex').toUpperCase();
+    return crypto
+      .createHash('md5')
+      .update(signStr, 'utf8')
+      .digest('hex')
+      .toUpperCase();
   }
 }

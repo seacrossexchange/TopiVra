@@ -2,7 +2,15 @@
  * Stripe 支付通道实现
  * 国际信用卡支付
  */
-import { BasePaymentGateway, CreatePaymentParams, PaymentResult, NotifyVerifyResult, QueryOrderResult, RefundParams, RefundResult } from './base.gateway';
+import {
+  BasePaymentGateway,
+  CreatePaymentParams,
+  PaymentResult,
+  NotifyVerifyResult,
+  QueryOrderResult,
+  RefundParams,
+  RefundResult,
+} from './base.gateway';
 import Stripe from 'stripe';
 
 export class StripeGateway extends BasePaymentGateway {
@@ -33,7 +41,7 @@ export class StripeGateway extends BasePaymentGateway {
    * 创建支付订单
    */
   async createPayment(params: CreatePaymentParams): Promise<PaymentResult> {
-    const { publicKey, secretKey } = this.config;
+    const { secretKey } = this.config;
 
     if (!secretKey || !this.stripe) {
       this.logger.warn('Stripe 未配置，返回模拟数据');
@@ -48,17 +56,19 @@ export class StripeGateway extends BasePaymentGateway {
       // 创建 Checkout Session
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: [{
-          price_data: {
-            currency: (params.currency || 'USD').toLowerCase(),
-            product_data: {
-              name: params.subject,
-              description: `订单: ${params.orderId}`,
+        line_items: [
+          {
+            price_data: {
+              currency: (params.currency || 'USD').toLowerCase(),
+              product_data: {
+                name: params.subject,
+                description: `订单: ${params.orderId}`,
+              },
+              unit_amount: Math.round(params.amount * 100), // 转为分
             },
-            unit_amount: Math.round(params.amount * 100), // 转为分
+            quantity: 1,
           },
-          quantity: 1,
-        }],
+        ],
         mode: 'payment',
         success_url: `${params.returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: params.returnUrl,
@@ -68,7 +78,9 @@ export class StripeGateway extends BasePaymentGateway {
         },
       });
 
-      this.logger.log(`创建 Stripe 订单: ${session.id}, 订单ID: ${params.orderId}`);
+      this.logger.log(
+        `创建 Stripe 订单: ${session.id}, 订单ID: ${params.orderId}`,
+      );
 
       return {
         paymentNo: session.id,
@@ -86,7 +98,7 @@ export class StripeGateway extends BasePaymentGateway {
    */
   async verifyNotify(data: any): Promise<NotifyVerifyResult> {
     try {
-      const { secretKey, webhookSecret } = this.config;
+      const { secretKey } = this.config;
 
       if (!secretKey || !this.stripe) {
         // 模拟模式
@@ -166,7 +178,7 @@ export class StripeGateway extends BasePaymentGateway {
       const event = this.stripe.webhooks.constructEvent(
         payload,
         signature,
-        webhookSecret
+        webhookSecret,
       );
       return event;
     } catch (error: any) {
@@ -234,7 +246,9 @@ export class StripeGateway extends BasePaymentGateway {
 
     try {
       // 先获取 session 信息
-      const session = await this.stripe.checkout.sessions.retrieve(params.paymentNo);
+      const session = await this.stripe.checkout.sessions.retrieve(
+        params.paymentNo,
+      );
       const paymentIntentId = session.payment_intent as string;
 
       if (!paymentIntentId) {
@@ -271,7 +285,7 @@ export class StripeGateway extends BasePaymentGateway {
   /**
    * 生成签名（Stripe 不需要手动签名）
    */
-  protected generateSign(data: any): string {
+  protected generateSign(_data: any): string {
     return '';
   }
 
@@ -281,11 +295,11 @@ export class StripeGateway extends BasePaymentGateway {
    */
   convertToCents(amount: number, currency: string): number {
     const noDecimalCurrencies = ['JPY', 'VND', 'KRW'];
-    
+
     if (noDecimalCurrencies.includes(currency.toUpperCase())) {
       return Math.round(amount);
     }
-    
+
     return Math.round(amount * 100);
   }
 }

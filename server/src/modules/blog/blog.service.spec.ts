@@ -70,13 +70,15 @@ describe('BlogService', () => {
 
       mockPrismaService.blog.findUnique.mockResolvedValue(null);
       mockPrismaService.blog.create.mockResolvedValue(mockBlog);
-      mockPrismaService.blog.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce({
-        ...mockBlog,
-        author: { id: 'user1', username: 'testuser', avatar: null },
-        category: null,
-        tags: [],
-        _count: { comments: 0, likes: 0 },
-      });
+      mockPrismaService.blog.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          ...mockBlog,
+          author: { id: 'user1', username: 'testuser', avatar: null },
+          category: null,
+          tags: [],
+          _count: { comments: 0, likes: 0 },
+        });
 
       const result = await service.create('user1', {
         title: '测试文章',
@@ -130,4 +132,3 @@ describe('BlogService', () => {
     });
   });
 });
-

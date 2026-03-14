@@ -7,7 +7,10 @@ export class AdminAnalyticsService {
   constructor(private readonly redis: RedisService) {}
 
   // 实时在线人数：扫描 analytics:online:ip:* 存活 key
-  async getRealtimeOnline(): Promise<{ onlineCount: number; timestamp: string }> {
+  async getRealtimeOnline(): Promise<{
+    onlineCount: number;
+    timestamp: string;
+  }> {
     if (!this.redis.isAvailable()) {
       return { onlineCount: 0, timestamp: new Date().toISOString() };
     }
@@ -19,7 +22,9 @@ export class AdminAnalyticsService {
   }
 
   // 过去 N 小时每小时访问量
-  async getHourlyVisits(hours = 24): Promise<{ hour: string; visits: number }[]> {
+  async getHourlyVisits(
+    hours = 24,
+  ): Promise<{ hour: string; visits: number }[]> {
     if (!this.redis.isAvailable()) return this.mockHourly(hours);
 
     const result: { hour: string; visits: number }[] = [];
@@ -55,7 +60,9 @@ export class AdminAnalyticsService {
   }
 
   // 今日国家分布
-  async getGeoDistribution(): Promise<{ country: string; visits: number; countryName: string }[]> {
+  async getGeoDistribution(): Promise<
+    { country: string; visits: number; countryName: string }[]
+  > {
     if (!this.redis.isAvailable()) return this.mockGeo();
 
     const today = dayjs().format('YYYYMMDD');
@@ -82,7 +89,8 @@ export class AdminAnalyticsService {
     ]);
 
     const todayVisits = hourly.reduce((s, h) => s + h.visits, 0);
-    const yesterdayVisits = daily.length >= 2 ? daily[daily.length - 2].visits : 0;
+    const yesterdayVisits =
+      daily.length >= 2 ? daily[daily.length - 2].visits : 0;
     const todayVsYesterday = yesterdayVisits
       ? Math.round(((todayVisits - yesterdayVisits) / yesterdayVisits) * 100)
       : 0;
@@ -131,17 +139,56 @@ export class AdminAnalyticsService {
 
   private getCountryNames(): Record<string, string> {
     return {
-      CN: '中国', US: '美国', SG: '新加坡', JP: '日本', TH: '泰国',
-      MY: '马来西亚', ID: '印度尼西亚', GB: '英国', DE: '德国', AU: '澳大利亚',
-      FR: '法国', KR: '韩国', BR: '巴西', IN: '印度', CA: '加拿大',
-      RU: '俄罗斯', MX: '墨西哥', IT: '意大利', ES: '西班牙', NL: '荷兰',
-      PH: '菲律宾', VN: '越南', TW: '台湾', HK: '香港', PK: '巴基斯坦',
-      TR: '土耳其', SA: '沙特阿拉伯', AE: '阿联酋', EG: '埃及', NG: '尼日利亚',
-      ZA: '南非', AR: '阿根廷', CO: '哥伦比亚', PL: '波兰', SE: '瑞典',
-      NO: '挪威', DK: '丹麦', FI: '芬兰', CH: '瑞士', AT: '奥地利',
-      PT: '葡萄牙', GR: '希腊', BE: '比利时', CZ: '捷克', RO: '罗马尼亚',
-      UA: '乌克兰', NZ: '新西兰', IL: '以色列', BD: '孟加拉国', MM: '缅甸',
+      CN: '中国',
+      US: '美国',
+      SG: '新加坡',
+      JP: '日本',
+      TH: '泰国',
+      MY: '马来西亚',
+      ID: '印度尼西亚',
+      GB: '英国',
+      DE: '德国',
+      AU: '澳大利亚',
+      FR: '法国',
+      KR: '韩国',
+      BR: '巴西',
+      IN: '印度',
+      CA: '加拿大',
+      RU: '俄罗斯',
+      MX: '墨西哥',
+      IT: '意大利',
+      ES: '西班牙',
+      NL: '荷兰',
+      PH: '菲律宾',
+      VN: '越南',
+      TW: '台湾',
+      HK: '香港',
+      PK: '巴基斯坦',
+      TR: '土耳其',
+      SA: '沙特阿拉伯',
+      AE: '阿联酋',
+      EG: '埃及',
+      NG: '尼日利亚',
+      ZA: '南非',
+      AR: '阿根廷',
+      CO: '哥伦比亚',
+      PL: '波兰',
+      SE: '瑞典',
+      NO: '挪威',
+      DK: '丹麦',
+      FI: '芬兰',
+      CH: '瑞士',
+      AT: '奥地利',
+      PT: '葡萄牙',
+      GR: '希腊',
+      BE: '比利时',
+      CZ: '捷克',
+      RO: '罗马尼亚',
+      UA: '乌克兰',
+      NZ: '新西兰',
+      IL: '以色列',
+      BD: '孟加拉国',
+      MM: '缅甸',
     };
   }
 }
-

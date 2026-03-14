@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run TypeScript type check on staged files' projects
+echo "Running TypeScript check..."
+
+# Check if any server files are staged
+if git diff --cached --name-only | grep -q '^server/'; then
+  cd server && npx tsc --noEmit || exit 1
+  cd ..
+fi
+
+# Check if any client files are staged
+if git diff --cached --name-only | grep -q '^client/'; then
+  cd client && npx tsc --noEmit || exit 1
+  cd ..
+fi
+
+echo "TypeScript check passed!"
+
+
+
+
+
+
+

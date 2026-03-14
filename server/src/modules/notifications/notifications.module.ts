@@ -10,11 +10,3 @@ import { PrismaModule } from '../../prisma/prisma.module';
   exports: [NotificationsService],
 })
 export class NotificationsModule {}
-
-
-
-
-
-
-
-

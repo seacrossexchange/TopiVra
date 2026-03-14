@@ -132,7 +132,8 @@ export class UploadService {
       }
       return false;
     } catch (error) {
-      this.logger.error(`文件删除失败: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`文件删除失败: ${message}`);
       return false;
     }
   }

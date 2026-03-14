@@ -23,7 +23,8 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     res.on('finish', () => {
       const { statusCode } = res;
       const duration = Date.now() - startTime;
-      const logLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'log';
+      const logLevel =
+        statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'log';
       this.logger[logLevel](
         `← ${method} ${originalUrl} ${statusCode} - ${duration}ms - ${ip}`,
       );
@@ -34,8 +35,8 @@ export class RequestLoggerMiddleware implements NestMiddleware {
         statusCode < 400 &&
         !SKIP_PATHS.some((p) => originalUrl.startsWith(p));
 
-      if (shouldTrack && this.redisService?.isAvailable()) {
-        this.trackVisit(ip, userAgent).catch(() => {});
+      if (shouldTrack && this.redisService?.isAvailable() && ip) {
+        this.trackVisit(ip, userAgent || '').catch(() => {});
       }
     });
 
@@ -44,13 +45,14 @@ export class RequestLoggerMiddleware implements NestMiddleware {
 
   private async trackVisit(rawIp: string, userAgent: string): Promise<void> {
     // 过滤爬虫
-    const botPattern = /bot|crawler|spider|slurp|bingbot|googlebot|facebookexternalhit/i;
+    const botPattern =
+      /bot|crawler|spider|slurp|bingbot|googlebot|facebookexternalhit/i;
     if (botPattern.test(userAgent)) return;
 
     const ip = rawIp.replace(/^::ffff:/, '').replace('::1', '127.0.0.1');
     const now = dayjs();
     const hourKey = now.format('YYYYMMDDH'); // e.g. 202603111
-    const dayKey = now.format('YYYYMMDD');   // e.g. 20260311
+    const dayKey = now.format('YYYYMMDD'); // e.g. 20260311
     const ttl24h = 60 * 60 * 25; // 25小时
     const ttl30d = 60 * 60 * 24 * 31;
 
@@ -63,7 +65,10 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     await this.redisService.set(`analytics:online:ip:${ip}`, '1', 300);
 
     // 2. 24小时小时级访问量
-    await this.redisService.incrWithExpire(`analytics:hourly:${hourKey}`, ttl24h);
+    await this.redisService.incrWithExpire(
+      `analytics:hourly:${hourKey}`,
+      ttl24h,
+    );
 
     // 3. 30天日级访问量
     await this.redisService.incrWithExpire(`analytics:daily:${dayKey}`, ttl30d);

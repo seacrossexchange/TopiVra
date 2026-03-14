@@ -467,7 +467,7 @@ async function main() {
   console.log('✅ 博客分类创建成功');
 
   // 12. 创建测试博客文章
-  const blog1 = await prisma.blog.upsert({
+  const _blog1 = await prisma.blog.upsert({
     where: { id: 'test-blog-1' },
     update: {},
     create: {
@@ -476,7 +476,8 @@ async function main() {
       categoryId: blogCategory.id,
       title: '欢迎来到 TopiVra 数字账号交易平台',
       slug: 'welcome-to-topivra',
-      excerpt: 'TopiVra 是一个安全、可靠的数字账号交易平台，为买家和卖家提供优质的交易体验。',
+      excerpt:
+        'TopiVra 是一个安全、可靠的数字账号交易平台，为买家和卖家提供优质的交易体验。',
       content: `# 欢迎来到 TopiVra
 
 TopiVra 是一个专业的数字账号交易平台，致力于为全球用户提供安全、便捷的数字资产交易服务。
@@ -526,7 +527,8 @@ TopiVra 是一个专业的数字账号交易平台，致力于为全球用户提
       categoryId: blogCategory.id,
       title: '如何安全购买数字账号？新手指南',
       slug: 'how-to-buy-digital-accounts-safely',
-      excerpt: '本文将为您详细介绍如何在 TopiVra 平台上安全地购买数字账号，避免常见的陷阱。',
+      excerpt:
+        '本文将为您详细介绍如何在 TopiVra 平台上安全地购买数字账号，避免常见的陷阱。',
       content: `# 如何安全购买数字账号？
 
 购买数字账号需要谨慎，本指南将帮助您避免常见问题。
@@ -588,7 +590,8 @@ TopiVra 提供完善的售后服务：
       categoryId: blogCategory.id,
       title: '卖家必读：如何提高商品销量？',
       slug: 'seller-guide-increase-sales',
-      excerpt: '作为卖家，如何在 TopiVra 平台上提高商品销量？本文分享实用技巧。',
+      excerpt:
+        '作为卖家，如何在 TopiVra 平台上提高商品销量？本文分享实用技巧。',
       content: `# 卖家必读：如何提高商品销量？
 
 作为 TopiVra 平台的卖家，以下技巧可以帮助您提高销量。
@@ -679,9 +682,15 @@ TopiVra 提供完善的售后服务：
   console.log('✅ 博客标签创建成功');
 
   // 14. 关联博客和标签
-  const beginnerTag = await prisma.tag.findUnique({ where: { slug: 'beginner-guide' } });
-  const securityTag = await prisma.tag.findUnique({ where: { slug: 'security-tips' } });
-  const sellerTag = await prisma.tag.findUnique({ where: { slug: 'seller-tips' } });
+  const beginnerTag = await prisma.tag.findUnique({
+    where: { slug: 'beginner-guide' },
+  });
+  const securityTag = await prisma.tag.findUnique({
+    where: { slug: 'security-tips' },
+  });
+  const sellerTag = await prisma.tag.findUnique({
+    where: { slug: 'seller-tips' },
+  });
 
   if (beginnerTag) {
     await prisma.blogTag.upsert({

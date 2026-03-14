@@ -2,7 +2,13 @@
  * 码支付通道实现
  * 个人免签约支付方式
  */
-import { BasePaymentGateway, CreatePaymentParams, PaymentResult, NotifyVerifyResult, QueryOrderResult } from './base.gateway';
+import {
+  BasePaymentGateway,
+  CreatePaymentParams,
+  PaymentResult,
+  NotifyVerifyResult,
+  QueryOrderResult,
+} from './base.gateway';
 import * as crypto from 'crypto';
 
 export class MapayGateway extends BasePaymentGateway {
@@ -37,7 +43,9 @@ export class MapayGateway extends BasePaymentGateway {
     // 生成签名
     data['sign'] = this.generateSign(data);
 
-    this.logger.log(`创建码支付订单: ${params.orderId}, 金额: ${params.amount}`);
+    this.logger.log(
+      `创建码支付订单: ${params.orderId}, 金额: ${params.amount}`,
+    );
 
     try {
       // 动态导入 axios
@@ -168,7 +176,10 @@ export class MapayGateway extends BasePaymentGateway {
         const tradeStatus = result.trade_status || result.status;
         return {
           exists: true,
-          status: tradeStatus === 'SUCCESS' || tradeStatus === 'TRADE_SUCCESS' ? 'SUCCESS' : 'PENDING',
+          status:
+            tradeStatus === 'SUCCESS' || tradeStatus === 'TRADE_SUCCESS'
+              ? 'SUCCESS'
+              : 'PENDING',
           amount: parseFloat(result.total_fee) / 100,
           paidAt: result.pay_time ? new Date(result.pay_time) : undefined,
           rawData: result,
@@ -198,15 +209,21 @@ export class MapayGateway extends BasePaymentGateway {
 
     // 按键名排序
     const sortedKeys = Object.keys(data)
-      .filter(key => data[key] !== undefined && data[key] !== '' && key !== 'sign')
+      .filter(
+        (key) => data[key] !== undefined && data[key] !== '' && key !== 'sign',
+      )
       .sort();
 
     // 构建签名字符串
-    const signStr = sortedKeys
-      .map(key => `${key}=${data[key]}`)
-      .join('&') + `&key=${appSecret}`;
+    const signStr =
+      sortedKeys.map((key) => `${key}=${data[key]}`).join('&') +
+      `&key=${appSecret}`;
 
     // MD5 加密并转大写
-    return crypto.createHash('md5').update(signStr, 'utf8').digest('hex').toUpperCase();
+    return crypto
+      .createHash('md5')
+      .update(signStr, 'utf8')
+      .digest('hex')
+      .toUpperCase();
   }
 }

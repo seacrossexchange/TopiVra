@@ -50,7 +50,7 @@ export class TotpService {
       });
       return result.valid;
     } catch (error) {
-      this.logger.error(`TOTP 验证失败: ${error.message}`);
+      this.logger.error(`TOTP 验证失败: ${(error as Error).message}`);
       return false;
     }
   }

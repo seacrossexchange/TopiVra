@@ -2,6 +2,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import './styles/rtl.css'
 import App from './App.tsx'
 import ErrorBoundary from './components/common/ErrorBoundary'
 
@@ -29,11 +30,13 @@ if (SENTRY_DSN) {
 
 // ─── Core Web Vitals 性能监控 ────────────────────────────────────────────────
 import('web-vitals').then(({ onCLS, onINP, onFCP, onLCP, onTTFB }) => {
-  const reportMetric = ({ name, value, id }: { name: string; value: number; id: string }) => {
+  const reportMetric = ({ name, value }: { name: string; value: number; id: string }) => {
     // 上报到 Sentry（若已初始化）
     if (SENTRY_DSN) {
       import('@sentry/react').then((Sentry) => {
-        Sentry.metrics?.set(name, value, { tags: { id } });
+        // Sentry v8+ uses captureMetric or addMeasurement instead of metrics.set
+        // For now, we'll use a custom tag approach
+        Sentry.setTag?.(`webvitals.${name}`, value);
       }).catch(() => {});
     }
     // 开发环境输出到控制台
@@ -51,15 +54,19 @@ import('web-vitals').then(({ onCLS, onINP, onFCP, onLCP, onTTFB }) => {
 });
 
 // Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')
       .then((registration) => {
-        console.log('SW registered:', registration.scope);
+        if (import.meta.env.DEV) {
+          console.log('SW registered:', registration.scope);
+        }
       })
       .catch((error) => {
-        console.log('SW registration failed:', error);
+        if (import.meta.env.DEV) {
+          console.log('SW registration failed:', error);
+        }
       });
   });
 }

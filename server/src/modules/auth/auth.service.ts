@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { TotpService } from '../../common/totp/totp.service';
 import { RedisService } from '../../common/redis/redis.service';
 import { MailService } from '../../common/mail/mail.service';
@@ -50,7 +51,7 @@ export class AuthService {
     // 检查是否被锁定
     const lockKey = `login:lock:${email}`;
     const attemptsKey = `login:attempts:${email}`;
-    
+
     const isLocked = await this.redisService.get(lockKey);
     if (isLocked) {
       const ttl = await this.redisService.getClient()?.ttl(lockKey);
@@ -65,7 +66,13 @@ export class AuthService {
     });
 
     if (!user || !user.passwordHash) {
-      await this.incrementLoginAttempts(email, attemptsKey, lockKey, MAX_ATTEMPTS, LOCK_TIME);
+      await this.incrementLoginAttempts(
+        email,
+        attemptsKey,
+        lockKey,
+        MAX_ATTEMPTS,
+        LOCK_TIME,
+      );
       return null;
     }
 
@@ -75,7 +82,13 @@ export class AuthService {
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      await this.incrementLoginAttempts(email, attemptsKey, lockKey, MAX_ATTEMPTS, LOCK_TIME);
+      await this.incrementLoginAttempts(
+        email,
+        attemptsKey,
+        lockKey,
+        MAX_ATTEMPTS,
+        LOCK_TIME,
+      );
       return null;
     }
 
@@ -91,7 +104,12 @@ export class AuthService {
       },
     });
 
-    const { passwordHash: _passwordHash, twoFactorSecret: _twoFactorSecret, recoveryCodes: _recoveryCodes, ...result } = user;
+    const {
+      passwordHash: _passwordHash,
+      twoFactorSecret: _twoFactorSecret,
+      recoveryCodes: _recoveryCodes,
+      ...result
+    } = user;
     return result;
   }
 
@@ -106,7 +124,7 @@ export class AuthService {
     lockTime: number,
   ): Promise<void> {
     const attempts = await this.redisService.incr(attemptsKey);
-    
+
     if (attempts === 1) {
       // 第一次失败，设置过期时间为15分钟
       await this.redisService.expire(attemptsKey, lockTime);
@@ -118,9 +136,7 @@ export class AuthService {
       await this.redisService.del(attemptsKey);
       this.logger.warn(`账号 ${email} 因登录失败次数过多被锁定`);
     } else {
-      this.logger.warn(
-        `账号 ${email} 登录失败 ${attempts}/${maxAttempts} 次`,
-      );
+      this.logger.warn(`账号 ${email} 登录失败 ${attempts}/${maxAttempts} 次`);
     }
   }
 
@@ -426,7 +442,7 @@ export class AuthService {
       data: {
         twoFactorEnabled: false,
         twoFactorSecret: null,
-        recoveryCodes: null,
+        recoveryCodes: Prisma.JsonNull,
       },
     });
 
@@ -899,7 +915,10 @@ export class AuthService {
     }
 
     // 验证旧密码
-    const isPasswordValid = await bcrypt.compare(oldPassword, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      oldPassword,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('当前密码错误');
     }

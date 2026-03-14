@@ -21,7 +21,7 @@
 
 ---
 
-## 🏗️ 技术架构
+## 🏗️ 系统架构
 
 ```
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
@@ -43,11 +43,27 @@
                                            └─────────────┘
 ```
 
-**技术栈**:
-- **前端**: React 19 + TypeScript + Vite + Ant Design + Tailwind CSS
-- **后端**: NestJS + TypeScript + Prisma ORM
-- **数据库**: MySQL 8.0 + Redis 7
-- **部署**: Docker + Nginx + PM2
+### 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| 前端 | React 19 + TypeScript + Vite + Ant Design + Tailwind CSS |
+| 后端 | NestJS + TypeScript + Prisma ORM |
+| 数据库 | MySQL 8.0 + Redis 7 |
+| 认证 | JWT + Google OAuth + 2FA (TOTP) |
+| 支付 | Stripe / PayPal / 虎皮椒 / 易支付 / USDT |
+| 部署 | Docker Compose + Nginx |
+| 监控 | Prometheus + Grafana + Sentry |
+
+### 核心业务流程
+
+```
+用户支付 → 支付网关回调 → 更新订单状态 → 自动发货服务
+    ↓
+FIFO 分配库存 → 推送凭证给买家 → WebSocket 实时通知
+    ↓
+SSE 实时进度流 → 前端进度条更新 → 发货完成
+```
 
 ---
 
@@ -87,7 +103,7 @@ bash scripts/deploy/health-check.sh
 
 ---
 
-## 📖 文档导航
+## 📖 文档
 
 ### 快速开始
 - **[部署指南](./DEPLOYMENT.md)** - 5 分钟快速部署
@@ -96,13 +112,10 @@ bash scripts/deploy/health-check.sh
 ### 详细文档
 - **[完整部署指南](./docs/deployment-guide.md)** - 生产环境部署详解
 - **[API 文档](./docs/API.md)** - RESTful API 接口说明
-- **[架构文档](./docs/architecture.md)** - 系统架构设计
 - **[数据库设计](./docs/database-schema.md)** - 数据库表结构
-- **[国际化指南](./docs/i18n-guide.md)** - 多语言配置和使用
-- **[监控指南](./docs/monitoring-guide.md)** - Prometheus + Grafana
-- **[测试指南](./docs/testing-guide.md)** - 单元测试和 E2E 测试
 - **[故障排查](./docs/troubleshooting.md)** - 常见问题解决方案
-- **[变更日志](./docs/changelog.md)** - 版本更新记录
+
+查看 [docs/README.md](./docs/README.md) 了解完整文档列表。
 
 ---
 

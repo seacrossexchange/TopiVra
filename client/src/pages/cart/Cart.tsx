@@ -29,7 +29,6 @@ import CouponSelector from '@/components/cart/CouponSelector';
 
 const { Title, Text } = Typography;
 
-// API response type for cart item
 interface CartItemApiResponse {
   id: string;
   productId: string;
@@ -241,7 +240,6 @@ export default function Cart() {
   return (
     <div className="bg-[var(--color-bg-layout)] min-h-screen py-6 px-5">
       <div className="max-w-[1200px] mx-auto">
-        {/* Breadcrumb */}
         <Breadcrumb
           className="mb-6"
           items={[
@@ -269,8 +267,6 @@ export default function Cart() {
                   pagination={false}
                 />
               </Card>
-
-              {/* 购物车推荐商品 */}
               {cartItems.length > 0 && <CartRecommendations cartItems={cartItems} />}
             </Col>
 
@@ -299,7 +295,6 @@ export default function Cart() {
                   </div>
                 </Card>
 
-                {/* 优惠券选择器 */}
                 <CouponSelector
                   orderAmount={totalAmount}
                   onSelect={(coupon) => setSelectedCoupon(coupon)}
@@ -307,7 +302,6 @@ export default function Cart() {
                 />
 
                 <Card title={t('cart.selectPayment')}>
-                  {/* Payment Method Selection */}
                   <div>
                     <Text strong className="block mb-3">
                       {t('cart.selectPayment')}
@@ -366,20 +360,21 @@ export default function Cart() {
                     </Radio.Group>
                   </div>
 
-                  <Button
-                    type="primary"
-                    size="large"
-                    block
-                    onClick={handleCheckout}
-                  >
-                    {t('cart.checkout')} - ${(totalAmount - calculateCouponDiscount()).toFixed(2)}
-                  </Button>
-
-                  <Button block onClick={() => navigate('/products')}>
-                    {t('cart.continueShopping')}
-                  </Button>
-                </Space>
-              </Card>
+                  <div className="mt-4 space-y-2">
+                    <Button
+                      type="primary"
+                      size="large"
+                      block
+                      onClick={handleCheckout}
+                    >
+                      {t('cart.checkout')} - ${(totalAmount - calculateCouponDiscount()).toFixed(2)}
+                    </Button>
+                    <Button block onClick={() => navigate('/products')}>
+                      {t('cart.continueShopping')}
+                    </Button>
+                  </div>
+                </Card>
+              </Space>
             </Col>
           </Row>
         )}
@@ -387,14 +382,3 @@ export default function Cart() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -1,7 +1,8 @@
 import { format, formatDistanceToNow } from 'date-fns';
 import { zhCN, enUS, id, ptBR, es } from 'date-fns/locale';
+import type { Locale } from 'date-fns/locale';
 
-const locales = {
+const locales: Record<string, Locale> = {
   'zh-CN': zhCN,
   'en': enUS,
   'id': id,

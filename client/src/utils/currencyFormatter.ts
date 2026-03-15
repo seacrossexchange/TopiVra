@@ -1,7 +1,7 @@
 /**
  * 货币配置
  */
-const currencyConfig = {
+const currencyConfig: Record<string, { currency: string; locale: string; symbol: string }> = {
   'zh-CN': { currency: 'CNY', locale: 'zh-CN', symbol: '¥' },
   'en': { currency: 'USD', locale: 'en-US', symbol: '$' },
   'id': { currency: 'IDR', locale: 'id-ID', symbol: 'Rp' },

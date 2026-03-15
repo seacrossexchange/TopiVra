@@ -59,15 +59,26 @@
 
 ## 🚀 快速开始
 
-### 开发环境（Windows）
+### 开发环境
 
 ```bash
-# 1. 启动 Docker Desktop
+# 1. 安装依赖
+npm install
 
-# 2. 运行启动脚本
-scripts\deploy\START-DEV-WINDOWS.bat
+# 2. 启动数据库（Docker）
+docker-compose up -d mysql redis
 
-# 3. 访问应用
+# 3. 启动后端
+cd server
+npm install
+npm run dev
+
+# 4. 启动前端
+cd client
+npm install
+npm run dev
+
+# 5. 访问应用
 # 前端: http://localhost:5173
 # 后端: http://localhost:8000
 # API 文档: http://localhost:8000/api/v1/docs
@@ -95,22 +106,18 @@ bash scripts/deploy/health-check.sh
 
 ## 📖 文档导航
 
-### 核心文档
-- **[系统架构](./ARCHITECTURE.md)** - 技术架构与设计
-- **[产品概览](./PRODUCT-OVERVIEW.md)** - 产品功能与规划
-- **[项目结构](./PROJECT-STRUCTURE.md)** - 目录结构说明
-- **[交付总结](./DELIVERY.md)** - 项目交付清单
-
-### 快速上手
-- **[快速部署](./DEPLOYMENT.md)** - 5 分钟快速部署指南
-
 ### 开发文档
 - **[开发指南](./docs/DEVELOPMENT.md)** - 环境搭建、代码规范、测试
 - **[API 文档](./docs/API.md)** - RESTful API 接口说明
+- **[数据库设计](./docs/database-schema.md)** - 数据库表结构
 
 ### 运维文档
 - **[完整部署指南](./docs/deployment-guide.md)** - 生产环境部署详解
 - **[故障排查](./docs/troubleshooting.md)** - 常见问题解决方案
+
+### 贡献文档
+- **[贡献指南](./docs/CONTRIBUTING.md)** - 如何参与项目
+- **[安全策略](./docs/SECURITY.md)** - 安全问题报告
 
 ---
 
@@ -145,7 +152,7 @@ bash scripts/deploy/health-check.sh
 
 ## 🤝 贡献
 
-欢迎提交 Issue 和 Pull Request！
+欢迎提交 Issue 和 Pull Request！详见 [贡献指南](./docs/CONTRIBUTING.md)
 
 ---
 
@@ -155,4 +162,4 @@ bash scripts/deploy/health-check.sh
 
 ---
 
-**最后更新**: 2026-03-14
+**最后更新**: 2026-03-15

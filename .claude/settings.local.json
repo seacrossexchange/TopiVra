@@ -38,7 +38,9 @@
       "Bash(find server/src -type f -name *guard*)",
       "Bash(ls -lh *.md)",
       "Bash(find . -maxdepth 2 -name *[u4e00-u9fa5]*)",
-      "Bash(grep -E \"\\\\.\\(md|sh|bat|ps1\\)$\")"
+      "Bash(grep -E \"\\\\.\\(md|sh|bat|ps1\\)$\")",
+      "Bash(grep -l \"deployment\\\\|部署\" /c/Users/cross/Desktop/TopiVra/docs/*.md /c/Users/cross/Desktop/TopiVra/*.md)",
+      "Bash(wc -l /c/Users/cross/Desktop/TopiVra/docs/*.md)"
     ]
   }
 }

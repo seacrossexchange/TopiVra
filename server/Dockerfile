@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY tsconfig.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 RUN npx prisma generate
 RUN npm run build
@@ -23,7 +23,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 COPY tsconfig.json ./
 
-RUN npm ci --only=production && \
+RUN npm install --omit=dev && \
     npm cache clean --force
 
 # Install dev dependencies needed for prisma db seed

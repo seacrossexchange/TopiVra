@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Input, Button, Tag, Space, message, Divider, Empty } from 'antd';
-import { GiftOutlined, PercentageOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Card, Typography, Input, Button, Tag, Space, message, Divider, Empty } from 'antd';
+import { GiftOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-interface Coupon {
+export interface Coupon {
   id: string;
   code: string;
   name: string;
@@ -21,9 +21,9 @@ interface Coupon {
 }
 
 interface CouponSelectorProps {
-  orderAmount: number;
-  onSelect: (coupon: Coupon | null) => void;
-  selectedCoupon?: Coupon | null;
+  readonly orderAmount: number;
+  readonly onSelect: (coupon: Coupon | null) => void;
+  readonly selectedCoupon?: Coupon | null;
 }
 
 export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }: CouponSelectorProps) {
@@ -132,9 +132,12 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
               const canUse = !coupon.minPurchase || orderAmount >= coupon.minPurchase;
 
               return (
-                <div
+                <button
                   key={coupon.id}
+                  type="button"
+                  disabled={!canUse}
                   style={{
+                    width: '100%',
                     padding: 12,
                     border: `2px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`,
                     borderRadius: 8,
@@ -142,8 +145,9 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
                     cursor: canUse ? 'pointer' : 'not-allowed',
                     opacity: canUse ? 1 : 0.5,
                     transition: 'all 0.2s ease',
+                    textAlign: 'left',
                   }}
-                  onClick={() => canUse && onSelect(isSelected ? null : coupon)}
+                  onClick={() => onSelect(isSelected ? null : coupon)}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div style={{ flex: 1 }}>
@@ -181,7 +185,7 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
                       )}
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </Space>

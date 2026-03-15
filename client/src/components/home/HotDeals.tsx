@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Button, Space, Tag, Statistic, Empty } from 'antd';
+import { Card, Row, Col, Typography, Button, Space, Tag, Progress } from 'antd';
 import { FireOutlined, ThunderboltOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

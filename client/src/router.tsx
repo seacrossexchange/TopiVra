@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import AdminLayout from '@/components/layout/AdminLayout';
@@ -88,7 +88,7 @@ export const router = createBrowserRouter([
   {
     path: '/seller',
     element: (
-      <ProtectedRoute requiredRole="SELLER">
+      <ProtectedRoute requiredRole="seller">
         <SellerLayout />
       </ProtectedRoute>
     ),
@@ -115,7 +115,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <ProtectedRoute requiredRole="ADMIN">
+      <ProtectedRoute requiredRole="admin">
         <AdminLayout />
       </ProtectedRoute>
     ),

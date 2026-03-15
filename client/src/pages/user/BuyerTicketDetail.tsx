@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -11,22 +11,19 @@ import {
   Tag,
   Upload,
   Space,
-  Divider,
-  Progress,
   Alert,
 } from 'antd';
 import {
   ArrowLeftOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
   PaperClipOutlined,
   SendOutlined,
   UserOutlined,
   ShopOutlined,
   CustomerServiceOutlined,
 } from '@ant-design/icons';
-import { ticketsService, Ticket, TicketMessage } from '@/services/tickets';
+import { ticketsService, type Ticket, type TicketMessage } from '@/services/tickets';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';

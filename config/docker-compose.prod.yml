@@ -52,8 +52,11 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     command: >
       redis-server
+      --requirepass ${REDIS_PASSWORD}
       --appendonly yes
       --appendfsync everysec
       --save 900 1

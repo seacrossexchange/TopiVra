@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Button, Empty, Spin } from 'antd';
+import { Card, Row, Col, Typography, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';
@@ -17,11 +17,9 @@ interface RelatedProduct {
 
 interface RelatedProductsProps {
   productId: string;
-  categoryId?: string;
-  platform?: string;
 }
 
-export default function RelatedProducts({ productId, categoryId, platform }: RelatedProductsProps) {
+export default function RelatedProducts({ productId }: RelatedProductsProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [products, setProducts] = useState<RelatedProduct[]>([]);

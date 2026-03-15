@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Row, Col, Card, Typography, Rate, Tag, Modal } from 'antd';
+import { Button, Row, Col, Card, Typography, Rate, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {

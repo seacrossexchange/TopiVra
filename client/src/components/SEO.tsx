@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { generateAlternateUrls, getDefaultLanguageUrl, removeLanguagePrefix } from '@/utils/i18nRouter';
+import { generateAlternateUrls, getDefaultLanguageUrl } from '@/utils/i18nRouter';
 
 interface SEOProps {
   title?: string;
@@ -21,9 +21,6 @@ export function SEO({ title, description, keywords, image, url, type = 'website'
   
   // 使用提供的 URL 或当前完整 URL
   const currentUrl = url || `${baseUrl}${location.pathname}${location.search}${location.hash}`;
-  
-  // 获取不带语言前缀的路径（用于生成 alternate URLs）
-  const cleanPath = removeLanguagePrefix(location.pathname);
 
   // 更新 HTML lang 属性
   useEffect(() => {

@@ -2,7 +2,7 @@
  * 性能优化工具集
  */
 
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState, lazy } from 'react';
 
 /**
  * 防抖 Hook
@@ -13,7 +13,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
   delay: number = 300,
 ): T {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const debouncedCallback = useCallback(
     (...args: Parameters<T>) => {
@@ -49,7 +49,7 @@ export function useThrottle<T extends (...args: any[]) => any>(
   delay: number = 300,
 ): T {
   const lastRunRef = useRef<number>(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const throttledCallback = useCallback(
     (...args: Parameters<T>) => {
@@ -93,7 +93,7 @@ export function useLazyImage(src: string): {
 } {
   const [imageSrc, setImageSrc] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const imgRef = useRef<HTMLImageElement>();
+  const imgRef = useRef<HTMLImageElement | undefined>(undefined);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

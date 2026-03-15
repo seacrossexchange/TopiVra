@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button, Space, Tag, Typography, Divider, message } from 'antd';
-import { GiftOutlined, CloseOutlined } from '@ant-design/icons';
+import { Modal, Button, Space, Tag, Typography, message } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';
 import './NewUserGuide.css';
@@ -170,7 +170,7 @@ export default function NewUserGuide({ visible, onClose }: NewUserGuideProps) {
       <div className="guide-container">
         {/* 进度指示器 */}
         <div className="guide-progress">
-          {steps.map((step, index) => (
+          {steps.map((_, index) => (
             <div
               key={index}
               className={`guide-progress-dot ${index === currentStep ? 'active' : ''} ${index < currentStep ? 'completed' : ''}`}

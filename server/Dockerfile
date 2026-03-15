@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY tsconfig.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npx prisma generate
 RUN npm run build
@@ -39,9 +39,9 @@ RUN mkdir -p /app/uploads /app/logs && \
 
 USER node
 
-EXPOSE 3001
+EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3001/health/liveness || exit 1
+  CMD curl -f http://localhost:8000/health/liveness || exit 1
 
 CMD ["node", "dist/src/main.js"]

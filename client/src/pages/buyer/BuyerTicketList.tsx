@@ -1,28 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Input,
-  Button,
   Tag,
-  Badge,
-  Pagination,
   Empty,
   Spin,
-  Alert,
 } from 'antd';
 import {
   SearchOutlined,
   CommentOutlined,
   ShoppingOutlined,
   UserOutlined,
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { ticketsService, Ticket } from '@/services/tickets';
+import { ticketsService } from '@/services/tickets';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import './BuyerTicketList.css';
@@ -30,7 +21,6 @@ import './BuyerTicketList.css';
 dayjs.extend(relativeTime);
 
 export default function BuyerTicketList() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -111,7 +101,7 @@ export default function BuyerTicketList() {
     return <Tag color={color}>{text}</Tag>;
   };
 
-  const filteredTickets = ticketsData?.items?.filter((ticket) => {
+  const filteredTickets = ticketsData?.items?.filter((ticket: any) => {
     if (interventionFilter === 'intervened') {
       return ticket.status === 'ADMIN_REVIEWING';
     }
@@ -266,7 +256,7 @@ export default function BuyerTicketList() {
             ) : filteredTickets?.length === 0 ? (
               <Empty description="暂无工单" />
             ) : (
-              filteredTickets?.map((ticket) => (
+              filteredTickets?.map((ticket: any) => (
                 <div
                   key={ticket.ticket_no}
                   className={`btc-ticket-item ${

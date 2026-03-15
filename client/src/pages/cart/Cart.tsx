@@ -25,7 +25,7 @@ import { useAuthStore } from '@/store/authStore';
 import { EmptyState } from '@/components/common/EmptyState';
 import { SkeletonCard } from '@/components/common/SkeletonCard';
 import CartRecommendations from '@/components/cart/CartRecommendations';
-import CouponSelector from '@/components/cart/CouponSelector';
+import CouponSelector, { type Coupon } from '@/components/cart/CouponSelector';
 
 const { Title, Text } = Typography;
 
@@ -58,7 +58,7 @@ export default function Cart() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const [paymentMethod, setPaymentMethod] = useState('balance');
-  const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -224,7 +224,7 @@ export default function Cart() {
           <Breadcrumb
             className="mb-6"
             items={[
-              { title: <a href="/"><HomeOutlined /></a> },
+              { title: <a href="/" aria-label={t('common.home')}><HomeOutlined /></a> },
               { title: t('cart.title') },
             ]}
           />
@@ -243,7 +243,7 @@ export default function Cart() {
         <Breadcrumb
           className="mb-6"
           items={[
-            { title: <a href="/"><HomeOutlined /></a> },
+            { title: <a href="/" aria-label={t('common.home')}><HomeOutlined /></a> },
             { title: t('cart.title') },
           ]}
         />

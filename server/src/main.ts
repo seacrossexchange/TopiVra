@@ -104,14 +104,20 @@ async function bootstrap() {
     configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
 
   // 启用 CORS
-  app.enableCors({
-    origin: [
-      frontendUrl,
+  const allowedOrigins = [frontendUrl];
+
+  // 开发环境添加localhost
+  if (nodeEnv !== 'production') {
+    allowedOrigins.push(
       'http://localhost:5173',
       'http://localhost:3000',
       'http://127.0.0.1:5173',
       'http://127.0.0.1:3000',
-    ].filter((url, index, self) => self.indexOf(url) === index),
+    );
+  }
+
+  app.enableCors({
+    origin: allowedOrigins.filter((url, index, self) => self.indexOf(url) === index),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

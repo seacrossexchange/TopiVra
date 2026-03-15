@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Button, Space, Tag, Empty, Spin } from 'antd';
+import { Card, Row, Col, Typography, Button, Space, Tag, Spin } from 'antd';
 import { FireOutlined, EyeOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

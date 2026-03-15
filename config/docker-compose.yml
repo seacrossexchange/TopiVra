@@ -42,8 +42,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    environment:
+      REDIS_PASSWORD: redis_dev_pass
     command: >
       redis-server
+      --requirepass redis_dev_pass
       --appendonly yes
       --appendfsync everysec
       --save 900 1

@@ -234,17 +234,17 @@ export default function ProductDetail() {
                   <div className="product-social-proof" style={{ display: 'flex', gap: 16, marginTop: 8, padding: '12px 0', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
                     <Space size={4}>
                       <ShoppingCartOutlined style={{ color: '#52c41a' }} />
-                      <Text strong style={{ color: '#52c41a' }}>{product.soldCount || 0}</Text>
+                      <Text strong style={{ color: '#52c41a' }}>{product.sales || 0}</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.sold', '已售')}</Text>
                     </Space>
                     <Space size={4}>
                       <EyeOutlined style={{ color: '#1890ff' }} />
-                      <Text strong style={{ color: '#1890ff' }}>{product.viewCount || 0}</Text>
+                      <Text strong style={{ color: '#1890ff' }}>0</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.views', '浏览')}</Text>
                     </Space>
                     <Space size={4}>
                       <HeartOutlined style={{ color: '#ff4d4f' }} />
-                      <Text strong style={{ color: '#ff4d4f' }}>{product.favoriteCount || 0}</Text>
+                      <Text strong style={{ color: '#ff4d4f' }}>0</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.favorites', '收藏')}</Text>
                     </Space>
                   </div>
@@ -516,7 +516,7 @@ export default function ProductDetail() {
         </Card>
 
         {/* 相关商品推荐 */}
-        <RelatedProducts productId={product.id} categoryId={product.categoryId} platform={product.platform} />
+        <RelatedProducts productId={product.id} />
       </div>
 
       {/* Purchase confirmation modal */}

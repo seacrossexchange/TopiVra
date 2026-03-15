@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Input, Button, Tag, Space, message } from 'antd';
+import { Card, Row, Col, Typography, Input, Button, Space, message } from 'antd';
 import { GiftOutlined, CopyOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';

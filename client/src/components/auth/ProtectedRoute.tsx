@@ -1,9 +1,9 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import PageLoading from '@/components/common/PageLoading';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   requiredRole?: 'admin' | 'seller' | 'user';
 }
 
@@ -26,13 +26,13 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
     // 从用户对象获取角色列表
     const userRoles = user.roles || [];
     const isSeller = user.isSeller || false;
-    
+
     // 检查是否有 ADMIN 角色
     const isAdmin = userRoles.includes('ADMIN');
-    
+
     // Admin has access to everything
     if (isAdmin) {
-      return <>{children}</>;
+      return <>{children || <Outlet />}</>;
     }
 
     // Check specific role requirements
@@ -51,9 +51,9 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
     // 普通用户权限（所有登录用户都有）
     if (requiredRole === 'user') {
       // 已登录即可访问
-      return <>{children}</>;
+      return <>{children || <Outlet />}</>;
     }
   }
 
-  return <>{children}</>;
+  return <>{children || <Outlet />}</>;
 }

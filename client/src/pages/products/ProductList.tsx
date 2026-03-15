@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Select, Button, Pagination, Empty, Drawer } from 'antd';
+import { Input, Select, Button, Pagination, Empty } from 'antd';
 import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -324,7 +324,6 @@ export default function ProductList() {
           selectedCountry={selectedCountry}
           onPlatformChange={(platform) => { setSelectedPlatform(platform); setSelectedSub(''); setCurrentPage(1); }}
           onCountryChange={(country) => { setSelectedCountry(country); setCurrentPage(1); }}
-          onReset={() => { setSelectedPlatform('all'); setSelectedCountry('ALL'); setCurrentPage(1); }}
         />
 
         {/* 商品网格 */}

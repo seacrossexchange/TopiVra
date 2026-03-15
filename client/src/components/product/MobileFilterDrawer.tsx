@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Drawer, Button, Space, Typography, Divider } from 'antd';
-import { FilterOutlined, CloseOutlined } from '@ant-design/icons';
+import { Drawer, Button, Typography, Divider } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
@@ -14,7 +14,6 @@ interface MobileFilterDrawerProps {
   selectedCountry: string;
   onPlatformChange: (platform: string) => void;
   onCountryChange: (country: string) => void;
-  onReset: () => void;
 }
 
 export default function MobileFilterDrawer({
@@ -26,7 +25,6 @@ export default function MobileFilterDrawer({
   selectedCountry,
   onPlatformChange,
   onCountryChange,
-  onReset,
 }: MobileFilterDrawerProps) {
   const { t } = useTranslation();
   const [tempPlatform, setTempPlatform] = useState(selectedPlatform);

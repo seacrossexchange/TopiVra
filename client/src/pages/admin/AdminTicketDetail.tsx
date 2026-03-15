@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Card,
@@ -18,14 +17,13 @@ import {
 import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
   SendOutlined,
   UserOutlined,
   ShopOutlined,
   CustomerServiceOutlined,
-  GavelOutlined,
+  SafetyOutlined,
 } from '@ant-design/icons';
-import { ticketsService, Ticket, TicketMessage } from '@/services/tickets';
+import { ticketsService, type Ticket, type TicketMessage } from '@/services/tickets';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -34,7 +32,6 @@ dayjs.extend(relativeTime);
 const { TextArea } = Input;
 
 export default function AdminTicketDetail() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { ticketNo } = useParams<{ ticketNo: string }>();
   const queryClient = useQueryClient();
@@ -220,7 +217,7 @@ export default function AdminTicketDetail() {
                 <Button
                   type="primary"
                   size="small"
-                  icon={<GavelOutlined />}
+                  icon={<SafetyOutlined />}
                   className="mt-2"
                   onClick={() => {
                     setRefundAmount(Number(ticket.refund_amount) || 0);

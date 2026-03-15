@@ -40,7 +40,16 @@
       "Bash(find . -maxdepth 2 -name *[u4e00-u9fa5]*)",
       "Bash(grep -E \"\\\\.\\(md|sh|bat|ps1\\)$\")",
       "Bash(grep -l \"deployment\\\\|部署\" /c/Users/cross/Desktop/TopiVra/docs/*.md /c/Users/cross/Desktop/TopiVra/*.md)",
-      "Bash(wc -l /c/Users/cross/Desktop/TopiVra/docs/*.md)"
+      "Bash(wc -l /c/Users/cross/Desktop/TopiVra/docs/*.md)",
+      "Bash(npm install:*)",
+      "Bash(ls -la tsconfig*.json)",
+      "Bash(npx tsc:*)",
+      "Bash(python -m json.tool \"C:\\\\Users\\\\cross\\\\Desktop\\\\TopiVra\\\\client\\\\src\\\\i18n\\\\locales\\\\zh-CN.json\")",
+      "Bash(git checkout:*)",
+      "Bash(node -e \":*)",
+      "Bash(node /tmp/gen_zh.js)",
+      "Bash(npm audit:*)",
+      "Bash(git add:*)"
     ]
   }
 }

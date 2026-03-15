@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Button, Empty, Spin } from 'antd';
+import { Card, Row, Col, Typography, Button, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -38,8 +38,6 @@ export default function CartRecommendations({ cartItems }: CartRecommendationsPr
 
   const fetchRecommendations = async () => {
     try {
-      // 基于购物车商品推荐相关商品
-      const platforms = [...new Set(cartItems.map(item => item.productId))];
       const response = await apiClient.get('/products/public?sortBy=soldCount&sortOrder=desc&limit=4');
       setProducts(response.data?.items || []);
     } catch (error) {

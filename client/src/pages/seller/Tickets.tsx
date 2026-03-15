@@ -24,7 +24,7 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { getUserTickets, getTicketDetail, replyTicket, type Ticket, type TicketMessage } from '../../services/tickets';
+import { ticketsService, type Ticket, type TicketMessage } from '../../services/tickets';
 import { useAuthStore } from '../../store/authStore';
 
 const { Title, Text, Paragraph } = Typography;
@@ -60,7 +60,7 @@ export default function SellerTickets() {
       if (filterStatus !== 'all') {
         params.status = filterStatus;
       }
-      const response = await getUserTickets(params);
+      const response = await ticketsService.getSellerTickets(params);
       setTickets(response.items);
       if (response.items.length > 0 && !selectedTicket) {
         setSelectedTicket(response.items[0]);
@@ -74,7 +74,7 @@ export default function SellerTickets() {
 
   const loadTicketDetail = async (ticketId: string) => {
     try {
-      const detail = await getTicketDetail(ticketId);
+      const detail = await ticketsService.getTicket(ticketId);
       setMessages(detail.messages || []);
     } catch (error: any) {
       message.error(error.response?.data?.message || '加载工单详情失败');
@@ -90,7 +90,7 @@ export default function SellerTickets() {
 
     try {
       setSending(true);
-      await replyTicket(selectedTicket.id, { content: replyContent });
+      await ticketsService.sendMessage(selectedTicket.ticket_no, { content: replyContent });
       message.success(t('ticket.replySuccess'));
       setReplyContent('');
       await loadTicketDetail(selectedTicket.id);
@@ -202,15 +202,15 @@ export default function SellerTickets() {
                         <List.Item.Meta
                           avatar={
                             <Badge count={0} size="small">
-                              <Avatar src={ticket.user?.avatar} icon={<UserOutlined />} />
+                              <Avatar icon={<UserOutlined />} />
                             </Badge>
                           }
                           title={
                             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                               <Text strong ellipsis style={{ maxWidth: 150 }}>
-                                {ticket.ticketNo}
+                                {ticket.ticket_no}
                               </Text>
-                              <Tag color={statusColors[ticket.status]} style={{ margin: 0 }}>
+                              <Tag color={(statusColors as any)[ticket.status]} style={{ margin: 0 }}>
                                 {t(`ticket.status.${ticket.status.toLowerCase()}`)}
                               </Tag>
                             </Space>
@@ -221,10 +221,10 @@ export default function SellerTickets() {
                                 {ticket.subject}
                               </Text>
                               <Text type="secondary" style={{ fontSize: 12 }}>
-                                {t('ticket.buyer')}: {ticket.user?.username || 'Unknown'}
+                                {t('ticket.buyer')}: Unknown
                               </Text>
                               <Text type="secondary" style={{ fontSize: 11 }}>
-                                <ClockCircleOutlined /> {dayjs(lastMessage?.createdAt || ticket.updatedAt).format('MM-DD HH:mm')}
+                                <ClockCircleOutlined /> {dayjs(lastMessage?.created_at || ticket.updated_at).format('MM-DD HH:mm')}
                               </Text>
                             </Space>
                           }
@@ -243,9 +243,9 @@ export default function SellerTickets() {
               <Card
                 title={
                   <Space direction="vertical" size={0}>
-                    <Text strong>{selectedTicket.ticketNo} · {selectedTicket.subject}</Text>
+                    <Text strong>{selectedTicket.ticket_no} · {selectedTicket.subject}</Text>
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      {t('ticket.buyer')}: {selectedTicket.user?.username || 'Unknown'}
+                      {t('ticket.buyer')}: Unknown
                     </Text>
                   </Space>
                 }
@@ -256,7 +256,7 @@ export default function SellerTickets() {
                 <div style={{ flex: 1, padding: 16, overflowY: 'auto', background: '#fafafa' }}>
                   <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                     {messages.map((msg) => {
-                      const isSeller = msg.senderId === user?.id;
+                      const isSeller = msg.sender_id === user?.id;
                       return (
                         <div
                           key={msg.id}
@@ -281,7 +281,7 @@ export default function SellerTickets() {
                                   color={isSeller ? 'blue' : 'default'}
                                   style={{ margin: 0, fontSize: 11 }}
                                 >
-                                  {isSeller ? t('ticket.me') : msg.sender?.username || t('ticket.buyer')}
+                                  {isSeller ? t('ticket.me') : t('ticket.buyer')}
                                 </Tag>
                                 <Text
                                   type="secondary"
@@ -290,7 +290,7 @@ export default function SellerTickets() {
                                     color: isSeller ? 'rgba(255,255,255,0.7)' : undefined,
                                   }}
                                 >
-                                  {dayjs(msg.createdAt).format('MM-DD HH:mm')}
+                                  {dayjs(msg.created_at).format('MM-DD HH:mm')}
                                 </Text>
                               </div>
                               <Paragraph

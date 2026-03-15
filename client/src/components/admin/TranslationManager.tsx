@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Table, Button, Modal, Form, Input, Select, message, Tag, Progress } from 'antd';
+import { Card, Table, Button, Modal, Form, Input, message, Tag, Progress } from 'antd';
 import { EditOutlined, CheckCircleOutlined, WarningOutlined } from '@ant-design/icons';
 import { useI18n } from '@/hooks/useI18n';
 import axios from 'axios';
@@ -7,10 +7,10 @@ import axios from 'axios';
 const { TextArea } = Input;
 
 interface Translation {
-  id: string;
+  id?: string;
   language: string;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   metaTitle?: string;
   metaDescription?: string;
 }

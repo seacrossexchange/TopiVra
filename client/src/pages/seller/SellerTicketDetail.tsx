@@ -16,13 +16,12 @@ import {
 import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
   SendOutlined,
   UserOutlined,
   ShopOutlined,
   CustomerServiceOutlined,
 } from '@ant-design/icons';
-import { ticketsService, Ticket, TicketMessage } from '@/services/tickets';
+import { ticketsService, type Ticket, type TicketMessage } from '@/services/tickets';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 

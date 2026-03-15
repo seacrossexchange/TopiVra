@@ -2,7 +2,7 @@
  * 时区处理工具
  * 支持用户时区的日期时间格式化
  */
-import { format, formatInTimeZone } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 import { zhCN, enUS, id as idLocale, ptBR, es } from 'date-fns/locale';
 
 const locales = {

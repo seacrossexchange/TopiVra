@@ -202,22 +202,17 @@ export class AuditLogInterceptor implements NestInterceptor {
     try {
       await this.prisma.auditLog.create({
         data: {
-          userId: data.userId,
-          userEmail: data.userEmail,
-          userRole: data.userRole,
+          operatorId: data.userId || 'anonymous',
+          operatorRole: data.userRole || 'GUEST',
           action: `${data.method} ${data.path}`,
           module: this.extractModule(data.path),
           targetType: this.extractTargetType(data.path),
           targetId: this.extractTargetId(data.path),
-          ip: data.ip,
+          description: data.errorMessage || `${data.method} ${data.path}`,
+          beforeData: data.requestBody || data.queryParams,
+          afterData: data.responseData,
+          ipAddress: data.ip,
           userAgent: data.userAgent,
-          requestData: data.requestBody || data.queryParams,
-          responseData: data.responseData,
-          statusCode: data.statusCode,
-          success: data.success,
-          responseTime: data.responseTime,
-          errorMessage: data.errorMessage,
-          timestamp: data.timestamp,
         },
       });
     } catch (error) {

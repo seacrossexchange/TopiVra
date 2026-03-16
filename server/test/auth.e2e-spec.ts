@@ -91,14 +91,14 @@ describe('AuthModule (e2e)', () => {
     // For demonstration, let's assume a health check or a generic protected endpoint
     // In a real app, you would test an actual protected user endpoint
     await request(app.getHttpServer())
-      .get('/api/health/liveness') // Using an existing endpoint as a proxy for protected
+      .get('/api/auth/me')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
   });
 
   it('/protected (GET) - should not access protected resource without token', async () => {
     await request(app.getHttpServer())
-      .get('/api/health/liveness') // Using an existing endpoint as a proxy for protected
+      .get('/api/auth/me')
       .expect(401); // Unauthorized
   });
 });

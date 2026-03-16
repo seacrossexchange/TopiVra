@@ -63,8 +63,10 @@ export default function BuyerTicketList() {
   useEffect(() => {
     const ticketNo = searchParams.get('ticket');
     if (ticketNo) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTicketNo(ticketNo);
     } else if (ticketsData?.items?.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTicketNo(ticketsData.items[0].ticket_no);
     }
   }, [searchParams, ticketsData]);

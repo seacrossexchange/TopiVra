@@ -53,8 +53,9 @@ export class WsAuthGuard implements CanActivate {
       client.data.token = token;
 
       return true;
-    } catch (error) {
-      this.logger.error(`WebSocket 认证失败: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      this.logger.error(`WebSocket 认证失败: ${errorMessage}`);
       throw new WsException('未授权：认证失败');
     }
   }

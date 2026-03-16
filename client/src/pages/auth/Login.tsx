@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, Form, Input, Button, Typography, Space, Checkbox, message, Divider } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,7 @@ interface ApiResponse<T> {
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const { setTokens, setUser } = useAuthStore();
 
@@ -61,14 +62,39 @@ export default function Login() {
       });
       
       message.success(t('auth.loginSuccess'));
-      
-      // 根据用户角色跳转（后端无 roles 字段，通过 isSeller 和邮箱判断角色）
-      if (user.email === 'admin@topivra.com' || (user as any).isAdmin) {
-        navigate('/admin');
-      } else if (user.isSeller) {
-        navigate('/seller');
+
+      const state = location.state as
+        | {
+            from?: {
+              pathname?: string;
+              search?: string;
+              hash?: string;
+            };
+          }
+        | undefined;
+
+      const from = state?.from;
+      const fromPath = from?.pathname
+        ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
+        : null;
+
+      // 优先回跳到用户原本想访问的受保护页面
+      if (fromPath && from?.pathname && !['/login', '/register', '/auth/login', '/auth/register'].includes(from.pathname)) {
+        navigate(fromPath, { replace: true });
+        return;
+      }
+
+      // 回跳信息缺失时，根据用户角色跳转
+      const roles = (user.roles || []).map((r) => r.toUpperCase());
+      const isAdmin = user.email === 'admin@topivra.com' || (user as any).isAdmin || roles.includes('ADMIN');
+      const isSeller = user.isSeller || roles.includes('SELLER');
+
+      if (isAdmin) {
+        navigate('/admin', { replace: true });
+      } else if (isSeller) {
+        navigate('/seller', { replace: true });
       } else {
-        navigate('/user');
+        navigate('/user/profile', { replace: true });
       }
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
@@ -135,7 +161,7 @@ export default function Login() {
             <div className="login-footer">
               <Text type="secondary">
                 {t('auth.noAccount')}{' '}
-                <Link onClick={() => navigate('/auth/register')}>{t('auth.signUp')}</Link>
+                <Link onClick={() => navigate('/register')}>{t('auth.signUp')}</Link>
               </Text>
             </div>
           </Form>

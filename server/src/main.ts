@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe, Logger, RequestMethod } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -137,8 +137,12 @@ async function bootstrap() {
     configService.get<string>('API_PREFIX') || `api/${apiVersion}`;
 
   // 设置全局路由前缀（支持版本化）
+  // Terminus health endpoints must remain un-prefixed so probes can call /health/** directly.
   app.setGlobalPrefix(apiPrefix, {
-    exclude: ['health', 'health/ready', 'health/live'], // 健康检查不需要版本前缀
+    exclude: [
+      { path: 'health', method: RequestMethod.ALL },
+      { path: 'health/(.*)', method: RequestMethod.ALL },
+    ],
   });
 
   // 全局异常过滤器
@@ -163,7 +167,7 @@ async function bootstrap() {
   );
 
   // Swagger API 文档配置 - 强制在生产环境禁用
-  if (nodeEnv !== 'production') {
+  if (nodeEnv === 'development') {
     const config = new DocumentBuilder()
       .setTitle('TokBazaar API')
       .setDescription('TokBazaar 全球数字账号交易平台 API 文档')

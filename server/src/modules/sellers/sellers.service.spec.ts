@@ -4,6 +4,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Decimal } from '@prisma/client/runtime/library';
+import { WebsocketGateway } from '../websocket/websocket.gateway';
+import { MailService } from '../../common/mail/mail.service';
 
 describe('SellersService', () => {
   let service: SellersService;
@@ -84,11 +86,11 @@ describe('SellersService', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: ConfigService, useValue: configService },
         {
-          provide: 'WebsocketGateway',
+          provide: WebsocketGateway,
           useValue: mockWebsocketGateway,
         },
         {
-          provide: 'MailService',
+          provide: MailService,
           useValue: mockMailService,
         },
       ],

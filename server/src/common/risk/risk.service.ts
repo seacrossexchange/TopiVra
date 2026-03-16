@@ -478,10 +478,10 @@ export class RiskService {
           userId,
           type,
           score,
-          level: this.getRiskLevel(score),
           factors: factors as any,
           ipAddress: data?.ipAddress || '',
           deviceId: data?.deviceId || '',
+          userAgent: data?.userAgent || '',
         },
       });
     } catch (error) {

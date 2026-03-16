@@ -47,7 +47,7 @@ export default function TranslationManager({ entityType, entityId }: Translation
       const response = await axios.get(`/api/translations/${entityType}/${entityId}`);
       setTranslations(response.data.data.translations);
       setCompleteness(response.data.data.completeness);
-    } catch (error) {
+    } catch {
       message.error(t('common.loadFailed'));
     } finally {
       setLoading(false);
@@ -79,7 +79,7 @@ export default function TranslationManager({ entityType, entityId }: Translation
       message.success(t('common.saveSuccess'));
       setEditModalVisible(false);
       loadTranslations();
-    } catch (error) {
+    } catch {
       message.error(t('common.saveFailed'));
     }
   };

@@ -27,8 +27,18 @@ export default function HotDeals() {
   const [deals, setDeals] = useState<HotDeal[]>([]);
   const [countdown, setCountdown] = useState<Record<string, number>>({});
 
+  async function fetchHotDeals() {
+    try {
+      const response = await apiClient.get('/products/hot-deals');
+      setDeals(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch hot deals:', error);
+    }
+  }
+
   useEffect(() => {
-    fetchHotDeals();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchHotDeals();
   }, []);
 
   useEffect(() => {
@@ -45,14 +55,6 @@ export default function HotDeals() {
     return () => clearInterval(timer);
   }, [deals]);
 
-  const fetchHotDeals = async () => {
-    try {
-      const response = await apiClient.get('/products/hot-deals');
-      setDeals(response.data || []);
-    } catch (error) {
-      console.error('Failed to fetch hot deals:', error);
-    }
-  };
 
   const formatCountdown = (seconds: number) => {
     const h = Math.floor(seconds / 3600);

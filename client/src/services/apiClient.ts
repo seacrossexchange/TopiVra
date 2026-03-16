@@ -119,7 +119,7 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    throw error;
   }
 );
 
@@ -142,7 +142,7 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     // 被取消的请求直接 reject，不走错误处理
     if (isRequestCancelled(error)) {
-      return Promise.reject(error);
+      throw error;
     }
 
     const originalRequest = error.config as InternalAxiosRequestConfig & {
@@ -155,12 +155,12 @@ apiClient.interceptors.response.use(
       // 尝试从响应头获取重试等待时间
       const retryAfter = error.response.headers['retry-after'];
       if (retryAfter) {
-        const seconds = parseInt(retryAfter, 10);
+        const seconds = Number.parseInt(retryAfter, 10);
         message.warning(`操作过于频繁，请 ${seconds} 秒后再试`, seconds);
       } else {
         message.warning('操作过于频繁，请稍后再试');
       }
-      return Promise.reject(error);
+      throw error;
     }
 
     // ─── GET + 5xx 指数退避重试 ──────────────────────────────────────────────
@@ -174,14 +174,14 @@ apiClient.interceptors.response.use(
     // ─── 401 Token 刷新 ──────────────────────────────────────────────────────
     if (error.response?.status !== 401 || originalRequest._retry) {
       handleApiError(error);
-      return Promise.reject(error);
+      throw error;
     }
 
     // refresh 请求本身失败，直接登出
     if (originalRequest.url === '/auth/refresh') {
       useAuthStore.getState().logout();
-      window.location.href = '/auth/login';
-      return Promise.reject(error);
+      globalThis.location.href = '/login';
+      throw error;
     }
 
     // 已在刷新中，排队等待
@@ -190,7 +190,9 @@ apiClient.interceptors.response.use(
         failedQueue.push({ resolve, reject });
       })
         .then(() => apiClient(originalRequest))
-        .catch((err) => Promise.reject(err));
+        .catch((err) => {
+          throw err;
+        });
     }
 
     // 发起 token 刷新
@@ -228,8 +230,8 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError as AxiosError);
       useAuthStore.getState().logout();
-      window.location.href = '/auth/login';
-      return Promise.reject(refreshError);
+      globalThis.location.href = '/login';
+      throw refreshError;
     } finally {
       isRefreshing = false;
     }

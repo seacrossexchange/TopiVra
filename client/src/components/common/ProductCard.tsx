@@ -75,7 +75,7 @@ export function ProductCard({
     
     if (!isAuthenticated) {
       message.warning('请先登录');
-      navigate('/auth/login');
+      navigate('/login');
       return;
     }
 
@@ -103,7 +103,7 @@ export function ProductCard({
     
     if (!isAuthenticated) {
       message.warning('请先登录');
-      navigate('/auth/login');
+      navigate('/login');
       return;
     }
 

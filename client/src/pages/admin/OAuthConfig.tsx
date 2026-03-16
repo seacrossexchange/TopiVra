@@ -21,7 +21,7 @@ export default function OAuthConfig() {
     try {
       const { data } = await apiClient.get('/admin/config/oauth');
       form.setFieldsValue(data);
-    } catch (error) {
+    } catch {
       message.error(t('common.fetchError', '加载 OAuth 配置失败'));
     } finally {
       setFetching(false);
@@ -33,7 +33,7 @@ export default function OAuthConfig() {
     try {
       await apiClient.put('/admin/config/oauth', values);
       message.success(t('common.saveSuccess', '保存成功'));
-    } catch (error) {
+    } catch {
       message.error(t('common.saveError', '保存失败'));
     } finally {
       setLoading(false);

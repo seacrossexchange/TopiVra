@@ -15,7 +15,7 @@ export function MobileTabBar() {
   const tabs = [
     { key: '/', icon: <HomeOutlined />, title: t('nav.home') },
     { key: '/products', icon: <AppstoreOutlined />, title: t('nav.products') },
-    { key: '/user/cart', icon: <ShoppingCartOutlined />, title: t('nav.cart') },
+    { key: '/cart', icon: <ShoppingCartOutlined />, title: t('nav.cart') },
     { key: '/user', icon: <UserOutlined />, title: t('mobile.me') },
   ];
 

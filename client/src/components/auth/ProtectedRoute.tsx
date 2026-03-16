@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
   requiredRole?: 'admin' | 'seller' | 'user';
 }
 
-export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, requiredRole }: Readonly<ProtectedRouteProps>) {
   const location = useLocation();
   const { isAuthenticated, user, isLoading, accessToken } = useAuthStore();
 
@@ -18,7 +18,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
 
   // Not authenticated - redirect to login
   if (!isAuthenticated || !user || !accessToken) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Check role-based access

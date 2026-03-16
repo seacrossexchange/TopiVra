@@ -358,7 +358,7 @@ export default function Products() {
           message.success(`成功${approved ? '通过' : '拒绝'} ${pendingProducts.length} 个商品`);
           setSelectedRowKeys([]);
           fetchProducts();
-        } catch (error) {
+        } catch {
           message.error('批量审核失败，请重试');
         } finally {
           setBatchLoading(false);

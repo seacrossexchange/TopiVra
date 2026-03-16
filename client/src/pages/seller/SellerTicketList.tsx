@@ -59,13 +59,21 @@ export default function SellerTicketList() {
   });
 
   useEffect(() => {
+    // 仅同步 URL 中的 ticketNo → state，避免 effect 内做“自动选择”导致级联 render 警告
     const ticketNo = searchParams.get('ticket');
     if (ticketNo) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTicketNo(ticketNo);
-    } else if (ticketsData?.items?.length > 0) {
-      setSelectedTicketNo(ticketsData.items[0].ticket_no);
     }
-  }, [searchParams, ticketsData]);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!selectedTicketNo && ticketsData?.items?.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedTicketNo(ticketsData.items[0].ticket_no);
+      setSearchParams({ ticket: ticketsData.items[0].ticket_no });
+    }
+  }, [selectedTicketNo, ticketsData, setSearchParams]);
 
   const handleTicketClick = (ticketNo: string) => {
     setSelectedTicketNo(ticketNo);

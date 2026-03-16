@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import apiClient, { createAbortController, cancelRequest, isRequestCancelled } from '../apiClient';
+import apiClient, { createAbortController, cancelRequest, isRequestCancelled } from './apiClient';
 
 describe('apiClient', () => {
   let mock: MockAdapter;

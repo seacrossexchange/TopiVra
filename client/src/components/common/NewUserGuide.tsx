@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal, Button, Space, Tag, Typography, message } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -117,27 +117,25 @@ export default function NewUserGuide({ visible, onClose }: NewUserGuideProps) {
     },
   ];
 
-  useEffect(() => {
-    if (visible && currentStep === 2) {
-      // 自动领取新用户优惠券
-      claimNewUserCoupon();
-    }
-  }, [visible, currentStep]);
-
-  const claimNewUserCoupon = async () => {
+  async function claimNewUserCoupon() {
     try {
       const response = await apiClient.post('/coupons/claim-new-user');
       if (response.data?.code) {
         setCouponCode(response.data.code);
       }
-    } catch (error) {
+    } catch {
       // 静默失败，不影响引导流程
     }
-  };
+  }
+
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      if (visible && nextStep === 2 && !couponCode) {
+        void claimNewUserCoupon();
+      }
     } else {
       handleFinish();
     }

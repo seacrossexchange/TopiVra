@@ -85,12 +85,13 @@ export default function Header() {
       label: t('user.logout'),
       onClick: () => {
         logout();
-        navigate('/auth/login');
+        navigate('/login');
       },
     },
   ];
 
-  const isSeller = user?.roles?.includes('seller') || false;
+  const roles = (user?.roles || []).map((r) => r.toUpperCase());
+  const isSeller = roles.includes('SELLER') || user?.isSeller === true;
 
   return (
     <AntHeader className="header">
@@ -213,7 +214,7 @@ export default function Header() {
           <Button
             type="primary"
             icon={<LoginOutlined />}
-            onClick={() => navigate('/auth/login')}
+            onClick={() => navigate('/login')}
           >
             {t('header.login', '登录')}
           </Button>

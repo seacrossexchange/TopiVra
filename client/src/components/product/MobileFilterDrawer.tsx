@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Drawer, Button, Typography, Divider } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -30,12 +30,6 @@ export default function MobileFilterDrawer({
   const [tempPlatform, setTempPlatform] = useState(selectedPlatform);
   const [tempCountry, setTempCountry] = useState(selectedCountry);
 
-  // 同步外部状态
-  useEffect(() => {
-    setTempPlatform(selectedPlatform);
-    setTempCountry(selectedCountry);
-  }, [selectedPlatform, selectedCountry, visible]);
-
   const handleApply = () => {
     onPlatformChange(tempPlatform);
     onCountryChange(tempCountry);
@@ -65,6 +59,12 @@ export default function MobileFilterDrawer({
       height="auto"
       open={visible}
       onClose={onClose}
+      afterOpenChange={(open) => {
+        if (open) {
+          setTempPlatform(selectedPlatform);
+          setTempCountry(selectedCountry);
+        }
+      }}
       closeIcon={<CloseOutlined />}
       styles={{ body: { paddingBottom: 80 } }}
       footer={

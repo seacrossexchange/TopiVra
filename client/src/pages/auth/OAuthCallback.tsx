@@ -15,7 +15,7 @@ export default function OAuthCallback() {
 
     if (error) {
       message.error('登录失败: ' + error);
-      navigate('/auth/login');
+      navigate('/login');
       return;
     }
 
@@ -44,11 +44,11 @@ export default function OAuthCallback() {
             console.error('获取用户信息失败:', err);
           }
           message.error('登录失败，请重试');
-          navigate('/auth/login');
+          navigate('/login');
         });
     } else {
       message.error('登录失败，缺少必要参数');
-      navigate('/auth/login');
+      navigate('/login');
     }
   }, [searchParams, navigate, setTokens, setUser]);
 

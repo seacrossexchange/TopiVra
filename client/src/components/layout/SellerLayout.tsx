@@ -76,7 +76,7 @@ export default function SellerLayout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/auth/login');
+    navigate('/login');
   };
 
   const userMenuItems = [

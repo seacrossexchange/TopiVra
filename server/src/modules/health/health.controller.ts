@@ -13,11 +13,11 @@ import { RedisHealthIndicator } from './redis.health';
 @Controller('health')
 export class HealthController {
   constructor(
-    private health: HealthCheckService,
-    private prismaHealth: PrismaHealthIndicator,
-    private redisHealth: RedisHealthIndicator,
-    private disk: DiskHealthIndicator,
-    private memory: MemoryHealthIndicator,
+    private readonly health: HealthCheckService,
+    private readonly prismaHealth: PrismaHealthIndicator,
+    private readonly redisHealth: RedisHealthIndicator,
+    private readonly disk: DiskHealthIndicator,
+    private readonly memory: MemoryHealthIndicator,
   ) {}
 
   @Get()
@@ -54,5 +54,21 @@ export class HealthController {
       () => this.prismaHealth.isHealthy('database'),
       () => this.redisHealth.isHealthy('redis'),
     ]);
+  }
+
+  // ---- Aliases (compat with existing probes / configs) ----
+
+  @Get('live')
+  @Public()
+  @HealthCheck()
+  liveAlias(): Promise<HealthCheckResult> {
+    return this.liveness();
+  }
+
+  @Get('ready')
+  @Public()
+  @HealthCheck()
+  readyAlias(): Promise<HealthCheckResult> {
+    return this.readiness();
   }
 }

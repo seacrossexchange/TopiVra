@@ -36,12 +36,12 @@ export default function Register() {
       // 检查是否需要邮箱验证
       if ((response.data as any).requiresVerification) {
         message.success(t('auth.registerSuccess') + ' ' + t('auth.pleaseVerifyEmail', '请查收验证邮件'));
-        navigate('/auth/login');
+        navigate('/login');
         return;
       }
       
       message.success(t('auth.registerSuccess'));
-      navigate('/auth/login');
+      navigate('/login');
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const errorMsg = axiosError.response?.data?.message || t('auth.registerFailed');
@@ -172,7 +172,7 @@ export default function Register() {
             <div className="login-footer">
               <Text type="secondary">
                 {t('auth.hasAccount')}{' '}
-                <Link onClick={() => navigate('/auth/login')}>{t('auth.loginNow')}</Link>
+                <Link onClick={() => navigate('/login')}>{t('auth.loginNow')}</Link>
               </Text>
             </div>
           </Form>

@@ -7,13 +7,11 @@ import {
   SaveOutlined, GlobalOutlined, SyncOutlined,
   CheckCircleOutlined, LinkOutlined, InfoCircleOutlined,
 } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';
 
 const { Title, Text, Paragraph } = Typography;
 
 export default function SeoConfig() {
-  const { } = useTranslation();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);

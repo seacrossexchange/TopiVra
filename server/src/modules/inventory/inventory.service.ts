@@ -28,10 +28,14 @@ export class InventoryService {
    */
   private encryptAccountData(accountData: string): string {
     const algorithm = 'aes-256-cbc';
-    const key = Buffer.from(
-      process.env.ENCRYPTION_KEY || '0'.repeat(64),
-      'hex',
-    );
+
+    // ENCRYPTION_KEY expects a 64-hex-char (32-byte) key.
+    // In test/dev it may be missing; in that case we fall back to a deterministic zero key
+    // so the service remains functional (prod should always set a strong key).
+    const rawKey = process.env.ENCRYPTION_KEY;
+    const keyHex = rawKey && /^[0-9a-fA-F]{64}$/.test(rawKey) ? rawKey : '0'.repeat(64);
+    const key = Buffer.from(keyHex, 'hex');
+
     const iv = crypto.randomBytes(16);
 
     const cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -47,10 +51,10 @@ export class InventoryService {
   private decryptAccountData(encryptedData: string): string {
     try {
       const algorithm = 'aes-256-cbc';
-      const key = Buffer.from(
-        process.env.ENCRYPTION_KEY || '0'.repeat(64),
-        'hex',
-      );
+
+      const rawKey = process.env.ENCRYPTION_KEY;
+      const keyHex = rawKey && /^[0-9a-fA-F]{64}$/.test(rawKey) ? rawKey : '0'.repeat(64);
+      const key = Buffer.from(keyHex, 'hex');
 
       const parts = encryptedData.split(':');
       const iv = Buffer.from(parts[0], 'hex');

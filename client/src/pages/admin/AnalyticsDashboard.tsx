@@ -10,11 +10,7 @@ export default function AnalyticsDashboard() {
   const [topProducts, setTopProducts] = useState([]);
   const [categorySales, setCategorySales] = useState([]);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  async function loadData() {
     try {
       const [overviewRes, trendRes, productsRes, categoryRes] = await Promise.all([
         apiClient.get('/analytics/overview'),
@@ -29,7 +25,13 @@ export default function AnalyticsDashboard() {
     } catch (error) {
       console.error('Failed to load analytics:', error);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadData();
+  }, []);
+
 
   const productColumns = [
     { title: 'Product', dataIndex: 'title', key: 'title' },

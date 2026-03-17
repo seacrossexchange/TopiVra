@@ -118,6 +118,14 @@ deploy-config.txt
 *.local.yml
 *.local.yaml
 
+# Claude Code local settings (can include machine-specific permissions / secrets)
+.claude/settings.local.json
+.claude/settings.local.*
+
+# OpenClaw local config (may contain tokens)
+.openclaw/
+**/openclaw.json
+
 # ==================== 测试文件 ====================
 test-results/
 playwright-report/

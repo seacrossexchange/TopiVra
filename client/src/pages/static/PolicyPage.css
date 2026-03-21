@@ -41,7 +41,7 @@
 }
 
 /* 暗色主题适配 */
-:root:not([data-theme='light']) .policy-card {
+[data-theme="dark"] .policy-card {
   background: var(--color-bg-card);
   border-color: var(--color-border);
 }

@@ -47,7 +47,7 @@ export default function TranslationManager({ entityType, entityId }: Translation
       const response = await axios.get(`/api/translations/${entityType}/${entityId}`);
       setTranslations(response.data.data.translations);
       setCompleteness(response.data.data.completeness);
-    } catch {
+    } catch (error) {
       message.error(t('common.loadFailed'));
     } finally {
       setLoading(false);
@@ -79,7 +79,7 @@ export default function TranslationManager({ entityType, entityId }: Translation
       message.success(t('common.saveSuccess'));
       setEditModalVisible(false);
       loadTranslations();
-    } catch {
+    } catch (error) {
       message.error(t('common.saveFailed'));
     }
   };
@@ -156,7 +156,7 @@ export default function TranslationManager({ entityType, entityId }: Translation
             status={completeness.complete ? 'success' : 'active'}
           />
           {completeness.missingLanguages.length > 0 && (
-            <div style={{ marginTop: 8, color: 'var(--color-warning)' }}>
+            <div style={{ marginTop: 8, color: '#faad14' }}>
               <WarningOutlined /> {t('admin.missingLanguages')}: {completeness.missingLanguages.join(', ')}
             </div>
           )}
@@ -213,9 +213,6 @@ export default function TranslationManager({ entityType, entityId }: Translation
     </Card>
   );
 }
-
-
-
 
 
 

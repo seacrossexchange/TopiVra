@@ -98,10 +98,10 @@ export function SellerInfoCard({
   // Use sellerInfo if available, otherwise fallback to basic display
   const displayName = sellerInfo?.shopName || sellerName || t('products.detail.sellerDefault');
   const level = sellerInfo?.level || 'NORMAL';
-  const rating = Number(sellerInfo?.rating) || 0;
-  const totalSales = Number(sellerInfo?.totalSales) || 0;
-  const positiveRate = Number(sellerInfo?.positiveRate) || 0;
-  const avgDeliveryTime = Number(sellerInfo?.avgDeliveryTime) || 0;
+  const rating = sellerInfo?.rating || 0;
+  const totalSales = sellerInfo?.totalSales || 0;
+  const positiveRate = sellerInfo?.positiveRate || 0;
+  const avgDeliveryTime = sellerInfo?.avgDeliveryTime || 0;
   const memberSince = sellerInfo?.memberSince;
   const productCount = sellerInfo?.productCount || 0;
   const description = sellerInfo?.description;

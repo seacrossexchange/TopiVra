@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -38,7 +32,7 @@ export class ReviewsService {
     // 检查是否已评价
     const existing = await this.prisma.$queryRawUnsafe<any[]>(
       `SELECT * FROM reviews WHERE order_id = ? LIMIT 1`,
-      dto.orderId,
+      dto.orderId
     );
 
     if (existing && existing.length > 0) {
@@ -63,7 +57,7 @@ export class ReviewsService {
       dto.rating,
       dto.content || null,
       JSON.stringify(dto.images || []),
-      dto.isAnonymous || false,
+      dto.isAnonymous || false
     );
 
     // 更新卖家评分
@@ -81,7 +75,7 @@ export class ReviewsService {
   async replyReview(sellerId: string, reviewId: string, reply: string) {
     const reviews = await this.prisma.$queryRawUnsafe<any[]>(
       `SELECT * FROM reviews WHERE id = ? LIMIT 1`,
-      reviewId,
+      reviewId
     );
 
     if (!reviews || reviews.length === 0) {
@@ -97,7 +91,7 @@ export class ReviewsService {
     await this.prisma.$executeRawUnsafe(
       `UPDATE reviews SET seller_reply = ?, seller_replied_at = NOW() WHERE id = ?`,
       reply,
-      reviewId,
+      reviewId
     );
 
     return { success: true, message: '回复成功' };
@@ -106,11 +100,7 @@ export class ReviewsService {
   /**
    * 获取商品评价列表
    */
-  async getProductReviews(
-    productId: string,
-    page: number = 1,
-    limit: number = 10,
-  ) {
+  async getProductReviews(productId: string, page: number = 1, limit: number = 10) {
     const offset = (page - 1) * limit;
 
     const reviews = await this.prisma.$queryRawUnsafe<any[]>(
@@ -125,18 +115,18 @@ export class ReviewsService {
       LIMIT ? OFFSET ?`,
       productId,
       limit,
-      offset,
+      offset
     );
 
     const totalResult = await this.prisma.$queryRawUnsafe<any[]>(
       `SELECT COUNT(*) as count FROM reviews WHERE product_id = ? AND is_visible = TRUE`,
-      productId,
+      productId
     );
 
     const total = totalResult[0]?.count || 0;
 
     return {
-      items: reviews.map((r) => ({
+      items: reviews.map(r => ({
         ...r,
         images: r.images ? JSON.parse(r.images) : [],
       })),
@@ -149,11 +139,7 @@ export class ReviewsService {
   /**
    * 获取卖家评价列表
    */
-  async getSellerReviews(
-    sellerId: string,
-    page: number = 1,
-    limit: number = 10,
-  ) {
+  async getSellerReviews(sellerId: string, page: number = 1, limit: number = 10) {
     const offset = (page - 1) * limit;
 
     const reviews = await this.prisma.$queryRawUnsafe<any[]>(
@@ -170,18 +156,18 @@ export class ReviewsService {
       LIMIT ? OFFSET ?`,
       sellerId,
       limit,
-      offset,
+      offset
     );
 
     const totalResult = await this.prisma.$queryRawUnsafe<any[]>(
       `SELECT COUNT(*) as count FROM reviews WHERE seller_id = ? AND is_visible = TRUE`,
-      sellerId,
+      sellerId
     );
 
     const total = totalResult[0]?.count || 0;
 
     return {
-      items: reviews.map((r) => ({
+      items: reviews.map(r => ({
         ...r,
         images: r.images ? JSON.parse(r.images) : [],
       })),
@@ -197,14 +183,14 @@ export class ReviewsService {
   async getSellerRating(sellerId: string) {
     const ratings = await this.prisma.$queryRawUnsafe<any[]>(
       `SELECT * FROM seller_ratings WHERE seller_id = ? LIMIT 1`,
-      sellerId,
+      sellerId
     );
 
     if (!ratings || ratings.length === 0) {
       // 初始化评分
       await this.prisma.$executeRawUnsafe(
         `INSERT INTO seller_ratings (id, seller_id) VALUES (UUID(), ?)`,
-        sellerId,
+        sellerId
       );
       return {
         totalReviews: 0,
@@ -252,7 +238,7 @@ export class ReviewsService {
         SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as rating_1
       FROM reviews
       WHERE seller_id = ?`,
-      sellerId,
+      sellerId
     );
 
     const stat = stats[0];
@@ -293,25 +279,12 @@ export class ReviewsService {
         rating_1_count = ?,
         credit_level = ?,
         credit_score = ?`,
-      sellerId,
-      total,
-      avgRating,
-      stat.rating_5,
-      stat.rating_4,
-      stat.rating_3,
-      stat.rating_2,
-      stat.rating_1,
-      creditLevel,
-      creditScore,
-      total,
-      avgRating,
-      stat.rating_5,
-      stat.rating_4,
-      stat.rating_3,
-      stat.rating_2,
-      stat.rating_1,
-      creditLevel,
-      creditScore,
+      sellerId, total, avgRating,
+      stat.rating_5, stat.rating_4, stat.rating_3, stat.rating_2, stat.rating_1,
+      creditLevel, creditScore,
+      total, avgRating,
+      stat.rating_5, stat.rating_4, stat.rating_3, stat.rating_2, stat.rating_1,
+      creditLevel, creditScore
     );
   }
 
@@ -325,7 +298,7 @@ export class ReviewsService {
         AVG(rating) as avg_rating
       FROM reviews
       WHERE product_id = ?`,
-      productId,
+      productId
     );
 
     const stat = stats[0];
@@ -346,7 +319,7 @@ export class ReviewsService {
       await this.prisma.$executeRawUnsafe(
         `INSERT INTO review_likes (id, review_id, user_id) VALUES (UUID(), ?, ?)`,
         reviewId,
-        userId,
+        userId
       );
       return { success: true, message: '点赞成功' };
     } catch (error: any) {
@@ -364,7 +337,7 @@ export class ReviewsService {
     await this.prisma.$executeRawUnsafe(
       `DELETE FROM review_likes WHERE review_id = ? AND user_id = ?`,
       reviewId,
-      userId,
+      userId
     );
     return { success: true, message: '取消点赞成功' };
   }

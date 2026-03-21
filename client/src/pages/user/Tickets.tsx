@@ -189,7 +189,7 @@ export default function UserTickets() {
     <div style={{ height: 'calc(100vh - 120px)' }}>
       <Row gutter={0} style={{ height: '100%' }}>
         {/* 左侧：工单列表 */}
-        <Col xs={24} md={8} style={{ height: '100%', borderRight: '1px solid var(--color-border-light)' }}>
+        <Col xs={24} md={8} style={{ height: '100%', borderRight: '1px solid #f0f0f0' }}>
           <Card
             title={
               <Space direction="vertical" size="small" style={{ width: '100%' }}>
@@ -208,10 +208,10 @@ export default function UserTickets() {
                 </div>
                 <Space size="large">
                   <Text type="secondary">
-                    {t('ticket.stats.open')}: <Text strong style={{ color: 'var(--color-error)' }}>{stats.open}</Text>
+                    {t('ticket.stats.open')}: <Text strong style={{ color: '#ff4d4f' }}>{stats.open}</Text>
                   </Text>
                   <Text type="secondary">
-                    {t('ticket.stats.inProgress')}: <Text strong style={{ color: 'var(--color-primary)' }}>{stats.inProgress}</Text>
+                    {t('ticket.stats.inProgress')}: <Text strong style={{ color: '#1890ff' }}>{stats.inProgress}</Text>
                   </Text>
                   <Text type="secondary">
                     {t('ticket.stats.closed')}: <Text strong>{stats.closed}</Text>
@@ -223,7 +223,7 @@ export default function UserTickets() {
             bodyStyle={{ padding: 0, height: 'calc(100% - 120px)', overflow: 'auto' }}
           >
             {/* 筛选按钮 */}
-            <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border-light)' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
               <Radio.Group
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
@@ -248,15 +248,15 @@ export default function UserTickets() {
                     style={{
                       padding: '12px 16px',
                       cursor: 'pointer',
-                      background: selectedTicketId === ticket.id ? 'var(--color-primary-bg)' : 'transparent',
-                      borderLeft: selectedTicketId === ticket.id ? '3px solid var(--color-primary)' : '3px solid transparent',
+                      background: selectedTicketId === ticket.id ? '#e6f7ff' : 'transparent',
+                      borderLeft: selectedTicketId === ticket.id ? '3px solid #1890ff' : '3px solid transparent',
                     }}
                     onClick={() => setSelectedTicketId(ticket.id)}
                   >
                     <List.Item.Meta
                       avatar={
                         <Badge count={ticket.unread || 0} size="small">
-                          <Avatar icon={<CustomerServiceOutlined />} style={{ background: 'var(--color-primary)' }} />
+                          <Avatar icon={<CustomerServiceOutlined />} style={{ background: '#1890ff' }} />
                         </Badge>
                       }
                       title={
@@ -271,7 +271,7 @@ export default function UserTickets() {
                       }
                       description={
                         <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                          <Tag color="info" style={{ fontSize: 11 }}>
+                          <Tag color="blue" style={{ fontSize: 11 }}>
                             {t(`ticket.typeLabels.${ticket.type.toLowerCase()}`)}
                           </Tag>
                           <Text ellipsis style={{ fontSize: 12 }}>
@@ -314,7 +314,7 @@ export default function UserTickets() {
                 bodyStyle={{ padding: 0, height: 'calc(100% - 80px)', display: 'flex', flexDirection: 'column' }}
               >
                 {/* 消息列表 */}
-                <div style={{ flex: 1, padding: 16, overflowY: 'auto', background: 'var(--color-bg-secondary)' }}>
+                <div style={{ flex: 1, padding: 16, overflowY: 'auto', background: '#fafafa' }}>
                   <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                     {selectedTicket.messages?.map((msg: TicketMessage) => (
                       <div
@@ -328,8 +328,8 @@ export default function UserTickets() {
                           size="small"
                           style={{
                             maxWidth: '70%',
-                            background: msg.sender === 'USER' ? 'var(--color-primary)' : 'var(--color-bg-elevated)',
-                            color: msg.sender === 'USER' ? '#fff' : 'var(--color-text-primary)',
+                            background: msg.sender === 'USER' ? '#1890ff' : '#fff',
+                            color: msg.sender === 'USER' ? '#fff' : '#000',
                             borderRadius: 8,
                           }}
                           bodyStyle={{ padding: '8px 12px' }}
@@ -346,7 +346,7 @@ export default function UserTickets() {
                                 type="secondary"
                                 style={{
                                   fontSize: 11,
-                                  color: msg.sender === 'USER' ? 'rgba(255,255,255,0.7)' : 'var(--color-text-secondary)',
+                                  color: msg.sender === 'USER' ? 'rgba(255,255,255,0.7)' : undefined,
                                 }}
                               >
                                 {dayjs(msg.createdAt).format('MM-DD HH:mm')}
@@ -355,7 +355,7 @@ export default function UserTickets() {
                             <Paragraph
                               style={{
                                 margin: 0,
-                                color: msg.sender === 'USER' ? '#fff' : 'var(--color-text-primary)',
+                                color: msg.sender === 'USER' ? '#fff' : '#000',
                               }}
                             >
                               {msg.content}
@@ -369,7 +369,7 @@ export default function UserTickets() {
 
                 {/* 回复输入框 */}
                 {selectedTicket.status !== 'CLOSED' ? (
-                  <div style={{ padding: 16, borderTop: '1px solid var(--color-border-light)', background: 'var(--color-bg-elevated)' }}>
+                  <div style={{ padding: 16, borderTop: '1px solid #f0f0f0', background: '#fff' }}>
                     <Space.Compact style={{ width: '100%' }}>
                       <TextArea
                         value={replyContent}
@@ -398,7 +398,7 @@ export default function UserTickets() {
                     </Button>
                   </div>
                 ) : (
-                  <div style={{ padding: 16, textAlign: 'center', background: 'var(--color-bg-secondary)' }}>
+                  <div style={{ padding: 16, textAlign: 'center', background: '#fafafa' }}>
                     <Text type="secondary">{t('ticket.ticketClosed')}</Text>
                   </div>
                 )}

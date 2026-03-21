@@ -54,7 +54,7 @@ export default function ReferralCard() {
   return (
     <Card className="referral-card">
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <GiftOutlined style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: 12 }} />
+        <GiftOutlined style={{ fontSize: 48, color: '#ff4d4f', marginBottom: 12 }} />
         <Title level={4} style={{ margin: 0 }}>
           {t('referral.title', '邀请好友，双方获得 $10')}
         </Title>
@@ -74,7 +74,7 @@ export default function ReferralCard() {
         </Col>
         <Col span={8}>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-bg-secondary)', borderRadius: 8 }}>
-            <Text strong style={{ fontSize: 24, color: 'var(--color-success)', display: 'block' }}>
+            <Text strong style={{ fontSize: 24, color: '#52c41a', display: 'block' }}>
               {stats.successfulReferrals}
             </Text>
             <Text type="secondary" style={{ fontSize: 12 }}>{t('referral.successful', '成功邀请')}</Text>
@@ -82,7 +82,7 @@ export default function ReferralCard() {
         </Col>
         <Col span={8}>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-bg-secondary)', borderRadius: 8 }}>
-            <Text strong style={{ fontSize: 24, color: 'var(--color-warning)', display: 'block' }}>
+            <Text strong style={{ fontSize: 24, color: '#faad14', display: 'block' }}>
               ${stats.totalRewards}
             </Text>
             <Text type="secondary" style={{ fontSize: 12 }}>{t('referral.earned', '已赚取')}</Text>
@@ -129,15 +129,15 @@ export default function ReferralCard() {
       <div style={{ marginTop: 16, padding: 12, background: 'var(--color-bg-secondary)', borderRadius: 8 }}>
         <Space direction="vertical" size={4} style={{ width: '100%' }}>
           <Space>
-            <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
+            <CheckCircleOutlined style={{ color: '#52c41a' }} />
             <Text style={{ fontSize: 12 }}>{t('referral.rule1', '好友通过您的链接注册')}</Text>
           </Space>
           <Space>
-            <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
+            <CheckCircleOutlined style={{ color: '#52c41a' }} />
             <Text style={{ fontSize: 12 }}>{t('referral.rule2', '好友首单满 $20')}</Text>
           </Space>
           <Space>
-            <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
+            <CheckCircleOutlined style={{ color: '#52c41a' }} />
             <Text style={{ fontSize: 12 }}>{t('referral.rule3', '双方各得 $10 余额奖励')}</Text>
           </Space>
         </Space>
@@ -145,9 +145,6 @@ export default function ReferralCard() {
     </Card>
   );
 }
-
-
-
 
 
 

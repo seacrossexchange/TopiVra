@@ -14,11 +14,9 @@ export class RecommendationsService {
       take: 50,
     });
 
-    const purchasedProductIds = userOrders.flatMap((o) =>
-      o.orderItems.map((i: any) => i.productId),
-    );
-    const purchasedCategories = userOrders.flatMap((o) =>
-      o.orderItems.map((i: any) => i.product.categoryId).filter(Boolean),
+    const purchasedProductIds = userOrders.flatMap(o => o.orderItems.map((i: any) => i.productId));
+    const purchasedCategories = userOrders.flatMap(o =>
+      o.orderItems.map((i: any) => i.product.categoryId).filter(Boolean)
     );
 
     // 2. 基于分类推荐
@@ -40,12 +38,7 @@ export class RecommendationsService {
     const hotProducts = await this.prisma.product.findMany({
       where: {
         status: 'ON_SALE',
-        id: {
-          notIn: [
-            ...purchasedProductIds,
-            ...categoryRecommendations.map((p) => p.id),
-          ],
-        },
+        id: { notIn: [...purchasedProductIds, ...categoryRecommendations.map(p => p.id)] },
       },
       orderBy: { soldCount: 'desc' },
       take: limit - categoryRecommendations.length,

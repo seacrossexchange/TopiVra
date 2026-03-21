@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, Row, Col, Statistic, Select, Badge, Table } from 'antd';
+import i18n from '@/i18n';
 import {
   AreaChart, Area, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -7,6 +8,7 @@ import {
 import { UserOutlined, EyeOutlined, RiseOutlined, GlobalOutlined } from '@ant-design/icons';
 import apiClient from '@/services/apiClient';
 import WorldMap from './WorldMap';
+import './admin.css';
 
 const { Option } = Select;
 
@@ -15,96 +17,123 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
   const [dayRange, setDayRange] = useState(30);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       const { data } = await apiClient.get('/admin/analytics/summary');
       setSummary(data);
     } catch {
-      // fallback mock
       setSummary(getMockData());
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => { fetchSummary(); }, []);
-  useEffect(() => {
-    const t = setInterval(fetchSummary, 30000);
-    return () => clearInterval(t);
   }, []);
 
-  const cardStyle = {
-    background: 'var(--color-bg-card)',
-    border: '1px solid var(--color-border)',
-    borderRadius: 14,
-  };
-  const labelStyle = { color: 'var(--color-text-secondary)', fontSize: 13 };
-  const valueStyle = { color: 'var(--color-text-primary)' };
+  useEffect(() => {
+    void fetchSummary();
+  }, [fetchSummary]);
 
-  if (loading) return <div style={{ padding: 48, textAlign: 'center' }}><div className="ant-spin ant-spin-spinning" /></div>;
+  useEffect(() => {
+    const timer = setInterval(() => {
+      void fetchSummary();
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [fetchSummary]);
 
-  const dailySlice = (summary?.daily || []).slice(-(dayRange));
+  if (loading) {
+    return (
+      <div className="admin-analytics-loading">
+        <div className="ant-spin ant-spin-spinning" />
+      </div>
+    );
+  }
+
+  const dailySlice = (summary?.daily || []).slice(-dayRange);
+  const trendUp = (summary?.todayVsYesterday ?? 0) >= 0;
+
+  const geoColumns = [
+    {
+      title: i18n.t('admin.country', '国家'),
+      dataIndex: 'countryName',
+      key: 'countryName',
+      render: (value: string, record: any) => (
+        <span className="admin-analytics-country">{record.country} {value}</span>
+      ),
+    },
+    {
+      title: i18n.t('admin.visits', '访问量'),
+      dataIndex: 'visits',
+      key: 'visits',
+      align: 'right' as const,
+      render: (value: number) => (
+        <span className="admin-analytics-visits">{value.toLocaleString()}</span>
+      ),
+    },
+  ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h2 style={{ color: 'var(--color-text-primary)', margin: 0, fontSize: 22, fontWeight: 700 }}>
-          流量分析
+    <div className="admin-container">
+      <div className="admin-analytics-header">
+        <h2 className="admin-analytics-heading">
+          {i18n.t('admin.analytics', '流量分析')}
         </h2>
-        <Badge status="processing" text={<span style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>每30秒自动刷新</span>} />
+        <Badge
+          status="processing"
+          text={<span className="admin-stats-title">{i18n.t('admin.autoRefreshEvery30Seconds', '每30秒自动刷新')}</span>}
+        />
       </div>
 
-      {/* KPI 卡片 */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+      <Row gutter={[16, 16]} className="admin-stats-row">
         <Col xs={12} lg={6}>
-          <Card style={cardStyle}>
+          <Card className="admin-card">
             <Statistic
-              title={<span style={labelStyle}>实时在线</span>}
+              title={<span className="admin-stats-title">{i18n.t('admin.onlineNow', '实时在线')}</span>}
               value={summary?.realtime?.onlineCount ?? 0}
-              prefix={<UserOutlined style={{ color: '#22d3ee' }} />}
-              valueStyle={{ ...valueStyle, color: '#22d3ee', fontSize: 28 }}
-              suffix="人"
+              prefix={<UserOutlined className="admin-analytics-online-icon" />}
+              valueStyle={{ color: '#22d3ee', fontSize: 28 }}
+              suffix={i18n.t('common.people', '人')}
             />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
-          <Card style={cardStyle}>
+          <Card className="admin-card">
             <Statistic
-              title={<span style={labelStyle}>今日访问</span>}
+              title={<span className="admin-stats-title">{i18n.t('admin.todayVisits', '今日访问')}</span>}
               value={summary?.todayVisits ?? 0}
-              prefix={<EyeOutlined style={{ color: '#a78bfa' }} />}
-              valueStyle={{ ...valueStyle, color: '#a78bfa', fontSize: 28 }}
+              prefix={<EyeOutlined className="admin-analytics-visits-icon" />}
+              valueStyle={{ color: '#a78bfa', fontSize: 28 }}
             />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
-          <Card style={cardStyle}>
+          <Card className="admin-card">
             <Statistic
-              title={<span style={labelStyle}>较昨日</span>}
+              title={<span className="admin-stats-title">{i18n.t('admin.vsYesterday', '较昨日')}</span>}
               value={Math.abs(summary?.todayVsYesterday ?? 0)}
-              prefix={<RiseOutlined style={{ color: (summary?.todayVsYesterday ?? 0) >= 0 ? '#4ade80' : '#f87171' }} />}
-              valueStyle={{ ...valueStyle, color: (summary?.todayVsYesterday ?? 0) >= 0 ? '#4ade80' : '#f87171', fontSize: 28 }}
+              prefix={<RiseOutlined className={trendUp ? 'admin-analytics-trend-icon-up' : 'admin-analytics-trend-icon-down'} />}
+              valueStyle={{ color: trendUp ? '#4ade80' : '#f87171', fontSize: 28 }}
               suffix="%"
             />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
-          <Card style={cardStyle}>
+          <Card className="admin-card">
             <Statistic
-              title={<span style={labelStyle}>覆盖国家</span>}
+              title={<span className="admin-stats-title">{i18n.t('admin.coveredCountries', '覆盖国家')}</span>}
               value={summary?.geo?.length ?? 0}
-              prefix={<GlobalOutlined style={{ color: '#fb923c' }} />}
-              valueStyle={{ ...valueStyle, color: '#fb923c', fontSize: 28 }}
-              suffix="个"
+              prefix={<GlobalOutlined className="admin-analytics-countries-icon" />}
+              valueStyle={{ color: '#fb923c', fontSize: 28 }}
+              suffix={i18n.t('common.countUnit', '个')}
             />
           </Card>
         </Col>
       </Row>
 
-      {/* 24小时折线图 */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+      <Row gutter={[16, 16]} className="admin-stats-row">
         <Col xs={24} lg={14}>
-          <Card style={cardStyle} title={<span style={{ color: 'var(--color-text-primary)' }}>24小时访问波动</span>}>
+          <Card
+            className="admin-card"
+            title={<span className="admin-analytics-section-title">{i18n.t('admin.hourlyTrafficTrend', '24小时访问波动')}</span>}
+          >
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={summary?.hourly || []}>
                 <defs>
@@ -124,35 +153,31 @@ export default function Analytics() {
         </Col>
         <Col xs={24} lg={10}>
           <Card
-            style={cardStyle}
-            title={<span style={{ color: 'var(--color-text-primary)' }}>地区来源 Top 10</span>}
+            className="admin-card"
+            title={<span className="admin-analytics-section-title">{i18n.t('admin.topRegions', '地区来源 Top 10')}</span>}
           >
             <Table
+              className="admin-analytics-table"
               dataSource={(summary?.geo || []).slice(0, 10)}
               rowKey="country"
               pagination={false}
               size="small"
-              style={{ background: 'transparent' }}
-              columns={[
-                { title: '国家', dataIndex: 'countryName', key: 'countryName', render: (v: string, r: any) => <span style={{ color: 'var(--color-text-primary)' }}>{r.country} {v}</span> },
-                { title: '访问量', dataIndex: 'visits', key: 'visits', align: 'right', render: (v: number) => <span style={{ color: '#a78bfa', fontWeight: 600 }}>{v.toLocaleString()}</span> },
-              ]}
+              columns={geoColumns}
             />
           </Card>
         </Col>
       </Row>
 
-      {/* 30天趋势 + 世界地图 */}
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>
           <Card
-            style={cardStyle}
-            title={<span style={{ color: 'var(--color-text-primary)' }}>访问趋势</span>}
+            className="admin-card"
+            title={<span className="admin-analytics-section-title">{i18n.t('admin.visitTrend', '访问趋势')}</span>}
             extra={
-              <Select value={dayRange} onChange={setDayRange} size="small" style={{ width: 90 }}>
-                <Option value={7}>7天</Option>
-                <Option value={14}>14天</Option>
-                <Option value={30}>30天</Option>
+              <Select value={dayRange} onChange={setDayRange} size="small" className="admin-analytics-range-select">
+                <Option value={7}>{i18n.t('common.daysRange7', '7天')}</Option>
+                <Option value={14}>{i18n.t('common.daysRange14', '14天')}</Option>
+                <Option value={30}>{i18n.t('common.daysRange30', '30天')}</Option>
               </Select>
             }
           >
@@ -168,7 +193,10 @@ export default function Analytics() {
           </Card>
         </Col>
         <Col xs={24} lg={10}>
-          <Card style={{ ...cardStyle, minHeight: 280 }} title={<span style={{ color: 'var(--color-text-primary)' }}>世界地图分布</span>}>
+          <Card
+            className="admin-card admin-analytics-map-card"
+            title={<span className="admin-analytics-section-title">{i18n.t('admin.worldMapDistribution', '世界地图分布')}</span>}
+          >
             <WorldMap geoData={summary?.geo || []} />
           </Card>
         </Col>
@@ -188,7 +216,8 @@ function getMockData() {
       visits: Math.floor(Math.random() * 180 + 20),
     })),
     daily: Array.from({ length: 30 }, (_, i) => {
-      const d = new Date(now); d.setDate(d.getDate() - (29 - i));
+      const d = new Date(now);
+      d.setDate(d.getDate() - (29 - i));
       return { date: `${d.getMonth() + 1}-${String(d.getDate()).padStart(2, '0')}`, visits: Math.floor(Math.random() * 2000 + 300) };
     }),
     geo: [

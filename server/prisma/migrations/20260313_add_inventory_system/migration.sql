@@ -68,6 +68,3 @@ ALTER TABLE "order_items" ADD COLUMN "autoDelivered" BOOLEAN NOT NULL DEFAULT fa
 
 
 
-
-
-

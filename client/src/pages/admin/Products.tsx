@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n';
 import type { ColumnsType } from 'antd/es/table';
 import {
   getProducts, auditProduct, getAdSlots, updateAdSlots,
@@ -24,9 +25,23 @@ const STATUS_COLORS: Record<string, string> = {
   ON_SALE: 'geekblue',
 };
 
-const PLATFORMS = ['全部', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'Twitter', 'Gmail', 'Outlook'];
+const PLATFORMS = [
+  i18n.t('common.all', '全部'),
+  'Facebook',
+  'Instagram',
+  'TikTok',
+  'Telegram',
+  'Twitter',
+  'Gmail',
+  'Outlook',
+];
 const AD_PLATFORMS = ['TikTok', 'Instagram', 'Facebook', 'Telegram', 'Twitter', 'Gmail', 'Discord', 'YouTube'];
 const TAG_OPTIONS = ['', 'HOT', 'NEW', 'SALE', 'TOP'];
+const DEFAULT_AD_SLOT_LABEL = i18n.t('admin.retail', '零售');
+const AD_SLOT_LABEL_OPTIONS = [
+  { value: i18n.t('admin.retail', '零售'), label: i18n.t('admin.retail', '零售') },
+  { value: i18n.t('admin.wholesale', '批发'), label: i18n.t('admin.wholesale', '批发') },
+];
 
 // ==================== 广告位管理 ====================
 function AdSlotsManager() {
@@ -40,11 +55,11 @@ function AdSlotsManager() {
       const data = await getAdSlots();
       const filled = [...data];
       while (filled.length < 5) {
-        filled.push({ platform: '', label: '零售', price: '', tag: '', enabled: true });
+        filled.push({ platform: '', label: DEFAULT_AD_SLOT_LABEL, price: '', tag: '', enabled: true });
       }
       setSlots(filled.slice(0, 5));
     } catch {
-      message.error('获取广告位配置失败');
+      message.error(i18n.t('admin.loadAdSlotsFailed', '获取广告位配置失败'));
     } finally {
       setLoading(false);
     }
@@ -58,22 +73,22 @@ function AdSlotsManager() {
 
   const handleReset = (index: number) => {
     setSlots(prev => prev.map((s, i) =>
-      i === index ? { platform: '', label: '零售', price: '', tag: '', enabled: true } : s
+      i === index ? { platform: '', label: DEFAULT_AD_SLOT_LABEL, price: '', tag: '', enabled: true } : s
     ));
   };
 
   const handleSave = async () => {
     const validSlots = slots.filter(s => s.platform && s.price);
     if (validSlots.length === 0) {
-      message.warning('请至少填写一个完整的广告位（平台 + 价格）');
+      message.warning(i18n.t('admin.fillAtLeastOneAdSlot', '请至少填写一个完整的广告位（平台 + 价格）'));
       return;
     }
     setSaving(true);
     try {
       await updateAdSlots(slots);
-      message.success('广告位配置已保存，首页悬浮窗实时更新');
+      message.success(i18n.t('admin.adSlotsSaved', '广告位配置已保存，首页悬浮窗实时更新'));
     } catch {
-      message.error('保存失败，请重试');
+      message.error(i18n.t('common.saveFailedRetry', '保存失败，请重试'));
     } finally {
       setSaving(false);
     }
@@ -92,11 +107,11 @@ function AdSlotsManager() {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
           <StarOutlined style={{ color: 'var(--color-primary)', fontSize: 18, marginTop: 2 }} />
           <div>
-            <Text strong style={{ color: 'var(--color-primary)', display: 'block', marginBottom: 4 }}>广告位说明</Text>
+            <Text strong style={{ color: 'var(--color-primary)', display: 'block', marginBottom: 4 }}>{i18n.t('admin.adSlotGuide', '广告位说明')}</Text>
             <Text style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
-              首页右侧悬浮窗展示最多 <strong>5 个</strong>广告位商品。
-              设置平台、类型、起售价格和标签后点击「保存」即可实时更新。
-              已禁用的槽位不在首页显示。
+              {i18n.t('admin.adSlotGuideLine1', '首页右侧悬浮窗展示最多 5 个广告位商品。')}
+              {i18n.t('admin.adSlotGuideLine2', '设置平台、类型、起售价格和标签后点击「保存」即可实时更新。')}
+              {i18n.t('admin.adSlotGuideLine3', '已禁用的槽位不在首页显示。')}
             </Text>
           </div>
         </div>
@@ -137,10 +152,10 @@ function AdSlotsManager() {
 
                 {/* 平台 */}
                 <Col flex="150px">
-                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>平台</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>{i18n.t('admin.platform', '平台')}</div>
                   <Select
                     value={slot.platform || undefined}
-                    placeholder="选择平台"
+                    placeholder={i18n.t('admin.selectPlatform', '选择平台')}
                     style={{ width: '100%' }}
                     onChange={v => handleSlotChange(index, 'platform', v)}
                     options={AD_PLATFORMS.map(p => ({ value: p, label: p }))}
@@ -149,24 +164,21 @@ function AdSlotsManager() {
 
                 {/* 类型 */}
                 <Col flex="110px">
-                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>类型</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>{i18n.t('admin.slotType', '类型')}</div>
                   <Select
                     value={slot.label}
                     style={{ width: '100%' }}
                     onChange={v => handleSlotChange(index, 'label', v)}
-                    options={[
-                      { value: '零售', label: '零售' },
-                      { value: '批发', label: '批发' },
-                    ]}
+                    options={AD_SLOT_LABEL_OPTIONS}
                   />
                 </Col>
 
                 {/* 价格 */}
                 <Col flex="110px">
-                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>起售价格</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>{i18n.t('admin.startingPrice', '起售价格')}</div>
                   <Input
                     value={slot.price}
-                    placeholder="如 $12"
+                    placeholder={i18n.t('admin.startingPricePlaceholder', '如 $12')}
                     onChange={e => handleSlotChange(index, 'price', e.target.value)}
                     style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                   />
@@ -174,18 +186,18 @@ function AdSlotsManager() {
 
                 {/* 标签 */}
                 <Col flex="100px">
-                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>标签</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 3 }}>{i18n.t('admin.tag', '标签')}</div>
                   <Select
                     value={slot.tag}
                     style={{ width: '100%' }}
                     onChange={v => handleSlotChange(index, 'tag', v)}
-                    options={TAG_OPTIONS.map(t => ({ value: t, label: t || '无标签' }))}
+                    options={TAG_OPTIONS.map(t => ({ value: t, label: t || i18n.t('admin.noTag', '无标签') }))}
                   />
                 </Col>
 
                 {/* 启用 */}
                 <Col flex="72px" style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 6 }}>启用</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 6 }}>{i18n.t('common.enabled', '启用')}</div>
                   <Switch
                     checked={slot.enabled}
                     onChange={v => handleSlotChange(index, 'enabled', v)}
@@ -195,7 +207,7 @@ function AdSlotsManager() {
 
                 {/* 清除 */}
                 <Col flex="36px">
-                  <Tooltip title="清除此槽位">
+                  <Tooltip title={i18n.t('admin.clearThisSlot', '清除此槽位')}>
                     <Button
                       type="text" danger
                       icon={<DeleteOutlined />}
@@ -214,7 +226,7 @@ function AdSlotsManager() {
                   borderRadius: 6, display: 'flex',
                   alignItems: 'center', justifyContent: 'space-between', fontSize: 12,
                 }}>
-                  <span style={{ color: 'var(--color-text-tertiary)' }}>首页预览效果：</span>
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>{i18n.t('admin.homepagePreview', '首页预览效果：')}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--color-primary)', display: 'inline-block' }} />
                     <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{slot.platform}</span>
@@ -228,9 +240,9 @@ function AdSlotsManager() {
           ))}
 
           <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-            <Button onClick={fetchSlots}>重置</Button>
+            <Button onClick={fetchSlots}>{i18n.t('common.reset', '重置')}</Button>
             <Button type="primary" loading={saving} onClick={handleSave}>
-              保存广告位配置
+              {i18n.t('admin.saveAdSlotsConfig', '保存广告位配置')}
             </Button>
           </div>
         </>
@@ -243,7 +255,7 @@ function AdSlotsManager() {
 export default function Products() {
   const { t } = useTranslation();
   const [searchText, setSearchText] = useState('');
-  const [platformFilter, setPlatformFilter] = useState('全部');
+  const [platformFilter, setPlatformFilter] = useState(i18n.t('common.all', '全部'));
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
@@ -261,7 +273,7 @@ export default function Products() {
     try {
       const params: AdminQueryParams = {
         search: searchText || undefined,
-        platform: platformFilter !== '全部' ? platformFilter : undefined,
+        platform: platformFilter !== i18n.t('common.all', '全部') ? platformFilter : undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined,
         page: currentPage,
         pageSize,
@@ -319,7 +331,7 @@ export default function Products() {
   // 批量审核
   const handleBatchAudit = async (approved: boolean) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('请先选择要审核的商品');
+      message.warning(i18n.t('admin.selectProductsFirst', '请先选择要审核的商品'));
       return;
     }
 
@@ -328,15 +340,18 @@ export default function Products() {
     );
 
     if (pendingProducts.length === 0) {
-      message.warning('所选商品中没有待审核的商品');
+      message.warning(i18n.t('admin.noPendingProductsSelected', '所选商品中没有待审核的商品'));
       return;
     }
 
     Modal.confirm({
-      title: approved ? '批量通过审核' : '批量拒绝审核',
-      content: `确定要${approved ? '通过' : '拒绝'} ${pendingProducts.length} 个商品的审核吗？`,
-      okText: '确定',
-      cancelText: '取消',
+      title: approved ? i18n.t('admin.batchApproveAudit', '批量通过审核') : i18n.t('admin.batchRejectAudit', '批量拒绝审核'),
+      content: i18n.t(
+        approved ? 'admin.batchAuditApproveConfirm' : 'admin.batchAuditRejectConfirm',
+        `确定要${approved ? '通过' : '拒绝'} ${pendingProducts.length} 个商品的审核吗？`
+      ),
+      okText: i18n.t('common.confirm', '确定'),
+      cancelText: i18n.t('common.cancel', '取消'),
       onOk: async () => {
         setBatchLoading(true);
         try {
@@ -349,17 +364,22 @@ export default function Products() {
             body: JSON.stringify({
               ids: pendingProducts.map(p => p.id),
               status: approved ? 'APPROVED' : 'REJECTED',
-              rejectReason: approved ? undefined : '批量拒绝',
+              rejectReason: approved ? undefined : i18n.t('admin.batchRejected', '批量拒绝'),
             }),
           });
 
-          if (!response.ok) throw new Error('批量审核失败');
+          if (!response.ok) throw new Error(i18n.t('admin.batchAuditFailed', '批量审核失败'));
 
-          message.success(`成功${approved ? '通过' : '拒绝'} ${pendingProducts.length} 个商品`);
+          message.success(
+            i18n.t(
+              approved ? 'admin.batchApproveSuccess' : 'admin.batchRejectSuccess',
+              `成功${approved ? '通过' : '拒绝'} ${pendingProducts.length} 个商品`
+            )
+          );
           setSelectedRowKeys([]);
           fetchProducts();
         } catch {
-          message.error('批量审核失败，请重试');
+          message.error(i18n.t('admin.batchAuditFailedRetry', '批量审核失败，请重试'));
         } finally {
           setBatchLoading(false);
         }
@@ -510,7 +530,7 @@ export default function Products() {
           justifyContent: 'space-between',
         }}>
           <span style={{ color: 'var(--color-text-primary)' }}>
-            已选择 <strong style={{ color: 'var(--color-primary)' }}>{selectedRowKeys.length}</strong> 个商品
+            {i18n.t('admin.selectedProductsCount', '已选择 {{count}} 个商品', { count: selectedRowKeys.length })}
           </span>
           <Space>
             <Button
@@ -519,7 +539,7 @@ export default function Products() {
               loading={batchLoading}
               onClick={() => handleBatchAudit(true)}
             >
-              批量通过
+              {i18n.t('admin.batchApprove', '批量通过')}
             </Button>
             <Button
               danger
@@ -527,10 +547,10 @@ export default function Products() {
               loading={batchLoading}
               onClick={() => handleBatchAudit(false)}
             >
-              批量拒绝
+              {i18n.t('admin.batchReject', '批量拒绝')}
             </Button>
             <Button onClick={() => setSelectedRowKeys([])}>
-              取消选择
+              {i18n.t('admin.clearSelection', '取消选择')}
             </Button>
           </Space>
         </div>
@@ -584,12 +604,12 @@ export default function Products() {
         items={[
           {
             key: 'audit',
-            label: '商品审核',
+            label: i18n.t('admin.productAudit', '商品审核'),
             children: productAuditTab,
           },
           {
             key: 'adslots',
-            label: '🎯 广告位管理',
+            label: i18n.t('admin.adSlotManagement', '广告位管理'),
             children: (
               <Card style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: 14, padding: '8px 0' }}>
                 <AdSlotsManager />

@@ -3,7 +3,6 @@ import { GithubOutlined, TwitterOutlined, MailOutlined } from '@ant-design/icons
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '@/services/apiClient';
-import { useI18nHref } from '@/hooks/useI18nNavigate';
 import './Footer.css';
 
 interface SiteSettings {
@@ -15,13 +14,12 @@ interface SiteSettings {
 
 export default function Footer() {
   const { t } = useTranslation();
-  const { getHref } = useI18nHref();
   const currentYear = new Date().getFullYear();
 
   const { data: settings } = useQuery<SiteSettings>({
     queryKey: ['site-settings-public'],
     queryFn: async () => {
-      const res = await apiClient.get('/admin/config/public', { skipAuthRedirect: true });
+      const res = await apiClient.get('/admin/config/public');
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -91,10 +89,10 @@ export default function Footer() {
         <div className="footer__links">
           <h4>{t('footer.quickLinks')}</h4>
           <ul>
-            <li><Link to={getHref('/')}>{t('footer.home')}</Link></li>
-            <li><Link to={getHref('/products')}>{t('footer.products')}</Link></li>
-            <li><Link to={getHref('/about')}>{t('footer.about')}</Link></li>
-            <li><Link to={getHref('/blog')}>{t('footer.tutorials')}</Link></li>
+            <li><Link to="/">{t('footer.home')}</Link></li>
+            <li><Link to="/products">{t('footer.products')}</Link></li>
+            <li><Link to="/about">{t('footer.about')}</Link></li>
+            <li><Link to="/blog">{t('footer.tutorials')}</Link></li>
           </ul>
         </div>
 
@@ -102,10 +100,10 @@ export default function Footer() {
         <div className="footer__links">
           <h4>{t('footer.support')}</h4>
           <ul>
-            <li><Link to={getHref('/terms')}>{t('footer.terms')}</Link></li>
-            <li><Link to={getHref('/privacy')}>{t('footer.privacy')}</Link></li>
-            <li><Link to={getHref('/refund')}>{t('footer.refund')}</Link></li>
-            <li><Link to={getHref('/apply-seller')}>{t('footer.applySeller')}</Link></li>
+            <li><Link to="/terms">{t('footer.terms')}</Link></li>
+            <li><Link to="/privacy">{t('footer.privacy')}</Link></li>
+            <li><Link to="/refund">{t('footer.refund')}</Link></li>
+            <li><Link to="/apply-seller">{t('footer.applySeller')}</Link></li>
           </ul>
         </div>
 

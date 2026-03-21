@@ -283,7 +283,7 @@ export default function OrderDetail() {
           className="delivery-stream-card"
           title={
             <Space>
-              {streamStatus === 'streaming' ? <SyncOutlined spin /> : streamStatus === 'completed' ? <CheckCircleOutlined style={{ color: deliveryAllSuccess ? 'var(--color-success)' : 'var(--color-warning)' }} /> : <LoadingOutlined />}
+              {streamStatus === 'streaming' ? <SyncOutlined spin /> : streamStatus === 'completed' ? <CheckCircleOutlined style={{ color: deliveryAllSuccess ? '#52c41a' : '#faad14' }} /> : <LoadingOutlined />}
               {t('order.autoDelivery.title', '自动发货进度')}
             </Space>
           }
@@ -291,7 +291,7 @@ export default function OrderDetail() {
           <Progress
             percent={deliveryProgress}
             status={streamStatus === 'completed' ? (deliveryAllSuccess ? 'success' : 'exception') : 'active'}
-            strokeColor={deliveryAllSuccess === false ? 'var(--color-warning)' : undefined}
+            strokeColor={deliveryAllSuccess === false ? '#faad14' : undefined}
           />
           <div className="delivery-stream-events">
             {deliveryEvents.map((ev, i) => (
@@ -303,16 +303,16 @@ export default function OrderDetail() {
                   <span>{t('order.autoDelivery.processing', '正在处理')} [{ev.itemIndex}/{ev.totalItems}] {ev.productTitle}</span>
                 )}
                 {ev.type === 'ITEM_SUCCESS' && (
-                  <span style={{ color: 'var(--color-success)' }}>✓ {ev.productTitle} — {t('order.autoDelivery.success', '发货成功')}，{t('order.autoDelivery.accountCount', '分配账号')} {ev.accountCount} {t('order.autoDelivery.units', '个')}</span>
+                  <span style={{ color: '#52c41a' }}>✓ {ev.productTitle} — {t('order.autoDelivery.success', '发货成功')}，{t('order.autoDelivery.accountCount', '分配账号')} {ev.accountCount} {t('order.autoDelivery.units', '个')}</span>
                 )}
                 {ev.type === 'ITEM_FAILED' && (
-                  <span style={{ color: 'var(--color-error)' }}>✗ {ev.productTitle} — {ev.error === 'NOT_AUTO_DELIVER' ? t('order.autoDelivery.notAutoDeliver', '不支持自动发货') : ev.error}</span>
+                  <span style={{ color: '#ff4d4f' }}>✗ {ev.productTitle} — {ev.error === 'NOT_AUTO_DELIVER' ? t('order.autoDelivery.notAutoDeliver', '不支持自动发货') : ev.error}</span>
                 )}
                 {ev.type === 'COMPLETED' && (
-                  <span style={{ color: 'var(--color-success)' }}>🎉 {t('order.autoDelivery.completed', '全部发货完成，请查收账号信息')}</span>
+                  <span style={{ color: '#52c41a' }}>🎉 {t('order.autoDelivery.completed', '全部发货完成，请查收账号信息')}</span>
                 )}
                 {ev.type === 'PARTIAL_FAILED' && (
-                  <span style={{ color: 'var(--color-warning)' }}>⚠ {t('order.autoDelivery.partialFailed', '部分商品发货失败，请联系卖家处理')}</span>
+                  <span style={{ color: '#faad14' }}>⚠ {t('order.autoDelivery.partialFailed', '部分商品发货失败，请联系卖家处理')}</span>
                 )}
               </div>
             ))}

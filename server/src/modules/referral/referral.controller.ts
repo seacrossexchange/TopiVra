@@ -27,3 +27,4 @@ export class ReferralController {
     return this.referralService.getReferralList(req.user.userId);
   }
 }
+

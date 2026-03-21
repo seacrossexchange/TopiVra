@@ -40,12 +40,6 @@ body {
   color: var(--color-text-primary);
 }
 
-html[data-theme-switching='true'] *,
-html[data-theme-switching='true'] *::before,
-html[data-theme-switching='true'] *::after {
-  transition: none !important;
-}
-
 #root {
   min-height: 100vh;
   display: flex;

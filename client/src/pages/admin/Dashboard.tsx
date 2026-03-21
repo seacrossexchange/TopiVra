@@ -60,12 +60,12 @@ export default function Dashboard() {
         </Col>
         <Col xs={12} lg={6}>
           <Card style={card}>
-            <Statistic title={<span style={lbl}>总收入</span>} value={stats?.totalRevenue ?? 0} precision={2} prefix={<DollarOutlined style={{ color: 'var(--color-success)' }} />} valueStyle={val} />
+            <Statistic title={<span style={lbl}>{t('admin.totalRevenue', '总收入')}</span>} value={stats?.totalRevenue ?? 0} precision={2} prefix={<DollarOutlined style={{ color: 'var(--color-success)' }} />} valueStyle={val} />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
           <Card style={card}>
-            <Statistic title={<span style={lbl}>待处理工单</span>} value={stats?.pendingTickets ?? 0} prefix={<FileTextOutlined style={{ color: 'var(--color-danger)' }} />} valueStyle={val} />
+            <Statistic title={<span style={lbl}>{t('admin.pendingTickets', '待处理工单')}</span>} value={stats?.pendingTickets ?? 0} prefix={<FileTextOutlined style={{ color: 'var(--color-danger)' }} />} valueStyle={val} />
           </Card>
         </Col>
       </Row>
@@ -75,18 +75,18 @@ export default function Dashboard() {
         <Col xs={12} lg={6}>
           <Card style={{ ...card, borderColor: '#22d3ee44' }}>
             <Statistic
-              title={<span style={lbl}>实时在线</span>}
+              title={<span style={lbl}>{t('admin.onlineNow', '实时在线')}</span>}
               value={analytics?.realtime?.onlineCount ?? 0}
               prefix={<EyeOutlined style={{ color: '#22d3ee' }} />}
               valueStyle={{ ...val, color: '#22d3ee' }}
-              suffix="人"
+              suffix={t('common.people', '人')}
             />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
           <Card style={{ ...card, borderColor: '#a78bfa44' }}>
             <Statistic
-              title={<span style={lbl}>今日访问</span>}
+              title={<span style={lbl}>{t('admin.todayVisits', '今日访问')}</span>}
               value={analytics?.todayVisits ?? 0}
               prefix={<RiseOutlined style={{ color: '#a78bfa' }} />}
               valueStyle={{ ...val, color: '#a78bfa' }}
@@ -96,7 +96,7 @@ export default function Dashboard() {
         <Col xs={12} lg={6}>
           <Card style={{ ...card, borderColor: '#4ade8044' }}>
             <Statistic
-              title={<span style={lbl}>较昨日</span>}
+              title={<span style={lbl}>{t('admin.vsYesterday', '较昨日')}</span>}
               value={Math.abs(analytics?.todayVsYesterday ?? 0)}
               prefix={<RiseOutlined style={{ color: (analytics?.todayVsYesterday ?? 0) >= 0 ? '#4ade80' : '#f87171' }} />}
               valueStyle={{ ...val, color: (analytics?.todayVsYesterday ?? 0) >= 0 ? '#4ade80' : '#f87171' }}
@@ -107,11 +107,11 @@ export default function Dashboard() {
         <Col xs={12} lg={6}>
           <Card style={{ ...card, borderColor: '#fb923c44' }}>
             <Statistic
-              title={<span style={lbl}>覆盖国家</span>}
+              title={<span style={lbl}>{t('admin.coveredCountries', '覆盖国家')}</span>}
               value={analytics?.geo?.length ?? 0}
               prefix={<GlobalOutlined style={{ color: '#fb923c' }} />}
               valueStyle={{ ...val, color: '#fb923c' }}
-              suffix="个"
+              suffix={t('common.countUnit', '个')}
             />
           </Card>
         </Col>
@@ -122,8 +122,8 @@ export default function Dashboard() {
         <Col xs={24} lg={14}>
           <Card
             style={card}
-            title={<span style={{ color: 'var(--color-text-primary)' }}>24小时访问波动</span>}
-            extra={<Link to="/admin/analytics" style={{ color: 'var(--color-accent)', fontSize: 13 }}>查看详细分析 →</Link>}
+            title={<span style={{ color: 'var(--color-text-primary)' }}>{t('admin.hourlyTrafficTrend', '24小时访问波动')}</span>}
+            extra={<Link to="/admin/analytics" style={{ color: 'var(--color-accent)', fontSize: 13 }}>{t('admin.viewDetailedAnalytics', '查看详细分析')} →</Link>}
           >
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={analytics?.hourly || []}>
@@ -149,7 +149,7 @@ export default function Dashboard() {
                 { to: '/admin/products', label: t('admin.pendingProducts'), val: pendingProducts, color: 'var(--color-warning)' },
                 { to: '/admin/tickets', label: t('admin.pendingTickets'), val: stats?.pendingTickets ?? 0, color: 'var(--color-danger)' },
                 { to: '/admin/orders', label: t('admin.disputedOrders'), val: 3, color: 'var(--color-accent)' },
-                { to: '/admin/analytics', label: '流量分析', val: '→', color: '#22d3ee' },
+                { to: '/admin/analytics', label: t('admin.analytics', '流量分析'), val: '→', color: '#22d3ee' },
               ].map((item) => (
                 <Link key={item.to} to={item.to} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--color-bg-secondary)', borderRadius: 8 }}>
                   <span style={{ color: 'var(--color-text-primary)' }}>{item.label}</span>

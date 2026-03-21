@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useI18n } from '@/hooks/useI18n';
+import { useI18nNavigate } from '@/hooks/useI18nNavigate';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Card,
@@ -24,15 +27,12 @@ import {
   SafetyOutlined,
 } from '@ant-design/icons';
 import { ticketsService, type Ticket, type TicketMessage } from '@/services/tickets';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(relativeTime);
-
 const { TextArea } = Input;
 
 export default function AdminTicketDetail() {
-  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { formatDateTime, formatRelativeTime } = useI18n();
+  const { navigate } = useI18nNavigate();
   const { ticketNo } = useParams<{ ticketNo: string }>();
   const queryClient = useQueryClient();
   const [messageContent, setMessageContent] = useState('');
@@ -67,26 +67,27 @@ export default function AdminTicketDetail() {
       refundAmount?: number;
     }) => ticketsService.adminProcess(ticketNo!, data),
     onSuccess: () => {
-      message.success('处理成功');
+      message.success(t('ticket.adminProcessSuccess', 'Processed successfully'));
       setShowProcessModal(false);
       setAdminResponse('');
       queryClient.invalidateQueries({ queryKey: ['ticket', ticketNo] });
     },
   });
 
+  const adminTicketStatuses: Record<string, { color: string; text: string }> = {
+    PENDING: { color: 'default', text: t('ticket.pending', '待处理') },
+    SELLER_REVIEWING: { color: 'processing', text: t('ticket.sellerReviewing', '卖家审核中') },
+    SELLER_AGREED: { color: 'success', text: t('ticket.sellerAgreed', '卖家已同意') },
+    SELLER_REJECTED: { color: 'error', text: t('ticket.sellerRejected', '卖家已拒绝') },
+    ADMIN_REVIEWING: { color: 'warning', text: t('ticket.adminPendingAction', '待您处理') },
+    ADMIN_APPROVED: { color: 'success', text: t('ticket.approved', '已批准') },
+    ADMIN_REJECTED: { color: 'error', text: t('ticket.rejected', '已拒绝') },
+    COMPLETED: { color: 'success', text: t('ticket.completed', '已完成') },
+    CLOSED: { color: 'default', text: t('ticket.closed', '已关闭') },
+  };
+
   const getStatusTag = (status: string) => {
-    const statusMap: Record<string, { color: string; text: string }> = {
-      PENDING: { color: 'default', text: '待处理' },
-      SELLER_REVIEWING: { color: 'processing', text: '卖家审核中' },
-      SELLER_AGREED: { color: 'success', text: '卖家已同意' },
-      SELLER_REJECTED: { color: 'error', text: '卖家已拒绝' },
-      ADMIN_REVIEWING: { color: 'warning', text: '待您处理' },
-      ADMIN_APPROVED: { color: 'success', text: '已批准' },
-      ADMIN_REJECTED: { color: 'error', text: '已拒绝' },
-      COMPLETED: { color: 'success', text: '已完成' },
-      CLOSED: { color: 'default', text: '已关闭' },
-    };
-    const { color, text } = statusMap[status] || { color: 'default', text: status };
+    const { color, text } = adminTicketStatuses[status] || { color: 'default', text: status };
     return <Tag color={color}>{text}</Tag>;
   };
 
@@ -106,14 +107,30 @@ export default function AdminTicketDetail() {
   const getSenderName = (role: string) => {
     switch (role) {
       case 'BUYER':
-        return '买家';
+        return t('ticket.buyer', 'Buyer');
       case 'SELLER':
-        return '卖家';
+        return t('ticket.seller', 'Seller');
       case 'ADMIN':
-        return '平台客服（我）';
+        return `${t('ticket.customerService', 'Support')}（${t('ticket.me', 'Me')}）`;
       default:
-        return '系统';
+        return t('ticket.system', 'System');
     }
+  };
+
+  const getMessageBubbleClassName = (role: string) => {
+    if (role === 'ADMIN') {
+      return 'bg-purple-500 text-white';
+    }
+
+    if (role === 'SYSTEM') {
+      return 'bg-gray-100 text-gray-700';
+    }
+
+    if (role === 'SELLER') {
+      return 'bg-green-50 border border-green-200';
+    }
+
+    return 'bg-blue-50 border border-blue-200';
   };
 
   const handleProcess = () => {
@@ -125,11 +142,11 @@ export default function AdminTicketDetail() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">加载中...</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('common.loading', 'Loading...')}</div>;
   }
 
   if (!ticket) {
-    return <div className="flex items-center justify-center min-h-screen">工单不存在</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('ticket.notFound', 'Ticket not found')}</div>;
   }
 
   return (
@@ -141,7 +158,7 @@ export default function AdminTicketDetail() {
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/tickets')}
         >
-          返回
+          {t('common.back', 'Back')}
         </Button>
       </div>
 
@@ -153,12 +170,12 @@ export default function AdminTicketDetail() {
             <Space>
               <span className="text-gray-500">#{ticket.ticket_no}</span>
               {getStatusTag(ticket.status)}
-              {ticket.type === 'REFUND' && <Tag color="red">退款工单</Tag>}
+              {ticket.type === 'REFUND' && <Tag color="red">{t('ticket.refundTicket', 'Refund ticket')}</Tag>}
             </Space>
           </div>
           <div className="text-right">
             <div className="text-gray-500 text-sm">
-              {dayjs(ticket.created_at).format('YYYY-MM-DD HH:mm')}
+              {formatDateTime(ticket.created_at)}
             </div>
           </div>
         </div>
@@ -167,20 +184,20 @@ export default function AdminTicketDetail() {
         {ticket.type === 'REFUND' && (
           <div className="mt-6">
             <Descriptions bordered column={2}>
-              <Descriptions.Item label="订单ID">{ticket.order_id}</Descriptions.Item>
-              <Descriptions.Item label="退款金额">
+              <Descriptions.Item label={t('ticket.orderId', 'Order ID')}>{ticket.order_id}</Descriptions.Item>
+              <Descriptions.Item label={t('ticket.refundAmount', 'Refund amount')}>
                 <span className="text-red-600 font-bold text-lg">
                   ${Number(ticket.refund_amount).toFixed(2)}
                 </span>
               </Descriptions.Item>
-              <Descriptions.Item label="买家ID">{ticket.buyer_id}</Descriptions.Item>
-              <Descriptions.Item label="卖家ID">{ticket.seller_id}</Descriptions.Item>
-              <Descriptions.Item label="退款原因" span={2}>
+              <Descriptions.Item label={t('ticket.buyerId', 'Buyer ID')}>{ticket.buyer_id}</Descriptions.Item>
+              <Descriptions.Item label={t('ticket.sellerId', 'Seller ID')}>{ticket.seller_id}</Descriptions.Item>
+              <Descriptions.Item label={t('ticket.refundReason', 'Refund reason')} span={2}>
                 {ticket.refund_reason}
               </Descriptions.Item>
               {ticket.seller_responded_at && (
-                <Descriptions.Item label="卖家响应时间" span={2}>
-                  {dayjs(ticket.seller_responded_at).format('YYYY-MM-DD HH:mm:ss')}
+                <Descriptions.Item label={t('ticket.sellerResponseTime', 'Seller response time')} span={2}>
+                  {formatDateTime(ticket.seller_responded_at)}
                 </Descriptions.Item>
               )}
             </Descriptions>
@@ -188,16 +205,21 @@ export default function AdminTicketDetail() {
             {/* 退款证据 */}
             {ticket.refund_evidence && ticket.refund_evidence.length > 0 && (
               <div className="mt-4">
-                <div className="text-gray-700 font-medium mb-2">买家提供的证据：</div>
+                <div className="text-gray-700 font-medium mb-2">{t('ticket.buyerEvidence', 'Evidence from buyer:')}</div>
                 <div className="flex gap-2">
-                  {ticket.refund_evidence.map((url, idx) => (
-                    <img
-                      key={idx}
-                      src={url}
-                      alt="evidence"
-                      className="w-32 h-32 object-cover rounded cursor-pointer border"
-                      onClick={() => window.open(url)}
-                    />
+                  {ticket.refund_evidence.map((url) => (
+                    <Button
+                      key={url}
+                      type="text"
+                      className="h-auto w-auto p-0 border-0 bg-transparent"
+                      onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
+                    >
+                      <img
+                        src={url}
+                        alt={t('ticket.evidenceImage', 'Evidence image')}
+                        className="w-32 h-32 object-cover rounded cursor-pointer border"
+                      />
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -210,10 +232,10 @@ export default function AdminTicketDetail() {
           <Alert
             className="mt-4"
             type="warning"
-            message="待您处理"
+            message={t('ticket.adminPendingAction', 'Pending your action')}
             description={
               <div>
-                <p>请仔细审核买卖双方的沟通记录和证据，做出公正的裁决</p>
+                <p>{t('ticket.adminReviewInstruction', 'Please review the conversation records and evidence from both parties carefully, then make a fair decision.')}</p>
                 <Button
                   type="primary"
                   size="small"
@@ -224,7 +246,7 @@ export default function AdminTicketDetail() {
                     setShowProcessModal(true);
                   }}
                 >
-                  立即处理
+                  {t('ticket.processNow', 'Process now')}
                 </Button>
               </div>
             }
@@ -236,15 +258,15 @@ export default function AdminTicketDetail() {
           <Alert
             className="mt-4"
             type="success"
-            message="已完成"
-            description="此工单已处理完毕"
+            message={t('ticket.completed', 'Completed')}
+            description={t('ticket.completedDescription', 'This ticket has been fully processed.')}
             showIcon
           />
         )}
       </Card>
 
       {/* 消息列表 */}
-      <Card title="沟通记录" className="mb-6">
+      <Card title={t('ticket.communicationRecord', 'Communication record')} className="mb-6">
         <div className="space-y-4 max-h-[500px] overflow-y-auto">
           {ticket.messages?.map((msg: TicketMessage) => (
             <div
@@ -252,15 +274,7 @@ export default function AdminTicketDetail() {
               className={`flex ${msg.sender_role === 'ADMIN' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] ${
-                  msg.sender_role === 'ADMIN'
-                    ? 'bg-purple-500 text-white'
-                    : msg.sender_role === 'SYSTEM'
-                    ? 'bg-gray-100 text-gray-700'
-                    : msg.sender_role === 'SELLER'
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-blue-50 border border-blue-200'
-                } rounded-lg p-4`}
+                className={`max-w-[70%] ${getMessageBubbleClassName(msg.sender_role)} rounded-lg p-4`}
               >
                 <div className="flex items-center gap-2 mb-2">
                   {getSenderIcon(msg.sender_role)}
@@ -268,7 +282,7 @@ export default function AdminTicketDetail() {
                     {getSenderName(msg.sender_role)}
                   </span>
                   <span className="text-xs opacity-70">
-                    {dayjs(msg.created_at).fromNow()}
+                    {formatRelativeTime(msg.created_at)}
                   </span>
                 </div>
                 <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -283,7 +297,7 @@ export default function AdminTicketDetail() {
         <Card>
           <TextArea
             rows={4}
-            placeholder="输入消息内容（买卖双方都能看到）..."
+            placeholder={t('ticket.adminMessagePlaceholder', 'Enter a message visible to both buyer and seller...')}
             value={messageContent}
             onChange={(e) => setMessageContent(e.target.value)}
             className="mb-4"
@@ -296,7 +310,7 @@ export default function AdminTicketDetail() {
               disabled={!messageContent.trim()}
               onClick={() => sendMessageMutation.mutate(messageContent)}
             >
-              发送
+              {t('ticket.sendMessage', 'Send')}
             </Button>
           </div>
         </Card>
@@ -304,13 +318,13 @@ export default function AdminTicketDetail() {
 
       {/* 处理工单弹窗 */}
       <Modal
-        title="处理退款工单"
+        title={t('ticket.processRefundTicket', 'Process refund ticket')}
         open={showProcessModal}
         onCancel={() => setShowProcessModal(false)}
         width={600}
         footer={[
           <Button key="cancel" onClick={() => setShowProcessModal(false)}>
-            取消
+            {t('common.cancel', 'Cancel')}
           </Button>,
           <Button
             key="submit"
@@ -318,23 +332,23 @@ export default function AdminTicketDetail() {
             loading={processMutation.isPending}
             onClick={handleProcess}
           >
-            确认处理
+            {t('ticket.confirmProcess', 'Confirm processing')}
           </Button>,
         ]}
       >
         <div className="space-y-4">
           <div>
-            <div className="mb-2 font-medium">处理决定：</div>
+            <div className="mb-2 font-medium">{t('ticket.processDecision', 'Decision:')}</div>
             <Radio.Group
               value={processAction}
               onChange={(e) => setProcessAction(e.target.value)}
             >
               <Space direction="vertical">
                 <Radio value="APPROVE">
-                  <span className="text-green-600">批准退款</span>
+                  <span className="text-green-600">{t('ticket.approveRefund', 'Approve refund')}</span>
                 </Radio>
                 <Radio value="REJECT">
-                  <span className="text-red-600">拒绝退款</span>
+                  <span className="text-red-600">{t('ticket.rejectRefund', 'Reject refund')}</span>
                 </Radio>
               </Space>
             </Radio.Group>
@@ -342,7 +356,7 @@ export default function AdminTicketDetail() {
 
           {processAction === 'APPROVE' && (
             <div>
-              <div className="mb-2 font-medium">退款金额：</div>
+              <div className="mb-2 font-medium">{t('ticket.refundAmount', 'Refund amount:')}</div>
               <InputNumber
                 prefix="$"
                 value={refundAmount}
@@ -353,16 +367,16 @@ export default function AdminTicketDetail() {
                 style={{ width: '100%' }}
               />
               <div className="text-gray-500 text-sm mt-1">
-                原申请金额：${Number(ticket.refund_amount).toFixed(2)}
+                {t('ticket.originalRequestedAmount', 'Original requested amount:')} ${Number(ticket.refund_amount).toFixed(2)}
               </div>
             </div>
           )}
 
           <div>
-            <div className="mb-2 font-medium">处理说明：</div>
+            <div className="mb-2 font-medium">{t('ticket.processDescription', 'Processing note:')}</div>
             <TextArea
               rows={4}
-              placeholder="请说明您的处理理由..."
+              placeholder={t('ticket.processDescriptionPlaceholder', 'Please explain your decision...')}
               value={adminResponse}
               onChange={(e) => setAdminResponse(e.target.value)}
             />
@@ -370,11 +384,11 @@ export default function AdminTicketDetail() {
 
           <Alert
             type="warning"
-            message="重要提示"
+            message={t('ticket.importantNotice', 'Important notice')}
             description={
               processAction === 'APPROVE'
-                ? '批准退款后，系统将自动执行退款操作，退款金额将返回至买家账户余额'
-                : '拒绝退款后，工单将关闭，买家可重新申请'
+                ? t('ticket.approveRefundNotice', 'After approving the refund, the system will automatically process it and return the amount to the buyer balance.')
+                : t('ticket.rejectRefundNotice', 'After rejecting the refund, the ticket will be closed and the buyer can submit a new request.')
             }
             showIcon
           />
@@ -383,9 +397,6 @@ export default function AdminTicketDetail() {
     </div>
   );
 }
-
-
-
 
 
 

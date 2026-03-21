@@ -1,3 +1,5 @@
+import i18n from '@/i18n';
+
 // 世界地图气泡可视化组件
 // 使用简化坐标映射，无需外部地图库
 interface GeoItem {
@@ -43,7 +45,7 @@ export default function WorldMap({ geoData }: Props) {
       <svg
         viewBox="0 0 960 500"
         style={{ width: '100%', height: 'auto', display: 'block' }}
-        aria-label="世界访客地图"
+        aria-label={i18n.t('admin.worldVisitorMap', '世界访客地图')}
       >
         {/* 背景 */}
         <rect width="960" height="500" fill="var(--color-bg-secondary)" rx="8" />
@@ -89,7 +91,7 @@ export default function WorldMap({ geoData }: Props) {
                 fill="#a78bfa"
                 opacity={opacity}
               >
-                <title>{item.countryName}: {item.visits.toLocaleString()} 次访问</title>
+                <title>{i18n.t('admin.countryVisitsTitle', '{{country}}: {{visits}} 次访问', { country: item.countryName, visits: item.visits.toLocaleString() })}</title>
               </circle>
               {r > 10 && (
                 <text
@@ -111,12 +113,12 @@ export default function WorldMap({ geoData }: Props) {
 
       {/* 图例 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, fontSize: 12, color: 'var(--color-text-secondary)' }}>
-        <span>气泡大小 = 访问量</span>
+        <span>{i18n.t('admin.bubbleSizeEqualsVisits', '气泡大小 = 访问量')}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#a78bfa', opacity: 0.4 }} />
-          <span>少</span>
+          <span>{i18n.t('common.less', '少')}</span>
           <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#a78bfa', opacity: 0.9 }} />
-          <span>多</span>
+          <span>{i18n.t('common.more', '多')}</span>
         </div>
       </div>
     </div>

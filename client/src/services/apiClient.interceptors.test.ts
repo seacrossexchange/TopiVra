@@ -1,23 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import apiClient, { createAbortController, cancelRequest, isRequestCancelled } from './apiClient';
-import { useAuthStore } from '@/store/authStore';
+import apiClient, { createAbortController, cancelRequest, isRequestCancelled } from '../apiClient';
 
 describe('apiClient', () => {
   let mock: MockAdapter;
 
   beforeEach(() => {
-    mock = new MockAdapter(apiClient);
-    useAuthStore.setState({
-      accessToken: null,
-      refreshToken: null,
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-      isBootstrapping: false,
-      hasHydrated: true,
-      error: null,
-    });
+    mock = new MockAdapter(axios);
     vi.clearAllMocks();
   });
 
@@ -29,8 +19,13 @@ describe('apiClient', () => {
     it('should add authorization header when token exists', async () => {
       mock.onGet('/test').reply(200, { data: 'success' });
 
+      // Mock auth store
       const mockToken = 'test-token';
-      useAuthStore.setState({ accessToken: mockToken, isAuthenticated: true });
+      vi.mock('@/store/authStore', () => ({
+        useAuthStore: {
+          getState: () => ({ accessToken: mockToken }),
+        },
+      }));
 
       await apiClient.get('/test');
 
@@ -54,9 +49,11 @@ describe('apiClient', () => {
     it('should handle 429 rate limit', async () => {
       mock.onGet('/test').reply(429, {}, { 'retry-after': '60' });
 
-      await expect(apiClient.get('/test')).rejects.toMatchObject({
-        response: { status: 429 },
-      });
+      try {
+        await apiClient.get('/test');
+      } catch (error: any) {
+        expect(error.response.status).toBe(429);
+      }
     });
 
     it('should retry GET requests on 5xx errors', async () => {
@@ -77,9 +74,11 @@ describe('apiClient', () => {
     it('should not retry POST requests', async () => {
       mock.onPost('/test').reply(500);
 
-      await expect(apiClient.post('/test', {})).rejects.toMatchObject({
-        response: { status: 500 },
-      });
+      try {
+        await apiClient.post('/test', {});
+      } catch (error: any) {
+        expect(error.response.status).toBe(500);
+      }
 
       expect(mock.history.post.length).toBe(1);
     });

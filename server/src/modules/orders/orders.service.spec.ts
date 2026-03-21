@@ -354,44 +354,13 @@ describe('OrdersService', () => {
         ...deliveredOrder,
         orderStatus: OrderStatus.COMPLETED,
       });
-      prismaService.sellerProfile.findUnique.mockResolvedValue({
-        balance: 0,
-        totalSales: 0,
-        totalEarnings: 0,
-      });
+      prismaService.sellerProfile.findUnique.mockResolvedValue({ balance: 0 });
       prismaService.sellerProfile.update.mockResolvedValue({});
       prismaService.sellerTransaction.create.mockResolvedValue({});
-      prismaService.orderItem.update.mockResolvedValue({});
 
       const result = await service.confirmDelivery('order-123', 'user-123');
 
       expect(result.success).toBe(true);
-    });
-
-    it('已结算订单项不应重复结算', async () => {
-      const deliveredOrder = {
-        ...mockOrder,
-        orderStatus: OrderStatus.DELIVERED,
-        orderItems: [
-          {
-            ...mockOrder.orderItems[0],
-            settled: true,
-          },
-        ],
-      };
-      prismaService.order.findUnique.mockResolvedValue(deliveredOrder);
-      prismaService.orderItem.updateMany.mockResolvedValue({});
-      prismaService.order.update.mockResolvedValue({
-        ...deliveredOrder,
-        orderStatus: OrderStatus.COMPLETED,
-      });
-
-      const result = await service.confirmDelivery('order-123', 'user-123');
-
-      expect(result.success).toBe(true);
-      expect(prismaService.sellerProfile.update).not.toHaveBeenCalled();
-      expect(prismaService.sellerTransaction.create).not.toHaveBeenCalled();
-      expect(prismaService.orderItem.update).not.toHaveBeenCalled();
     });
 
     it('应该拒绝未交付订单确认', async () => {

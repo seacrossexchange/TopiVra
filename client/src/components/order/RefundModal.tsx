@@ -4,7 +4,6 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { UploadFile } from 'antd/es/upload/interface';
 import apiClient from '@/services/apiClient';
-import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 interface RefundModalProps {
   open: boolean;
@@ -67,13 +66,14 @@ export default function RefundModal({
         evidence: evidenceUrls,
       });
 
-      message.success(t('order.refund.submitSuccess', '退款申请已提交，我们将在24小时内审核'));
+      message.success(t('refund.submitSuccess', '退款申请已提交，我们将在24小时内审核'));
       form.resetFields();
       setFileList([]);
       onSuccess();
       onClose();
     } catch (error: unknown) {
-      message.error(extractApiErrorMessage(error, t('order.refund.submitFailed', '提交失败，请重试')));
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      message.error(errorMessage || t('refund.submitFailed', '提交失败，请重试'));
     } finally {
       setLoading(false);
     }
@@ -88,12 +88,12 @@ export default function RefundModal({
   const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
-      message.error(t('order.refund.modal.onlyImage', '只能上传图片文件'));
+      message.error(t('refund.onlyImage', '只能上传图片文件'));
       return false;
     }
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      message.error(t('order.refund.modal.imageSizeLimit', '图片大小不能超过 5MB'));
+      message.error(t('refund.imageSizeLimit', '图片大小不能超过 5MB'));
       return false;
     }
     return false; // 阻止自动上传，我们手动处理
@@ -101,7 +101,7 @@ export default function RefundModal({
 
   return (
     <Modal
-      title={t('order.refund.title', '申请退款')}
+      title={t('refund.title', '申请退款')}
       open={open}
       onCancel={handleClose}
       width={520}
@@ -110,18 +110,18 @@ export default function RefundModal({
           {t('common.cancel', '取消')}
         </Button>,
         <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
-          {t('order.refund.submit', '提交申请')}
+          {t('refund.submit', '提交申请')}
         </Button>,
       ]}
     >
       <div className="refund-modal-content">
         <div className="refund-order-info">
           <div className="info-row">
-            <span className="label">{t('order.refund.modal.orderNo', '订单号')}:</span>
+            <span className="label">{t('refund.orderNo', '订单号')}:</span>
             <span className="value">{orderNo}</span>
           </div>
           <div className="info-row">
-            <span className="label">{t('order.refund.modal.orderAmount', '订单金额')}:</span>
+            <span className="label">{t('refund.orderAmount', '订单金额')}:</span>
             <span className="value amount">${orderAmount.toFixed(2)}</span>
           </div>
         </div>
@@ -129,35 +129,35 @@ export default function RefundModal({
         <Form form={form} layout="vertical">
           <Form.Item
             name="reasonType"
-            label={t('order.refund.modal.reasonType', '退款原因')}
-            rules={[{ required: true, message: t('order.refund.modal.reasonTypeRequired', '请选择退款原因') }]}
+            label={t('refund.reasonType', '退款原因')}
+            rules={[{ required: true, message: t('refund.reasonTypeRequired', '请选择退款原因') }]}
           >
             <Select
-              placeholder={t('order.refund.modal.selectReason', '请选择退款原因')}
+              placeholder={t('refund.selectReason', '请选择退款原因')}
               options={REFUND_REASONS.map(item => ({
                 value: item.value,
-                label: t(`order.refund.modal.reasons.${item.value}`, item.label),
+                label: t(`refund.reasons.${item.value}`, item.label),
               }))}
             />
           </Form.Item>
 
           <Form.Item
             name="reason"
-            label={t('order.refund.modal.detailReason', '详细说明')}
+            label={t('refund.detailReason', '详细说明')}
             rules={[
-              { required: true, message: t('order.refund.reasonRequired', '请输入详细说明') },
-              { max: 500, message: t('order.refund.modal.reasonMaxLength', '最多输入500字') },
+              { required: true, message: t('refund.reasonRequired', '请输入详细说明') },
+              { max: 500, message: t('refund.reasonMaxLength', '最多输入500字') },
             ]}
           >
             <Input.TextArea
               rows={4}
-              placeholder={t('order.refund.reasonPlaceholder', '请详细描述您的问题...')}
+              placeholder={t('refund.reasonPlaceholder', '请详细描述您的问题...')}
               maxLength={500}
               showCount
             />
           </Form.Item>
 
-          <Form.Item label={t('order.refund.modal.evidence', '证据截图（可选）')}>
+          <Form.Item label={t('refund.evidence', '证据截图（可选）')}>
             <div className="evidence-upload">
               <Upload
                 listType="picture-card"
@@ -170,24 +170,24 @@ export default function RefundModal({
                 {fileList.length < 3 && (
                   <div>
                     <PlusOutlined />
-                    <div style={{ marginTop: 8 }}>{t('order.refund.modal.upload', '上传')}</div>
+                    <div style={{ marginTop: 8 }}>{t('refund.upload', '上传')}</div>
                   </div>
                 )}
               </Upload>
               <div className="upload-tip">
-                {t('order.refund.modal.uploadTip', '最多上传3张图片，每张不超过5MB')}
+                {t('refund.uploadTip', '最多上传3张图片，每张不超过5MB')}
               </div>
             </div>
           </Form.Item>
         </Form>
 
         <div className="refund-tips">
-          <h4>{t('order.refund.modal.tips.title', '退款说明')}</h4>
+          <h4>{t('refund.tips.title', '退款说明')}</h4>
           <ul>
-            <li>{t('order.refund.modal.tips.tip1', '⏱ 审核时间：24小时内处理')}</li>
-            <li>{t('order.refund.modal.tips.tip2', '💰 退款方式：原路返回至账户余额')}</li>
-            <li>{t('order.refund.modal.tips.tip3', '📞 如有疑问：联系在线客服')}</li>
-            <li>{t('order.refund.modal.tips.tip4', '⚠️ C2C交易：退款需卖家同意，平台将协调处理')}</li>
+            <li>{t('refund.tips.tip1', '⏱ 审核时间：24小时内处理')}</li>
+            <li>{t('refund.tips.tip2', '💰 退款方式：原路返回至账户余额')}</li>
+            <li>{t('refund.tips.tip3', '📞 如有疑问：联系在线客服')}</li>
+            <li>{t('refund.tips.tip4', '⚠️ C2C交易：退款需卖家同意，平台将协调处理')}</li>
           </ul>
         </div>
       </div>

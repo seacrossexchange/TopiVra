@@ -10,7 +10,7 @@ import { NotificationService } from '../../common/notification';
 import {
   CreateRefundTicketDto,
   CreateDMTicketDto,
-  SendTicketMessageDto,
+  SendMessageDto,
   SellerRespondDto,
   EscalateTicketDto,
   AdminProcessTicketDto,
@@ -146,7 +146,7 @@ export class TicketsService {
   /**
    * 发送消息
    */
-  async sendMessage(ticketNo: string, senderId: string, dto: SendTicketMessageDto) {
+  async sendMessage(ticketNo: string, senderId: string, dto: SendMessageDto) {
     // 获取工单信息
     const tickets = await this.prisma.$queryRaw<any[]>`
       SELECT * FROM c2c_tickets WHERE ticket_no = ${ticketNo} LIMIT 1
@@ -225,11 +225,7 @@ export class TicketsService {
   /**
    * 卖家响应退款
    */
-  async sellerRespond(
-    ticketNo: string,
-    sellerId: string,
-    dto: SellerRespondDto,
-  ) {
+  async sellerRespond(ticketNo: string, sellerId: string, dto: SellerRespondDto) {
     const tickets = await this.prisma.$queryRaw<any[]>`
       SELECT * FROM c2c_tickets WHERE ticket_no = ${ticketNo} LIMIT 1
     `;
@@ -248,8 +244,7 @@ export class TicketsService {
       throw new BadRequestException('当前状态无法响应');
     }
 
-    const newStatus =
-      dto.action === 'AGREE' ? 'SELLER_AGREED' : 'SELLER_REJECTED';
+    const newStatus = dto.action === 'AGREE' ? 'SELLER_AGREED' : 'SELLER_REJECTED';
 
     await this.prisma.$executeRaw`
       UPDATE c2c_tickets 
@@ -258,11 +253,10 @@ export class TicketsService {
     `;
 
     // 创建系统消息
-    const message =
-      dto.action === 'AGREE'
-        ? '卖家已同意退款，等待平台审核'
-        : `卖家已拒绝退款${dto.rejectReason ? `，原因：${dto.rejectReason}` : ''}`;
-
+    const message = dto.action === 'AGREE'
+      ? '卖家已同意退款，等待平台审核'
+      : `卖家已拒绝退款${dto.rejectReason ? `，原因：${dto.rejectReason}` : ''}`;
+    
     await this.createSystemMessage(ticketNo, message);
 
     // 通知买家
@@ -288,11 +282,7 @@ export class TicketsService {
   /**
    * 买家申请平台介入
    */
-  async escalateToAdmin(
-    ticketNo: string,
-    buyerId: string,
-    dto: EscalateTicketDto,
-  ) {
+  async escalateToAdmin(ticketNo: string, buyerId: string, dto: EscalateTicketDto) {
     const tickets = await this.prisma.$queryRaw<any[]>`
       SELECT * FROM c2c_tickets WHERE ticket_no = ${ticketNo} LIMIT 1
     `;
@@ -317,10 +307,7 @@ export class TicketsService {
       WHERE id = ${ticket.id}
     `;
 
-    await this.createSystemMessage(
-      ticketNo,
-      `买家申请平台介入，原因：${dto.reason}`,
-    );
+    await this.createSystemMessage(ticketNo, `买家申请平台介入，原因：${dto.reason}`);
 
     return { success: true, message: '已申请平台介入' };
   }
@@ -328,11 +315,7 @@ export class TicketsService {
   /**
    * 管理员处理工单
    */
-  async adminProcess(
-    ticketNo: string,
-    adminId: string,
-    dto: AdminProcessTicketDto,
-  ) {
+  async adminProcess(ticketNo: string, adminId: string, dto: AdminProcessTicketDto) {
     const tickets = await this.prisma.$queryRaw<any[]>`
       SELECT * FROM c2c_tickets WHERE ticket_no = ${ticketNo} LIMIT 1
     `;
@@ -364,23 +347,18 @@ export class TicketsService {
     await this.createSystemMessage(ticketNo, message);
 
     // 记录管理员操作
-    await this.logAdminAction(
-      ticket.id,
-      adminId,
-      isApproved ? 'APPROVE' : 'REJECT',
-      {
-        action: dto.action,
-        response: dto.adminResponse,
-        refundAmount: dto.refundAmount,
-        previousStatus: ticket.status,
-        newStatus,
-      },
-    );
+    await this.logAdminAction(ticket.id, adminId, isApproved ? 'APPROVE' : 'REJECT', {
+      action: dto.action,
+      response: dto.adminResponse,
+      refundAmount: dto.refundAmount,
+      previousStatus: ticket.status,
+      newStatus,
+    });
 
     // 如果批准，执行退款
     if (isApproved && ticket.order_id) {
       await this.processRefund(ticket.order_id, ticket.refund_amount, adminId);
-
+      
       await this.prisma.$executeRaw`
         UPDATE c2c_tickets 
         SET status = 'COMPLETED', completed_at = NOW(), updated_at = NOW()
@@ -391,7 +369,7 @@ export class TicketsService {
         ticketNo,
         `退款已完成，$${Number(ticket.refund_amount).toFixed(2)} 已退回至买家账户余额`,
       );
-
+      
       // 记录退款完成
       await this.logAdminAction(ticket.id, adminId, 'REFUND_COMPLETED', {
         refundAmount: ticket.refund_amount,
@@ -420,11 +398,7 @@ export class TicketsService {
   /**
    * 执行退款（调用订单服务的退款逻辑）
    */
-  private async processRefund(
-    orderId: string,
-    refundAmount: number,
-    adminId: string,
-  ) {
+  private async processRefund(orderId: string, refundAmount: number, adminId: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { orderItems: true },
@@ -502,8 +476,7 @@ export class TicketsService {
     let whereClause = `buyer_id = '${buyerId}'`;
     if (type) whereClause += ` AND type = '${type}'`;
     if (status) whereClause += ` AND status = '${status}'`;
-    if (search)
-      whereClause += ` AND (ticket_no LIKE '%${search}%' OR subject LIKE '%${search}%')`;
+    if (search) whereClause += ` AND (ticket_no LIKE '%${search}%' OR subject LIKE '%${search}%')`;
 
     const items = await this.prisma.$queryRawUnsafe<any[]>(`
       SELECT * FROM c2c_tickets 
@@ -530,8 +503,7 @@ export class TicketsService {
     let whereClause = `seller_id = '${sellerId}'`;
     if (type) whereClause += ` AND type = '${type}'`;
     if (status) whereClause += ` AND status = '${status}'`;
-    if (search)
-      whereClause += ` AND (ticket_no LIKE '%${search}%' OR subject LIKE '%${search}%')`;
+    if (search) whereClause += ` AND (ticket_no LIKE '%${search}%' OR subject LIKE '%${search}%')`;
 
     const items = await this.prisma.$queryRawUnsafe<any[]>(`
       SELECT * FROM c2c_tickets 
@@ -552,22 +524,13 @@ export class TicketsService {
    * 管理员查询所有工单
    */
   async findAll(query: TicketQueryDto) {
-    const {
-      page = 1,
-      limit = 20,
-      type,
-      status,
-      search,
-      startDate,
-      endDate,
-    } = query;
+    const { page = 1, limit = 20, type, status, search, startDate, endDate } = query;
     const offset = (page - 1) * limit;
 
     let whereClause = '1=1';
     if (type) whereClause += ` AND type = '${type}'`;
     if (status) whereClause += ` AND status = '${status}'`;
-    if (search)
-      whereClause += ` AND (ticket_no LIKE '%${search}%' OR subject LIKE '%${search}%')`;
+    if (search) whereClause += ` AND (ticket_no LIKE '%${search}%' OR subject LIKE '%${search}%')`;
     if (startDate) whereClause += ` AND created_at >= '${startDate}'`;
     if (endDate) whereClause += ` AND created_at <= '${endDate}'`;
 
@@ -618,7 +581,7 @@ export class TicketsService {
         WHERE ticket_id = ${ticket.id}
         ORDER BY created_at ASC
       `;
-
+      
       // 记录管理员查看操作
       await this.logAdminAction(ticket.id, userId, 'VIEW', {
         ticketNo,
@@ -711,14 +674,10 @@ export class TicketsService {
           ${JSON.stringify(details || {})}, NOW()
         )
       `;
-      this.logger.log(
-        `管理员操作记录: ${action} by ${adminId} on ticket ${ticketId}`,
-      );
+      this.logger.log(`管理员操作记录: ${action} by ${adminId} on ticket ${ticketId}`);
     } catch (error: any) {
       // 日志记录失败不应影响主流程
-      this.logger.error(
-        `记录管理员操作失败: ${error?.message || 'Unknown error'}`,
-      );
+      this.logger.error(`记录管理员操作失败: ${error?.message || 'Unknown error'}`);
     }
   }
 
@@ -745,8 +704,8 @@ export class TicketsService {
       total: Number(result.total) || 0,
       pending: Number(result.pending) || 0,
       closed: Number(result.closed) || 0,
-      avgResponseTime: result.avgResponseTime
-        ? `${Math.round(result.avgResponseTime)}小时`
+      avgResponseTime: result.avgResponseTime 
+        ? `${Math.round(result.avgResponseTime)}小时` 
         : '0小时',
     };
   }
@@ -774,8 +733,8 @@ export class TicketsService {
       total: Number(result.total) || 0,
       pending: Number(result.pending) || 0,
       closed: Number(result.closed) || 0,
-      avgResponseTime: result.avgResponseTime
-        ? `${Math.round(result.avgResponseTime)}小时${Math.round((result.avgResponseTime % 1) * 60)}分`
+      avgResponseTime: result.avgResponseTime 
+        ? `${Math.round(result.avgResponseTime)}小时${Math.round((result.avgResponseTime % 1) * 60)}分` 
         : '0小时',
     };
   }
@@ -802,8 +761,8 @@ export class TicketsService {
       total: Number(result.total) || 0,
       pending: Number(result.pending) || 0,
       closed: Number(result.closed) || 0,
-      avgResponseTime: result.avgResponseTime
-        ? `${Math.round(result.avgResponseTime)}小时`
+      avgResponseTime: result.avgResponseTime 
+        ? `${Math.round(result.avgResponseTime)}小时` 
         : '0小时',
     };
   }
@@ -811,7 +770,11 @@ export class TicketsService {
   /**
    * 买家响应换货
    */
-  async buyerRespondReplacement(ticketNo: string, buyerId: string, dto: any) {
+  async buyerRespondReplacement(
+    ticketNo: string,
+    buyerId: string,
+    dto: any,
+  ) {
     const tickets = await this.prisma.$queryRaw<any[]>`
       SELECT * FROM c2c_tickets WHERE ticket_no = ${ticketNo} LIMIT 1
     `;
@@ -830,10 +793,9 @@ export class TicketsService {
       throw new BadRequestException('当前状态无法响应');
     }
 
-    const newStatus =
-      dto.action === 'ACCEPT'
-        ? 'BUYER_ACCEPTED_REPLACEMENT'
-        : 'BUYER_REJECTED_REPLACEMENT';
+    const newStatus = dto.action === 'ACCEPT' 
+      ? 'BUYER_ACCEPTED_REPLACEMENT' 
+      : 'BUYER_REJECTED_REPLACEMENT';
 
     await this.prisma.$executeRaw`
       UPDATE c2c_tickets 
@@ -841,10 +803,9 @@ export class TicketsService {
       WHERE id = ${ticket.id}
     `;
 
-    const message =
-      dto.action === 'ACCEPT'
-        ? '买家已接受换货，等待卖家发货新账号'
-        : `买家已拒绝换货${dto.reason ? `，原因：${dto.reason}` : ''}`;
+    const message = dto.action === 'ACCEPT'
+      ? '买家已接受换货，等待卖家发货新账号'
+      : `买家已拒绝换货${dto.reason ? `，原因：${dto.reason}` : ''}`;
 
     await this.createSystemMessage(ticketNo, message);
 
@@ -854,7 +815,11 @@ export class TicketsService {
   /**
    * 卖家发货换货商品
    */
-  async deliverReplacement(ticketNo: string, sellerId: string, dto: any) {
+  async deliverReplacement(
+    ticketNo: string,
+    sellerId: string,
+    dto: any,
+  ) {
     const tickets = await this.prisma.$queryRaw<any[]>`
       SELECT * FROM c2c_tickets WHERE ticket_no = ${ticketNo} LIMIT 1
     `;

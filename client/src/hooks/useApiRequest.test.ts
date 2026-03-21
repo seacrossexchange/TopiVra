@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import { useApiRequest, isRequestCancelled } from './useApiRequest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { useApiRequest, isRequestCancelled } from '../useApiRequest';
 
 describe('useApiRequest', () => {
   beforeEach(() => {
@@ -76,7 +76,4 @@ describe('useApiRequest', () => {
     expect(isRequestCancelled(normalError)).toBe(false);
   });
 });
-
-
-
 

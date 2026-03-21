@@ -2,14 +2,15 @@
  * 国际化路由助手
  * 处理带语言前缀的 URL 导航
  */
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_LANGUAGE, isSupportedLanguage, SUPPORTED_LANGUAGES } from '@/i18n/config';
 
-export const SUPPORTED_LANGUAGES = ['zh-CN', 'en', 'id', 'pt-BR', 'es-MX'] as const;
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+export { DEFAULT_LANGUAGE, isSupportedLanguage, SUPPORTED_LANGUAGES };
+export type { SupportedLanguage } from '@/i18n/config';
 
-export function isSupportedLanguage(lang: string | null | undefined): lang is SupportedLanguage {
-  return Boolean(lang) && SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage);
+export function hasLanguagePrefix(pathname: string): boolean {
+  return Boolean(getLanguageFromPath(pathname));
 }
 
 /**
@@ -18,10 +19,10 @@ export function isSupportedLanguage(lang: string | null | undefined): lang is Su
 export function getLanguageFromPath(pathname: string): string | null {
   const firstSegment = pathname.split('/').find(Boolean);
 
-  if (firstSegment && isSupportedLanguage(firstSegment)) {
+  if (isSupportedLanguage(firstSegment)) {
     return firstSegment;
   }
-
+  
   return null;
 }
 
@@ -41,20 +42,7 @@ export function removeLanguagePrefix(pathname: string): string {
  */
 export function addLanguagePrefix(pathname: string, lang: string): string {
   const cleanPath = removeLanguagePrefix(pathname);
-  if (!isSupportedLanguage(lang)) {
-    return cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-  }
-
-  const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-  return normalizedPath === '/' ? `/${lang}` : `/${lang}${normalizedPath}`;
-}
-
-export function generateLocalizedPath(pathname: string, lang: string): string {
-  return addLanguagePrefix(pathname, lang);
-}
-
-export function getCurrentLanguage(pathname: string, fallback: string): string {
-  return getLanguageFromPath(pathname) || fallback;
+  return `/${lang}${cleanPath}`;
 }
 
 /**
@@ -73,10 +61,14 @@ export function useLanguageSwitch() {
       return;
     }
 
+    // 更新 i18n 语言
     i18n.changeLanguage(newLang);
 
-    const newPath = addLanguagePrefix(location.pathname, newLang);
-    navigate(`${newPath}${location.search}${location.hash}`, { replace: true });
+    // 更新 URL
+    const currentPath = location.pathname;
+    const newPath = addLanguagePrefix(currentPath, newLang);
+    
+    navigate(newPath + location.search + location.hash, { replace: true });
   };
 
   return { switchLanguage };
@@ -86,16 +78,27 @@ export function useLanguageSwitch() {
  * 获取国际化链接
  */
 export function useI18nLink() {
+  const { lang } = useParams<{ lang?: string }>();
   const { i18n } = useTranslation();
-
-  const currentLang = getCurrentLanguage(globalThis.location.pathname, i18n.language);
+  
+  const currentLang = isSupportedLanguage(lang)
+    ? lang
+    : isSupportedLanguage(i18n.language)
+      ? i18n.language
+      : DEFAULT_LANGUAGE;
 
   const getLink = (path: string): string => {
+    // 如果路径已经包含语言前缀，直接返回
     if (getLanguageFromPath(path)) {
       return path;
     }
-
-    return addLanguagePrefix(path, currentLang);
+    
+    // 添加当前语言前缀
+    if (SUPPORTED_LANGUAGES.includes(currentLang)) {
+      return `/${currentLang}${path.startsWith('/') ? path : '/' + path}`;
+    }
+    
+    return path;
   };
 
   return { getLink, currentLang };

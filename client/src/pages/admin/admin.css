@@ -170,6 +170,71 @@
 }
 
 /* Dark theme */
-:root:not([data-theme='light']) .admin-card {
+[data-theme="dark"] .admin-card {
   background: var(--color-bg-card);
+}
+
+/* Analytics page */
+.admin-analytics-loading {
+  padding: 48px;
+  text-align: center;
+}
+
+.admin-analytics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.admin-analytics-heading {
+  color: var(--color-text-primary);
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.admin-analytics-section-title {
+  color: var(--color-text-primary);
+}
+
+.admin-analytics-table {
+  background: transparent;
+}
+
+.admin-analytics-country {
+  color: var(--color-text-primary);
+}
+
+.admin-analytics-visits {
+  color: #a78bfa;
+  font-weight: 600;
+}
+
+.admin-analytics-range-select {
+  width: 90px;
+}
+
+.admin-analytics-map-card {
+  min-height: 280px;
+}
+
+.admin-analytics-online-icon {
+  color: #22d3ee;
+}
+
+.admin-analytics-visits-icon {
+  color: #a78bfa;
+}
+
+.admin-analytics-countries-icon {
+  color: #fb923c;
+}
+
+.admin-analytics-trend-icon-up {
+  color: #4ade80;
+}
+
+.admin-analytics-trend-icon-down {
+  color: #f87171;
 }

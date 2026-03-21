@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useI18n } from '@/hooks/useI18n';
+import { useI18nNavigate } from '@/hooks/useI18nNavigate';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Card,
@@ -22,16 +24,13 @@ import {
   CustomerServiceOutlined,
 } from '@ant-design/icons';
 import { ticketsService, type Ticket, type TicketMessage } from '@/services/tickets';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(relativeTime);
 
 const { TextArea } = Input;
 
 export default function SellerTicketDetail() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { formatDateTime, formatRelativeTime } = useI18n();
+  const { navigate } = useI18nNavigate();
   const { ticketNo } = useParams<{ ticketNo: string }>();
   const queryClient = useQueryClient();
   const [messageContent, setMessageContent] = useState('');
@@ -62,7 +61,7 @@ export default function SellerTicketDetail() {
     mutationFn: (data: { action: 'AGREE' | 'REJECT'; rejectReason?: string }) =>
       ticketsService.sellerRespond(ticketNo!, data),
     onSuccess: () => {
-      message.success(t('ticket.respondSuccess', '响应成功'));
+      message.success(t('ticket.respondSuccess', 'Response submitted successfully'));
       setShowRespondModal(false);
       setRespondReason('');
       queryClient.invalidateQueries({ queryKey: ['ticket', ticketNo] });
@@ -71,15 +70,15 @@ export default function SellerTicketDetail() {
 
   const getStatusTag = (status: string) => {
     const statusMap: Record<string, { color: string; text: string }> = {
-      PENDING: { color: 'default', text: '待处理' },
-      SELLER_REVIEWING: { color: 'processing', text: '待您响应' },
-      SELLER_AGREED: { color: 'success', text: '您已同意' },
-      SELLER_REJECTED: { color: 'error', text: '您已拒绝' },
-      ADMIN_REVIEWING: { color: 'warning', text: '平台审核中' },
-      ADMIN_APPROVED: { color: 'success', text: '平台已批准' },
-      ADMIN_REJECTED: { color: 'error', text: '平台已拒绝' },
-      COMPLETED: { color: 'success', text: '已完成' },
-      CLOSED: { color: 'default', text: '已关闭' },
+      PENDING: { color: 'default', text: t('ticket.pending', 'Pending') },
+      SELLER_REVIEWING: { color: 'processing', text: t('ticket.sellerReplyPending', 'Awaiting your response') },
+      SELLER_AGREED: { color: 'success', text: t('ticket.sellerAgreedSelf', 'You agreed') },
+      SELLER_REJECTED: { color: 'error', text: t('ticket.sellerRejectedSelf', 'You rejected') },
+      ADMIN_REVIEWING: { color: 'warning', text: t('ticket.adminReviewing', 'Under platform review') },
+      ADMIN_APPROVED: { color: 'success', text: t('ticket.adminApproved', 'Approved by platform') },
+      ADMIN_REJECTED: { color: 'error', text: t('ticket.adminRejected', 'Rejected by platform') },
+      COMPLETED: { color: 'success', text: t('ticket.completed', 'Completed') },
+      CLOSED: { color: 'default', text: t('ticket.closed', 'Closed') },
     };
     const { color, text } = statusMap[status] || { color: 'default', text: status };
     return <Tag color={color}>{text}</Tag>;
@@ -87,13 +86,17 @@ export default function SellerTicketDetail() {
 
   const getTimeRemaining = () => {
     if (!ticket?.seller_respond_deadline) return null;
-    const deadline = dayjs(ticket.seller_respond_deadline);
-    const now = dayjs();
-    const diff = deadline.diff(now, 'second');
-    if (diff <= 0) return '已超时';
+
+    const deadline = new Date(ticket.seller_respond_deadline).getTime();
+    const now = Date.now();
+    const diff = Math.floor((deadline - now) / 1000);
+
+    if (diff <= 0) return t('ticket.overdue', 'Overdue');
+
     const hours = Math.floor(diff / 3600);
     const minutes = Math.floor((diff % 3600) / 60);
-    return `${hours}小时${minutes}分`;
+
+    return t('ticket.timeRemaining', '{{hours}}h {{minutes}}m', { hours, minutes });
   };
 
   const getSenderIcon = (role: string) => {
@@ -112,14 +115,26 @@ export default function SellerTicketDetail() {
   const getSenderName = (role: string) => {
     switch (role) {
       case 'BUYER':
-        return '买家';
+        return t('ticket.buyer', 'Buyer');
       case 'SELLER':
-        return '卖家（我）';
+        return `${t('ticket.seller', 'Seller')}（${t('ticket.me', 'Me')}）`;
       case 'ADMIN':
-        return '平台客服';
+        return t('ticket.customerService', 'Support');
       default:
-        return '系统';
+        return t('ticket.system', 'System');
     }
+  };
+
+  const getMessageBubbleClassName = (role: string) => {
+    if (role === 'SELLER') {
+      return 'bg-green-500 text-white';
+    }
+
+    if (role === 'SYSTEM') {
+      return 'bg-gray-100 text-gray-700';
+    }
+
+    return 'bg-white border';
   };
 
   const handleRespond = () => {
@@ -130,11 +145,11 @@ export default function SellerTicketDetail() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">加载中...</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('common.loading', 'Loading...')}</div>;
   }
 
   if (!ticket) {
-    return <div className="flex items-center justify-center min-h-screen">工单不存在</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('ticket.notFound', 'Ticket not found')}</div>;
   }
 
   return (
@@ -146,7 +161,7 @@ export default function SellerTicketDetail() {
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/seller/tickets')}
         >
-          返回
+          {t('common.back', 'Back')}
         </Button>
       </div>
 
@@ -158,12 +173,12 @@ export default function SellerTicketDetail() {
             <Space>
               <span className="text-gray-500">#{ticket.ticket_no}</span>
               {getStatusTag(ticket.status)}
-              {ticket.type === 'REFUND' && <Tag color="red">退款工单</Tag>}
+              {ticket.type === 'REFUND' && <Tag color="red">{t('ticket.refundTicket', 'Refund ticket')}</Tag>}
             </Space>
           </div>
           <div className="text-right">
             <div className="text-gray-500 text-sm">
-              {dayjs(ticket.created_at).format('YYYY-MM-DD HH:mm')}
+              {formatDateTime(ticket.created_at)}
             </div>
           </div>
         </div>
@@ -173,20 +188,20 @@ export default function SellerTicketDetail() {
           <div className="mt-6">
             <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
-                <div className="text-gray-500 text-sm mb-1">退款金额</div>
+                <div className="text-gray-500 text-sm mb-1">{t('ticket.refundAmount', 'Refund amount')}</div>
                 <div className="text-2xl font-bold text-red-600">
                   ${Number(ticket.refund_amount).toFixed(2)}
                 </div>
               </div>
               <div>
-                <div className="text-gray-500 text-sm mb-1">退款原因</div>
+                <div className="text-gray-500 text-sm mb-1">{t('ticket.refundReason', 'Refund reason')}</div>
                 <div className="text-gray-900">{ticket.refund_reason}</div>
               </div>
               {ticket.status === 'SELLER_REVIEWING' && (
                 <div>
-                  <div className="text-gray-500 text-sm mb-1">响应期限</div>
+                  <div className="text-gray-500 text-sm mb-1">{t('ticket.responseDeadline', 'Response deadline')}</div>
                   <div className="text-orange-600 font-medium">
-                    剩余 {getTimeRemaining()}
+                    {t('ticket.remainingLabel', 'Remaining')} {getTimeRemaining()}
                   </div>
                 </div>
               )}
@@ -195,16 +210,21 @@ export default function SellerTicketDetail() {
             {/* 退款证据 */}
             {ticket.refund_evidence && ticket.refund_evidence.length > 0 && (
               <div className="mt-4">
-                <div className="text-gray-700 font-medium mb-2">买家提供的证据：</div>
+                <div className="text-gray-700 font-medium mb-2">{t('ticket.buyerEvidence', 'Evidence from buyer:')}</div>
                 <div className="flex gap-2">
-                  {ticket.refund_evidence.map((url, idx) => (
-                    <img
-                      key={idx}
-                      src={url}
-                      alt="evidence"
-                      className="w-24 h-24 object-cover rounded cursor-pointer border"
-                      onClick={() => window.open(url)}
-                    />
+                  {ticket.refund_evidence.map((url) => (
+                    <Button
+                      key={url}
+                      type="text"
+                      className="h-auto w-auto p-0 border-0 bg-transparent"
+                      onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
+                    >
+                      <img
+                        src={url}
+                        alt={t('ticket.evidenceImage', 'Evidence image')}
+                        className="w-24 h-24 object-cover rounded cursor-pointer border"
+                      />
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -217,17 +237,17 @@ export default function SellerTicketDetail() {
           <Alert
             className="mt-4"
             type="warning"
-            message="请尽快响应买家的退款申请"
+            message={t('ticket.respondRefundPrompt', 'Please respond to the buyer refund request as soon as possible')}
             description={
               <div>
-                <p>您需要在48小时内响应，超时将自动同意退款</p>
+                <p>{t('ticket.respondRefundDeadlineHint', 'You need to respond within 48 hours, otherwise the refund will be automatically approved.')}</p>
                 <Button
                   type="primary"
                   size="small"
                   className="mt-2"
                   onClick={() => setShowRespondModal(true)}
                 >
-                  立即响应
+                  {t('ticket.respondNow', 'Respond now')}
                 </Button>
               </div>
             }
@@ -239,8 +259,8 @@ export default function SellerTicketDetail() {
           <Alert
             className="mt-4"
             type="info"
-            message="您已同意退款"
-            description="平台正在审核中，审核通过后将执行退款"
+            message={t('ticket.sellerAgreedSelf', 'You agreed')}
+            description={t('ticket.sellerAgreedDescription', 'The platform is reviewing this request and will process the refund after approval.')}
             showIcon
           />
         )}
@@ -249,8 +269,8 @@ export default function SellerTicketDetail() {
           <Alert
             className="mt-4"
             type="info"
-            message="平台正在审核中"
-            description="请耐心等待平台审核结果"
+            message={t('ticket.adminReviewing', 'Under platform review')}
+            description={t('ticket.adminReviewingDescription', 'Please wait for the platform review result.')}
             showIcon
           />
         )}
@@ -259,15 +279,15 @@ export default function SellerTicketDetail() {
           <Alert
             className="mt-4"
             type="success"
-            message="退款已完成"
-            description="此工单已处理完毕"
+            message={t('ticket.refundCompleted', 'Refund completed')}
+            description={t('ticket.completedDescription', 'This ticket has been fully processed.')}
             showIcon
           />
         )}
       </Card>
 
       {/* 消息列表 */}
-      <Card title="沟通记录" className="mb-6">
+      <Card title={t('ticket.communicationRecord', 'Communication record')} className="mb-6">
         <div className="space-y-4 max-h-[500px] overflow-y-auto">
           {ticket.messages?.map((msg: TicketMessage) => (
             <div
@@ -275,13 +295,7 @@ export default function SellerTicketDetail() {
               className={`flex ${msg.sender_role === 'SELLER' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] ${
-                  msg.sender_role === 'SELLER'
-                    ? 'bg-green-500 text-white'
-                    : msg.sender_role === 'SYSTEM'
-                    ? 'bg-gray-100 text-gray-700'
-                    : 'bg-white border'
-                } rounded-lg p-4`}
+                className={`max-w-[70%] ${getMessageBubbleClassName(msg.sender_role)} rounded-lg p-4`}
               >
                 <div className="flex items-center gap-2 mb-2">
                   {getSenderIcon(msg.sender_role)}
@@ -289,7 +303,7 @@ export default function SellerTicketDetail() {
                     {getSenderName(msg.sender_role)}
                   </span>
                   <span className="text-xs opacity-70">
-                    {dayjs(msg.created_at).fromNow()}
+                    {formatRelativeTime(msg.created_at)}
                   </span>
                 </div>
                 <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -304,7 +318,7 @@ export default function SellerTicketDetail() {
         <Card>
           <TextArea
             rows={4}
-            placeholder="输入消息内容..."
+            placeholder={t('ticket.inputMessage', 'Enter message...')}
             value={messageContent}
             onChange={(e) => setMessageContent(e.target.value)}
             className="mb-4"
@@ -317,7 +331,7 @@ export default function SellerTicketDetail() {
               disabled={!messageContent.trim()}
               onClick={() => sendMessageMutation.mutate(messageContent)}
             >
-              发送
+              {t('ticket.sendMessage', 'Send')}
             </Button>
           </div>
         </Card>
@@ -325,12 +339,12 @@ export default function SellerTicketDetail() {
 
       {/* 响应退款弹窗 */}
       <Modal
-        title="响应退款申请"
+        title={t('ticket.respondRefundRequest', 'Respond to refund request')}
         open={showRespondModal}
         onCancel={() => setShowRespondModal(false)}
         footer={[
           <Button key="cancel" onClick={() => setShowRespondModal(false)}>
-            取消
+            {t('common.cancel', 'Cancel')}
           </Button>,
           <Button
             key="submit"
@@ -338,23 +352,23 @@ export default function SellerTicketDetail() {
             loading={respondMutation.isPending}
             onClick={handleRespond}
           >
-            确认
+            {t('common.confirm', 'Confirm')}
           </Button>,
         ]}
       >
         <div className="space-y-4">
           <div>
-            <div className="mb-2 font-medium">您的决定：</div>
+            <div className="mb-2 font-medium">{t('ticket.yourDecision', 'Your decision:')}</div>
             <Radio.Group
               value={respondAction}
               onChange={(e) => setRespondAction(e.target.value)}
             >
               <Space direction="vertical">
                 <Radio value="AGREE">
-                  <span className="text-green-600">同意退款</span>
+                  <span className="text-green-600">{t('ticket.agreeRefund', 'Agree to refund')}</span>
                 </Radio>
                 <Radio value="REJECT">
-                  <span className="text-red-600">拒绝退款</span>
+                  <span className="text-red-600">{t('ticket.rejectRefund', 'Reject refund')}</span>
                 </Radio>
               </Space>
             </Radio.Group>
@@ -362,10 +376,10 @@ export default function SellerTicketDetail() {
 
           {respondAction === 'REJECT' && (
             <div>
-              <div className="mb-2 font-medium">拒绝原因：</div>
+              <div className="mb-2 font-medium">{t('ticket.rejectReason', 'Reason for rejection:')}</div>
               <TextArea
                 rows={4}
-                placeholder="请说明拒绝退款的原因..."
+                placeholder={t('ticket.rejectReasonPlaceholder', 'Please explain why you are rejecting the refund...')}
                 value={respondReason}
                 onChange={(e) => setRespondReason(e.target.value)}
               />
@@ -374,11 +388,11 @@ export default function SellerTicketDetail() {
 
           <Alert
             type="info"
-            message="温馨提示"
+            message={t('ticket.friendlyReminder', 'Friendly reminder')}
             description={
               respondAction === 'AGREE'
-                ? '同意退款后，平台将审核并执行退款操作'
-                : '拒绝退款后，买家可申请平台介入，由平台仲裁'
+                ? t('ticket.agreeRefundNotice', 'After you agree to the refund, the platform will review and process it.')
+                : t('ticket.rejectRefundSellerNotice', 'After you reject the refund, the buyer can request platform intervention for arbitration.')
             }
             showIcon
           />
@@ -387,9 +401,6 @@ export default function SellerTicketDetail() {
     </div>
   );
 }
-
-
-
 
 
 

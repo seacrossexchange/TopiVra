@@ -17,7 +17,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import {
   CreateRefundTicketDto,
   CreateDMTicketDto,
-  SendTicketMessageDto,
+  SendMessageDto,
   SellerRespondDto,
   EscalateTicketDto,
   AdminProcessTicketDto,
@@ -37,10 +37,7 @@ export class TicketsController {
    * 创建退款工单
    */
   @Post('refund')
-  async createRefundTicket(
-    @Request() req: ExpressRequest & { user: any },
-    @Body() dto: CreateRefundTicketDto,
-  ) {
+  async createRefundTicket(@Request() req: ExpressRequest & { user: any }, @Body() dto: CreateRefundTicketDto) {
     return this.ticketsService.createRefundTicket(req.user.userId, dto);
   }
 
@@ -48,10 +45,7 @@ export class TicketsController {
    * 创建私信工单
    */
   @Post('dm')
-  async createDMTicket(
-    @Request() req: ExpressRequest & { user: any },
-    @Body() dto: CreateDMTicketDto,
-  ) {
+  async createDMTicket(@Request() req: ExpressRequest & { user: any }, @Body() dto: CreateDMTicketDto) {
     return this.ticketsService.createDMTicket(req.user.userId, dto);
   }
 
@@ -59,10 +53,7 @@ export class TicketsController {
    * 买家查询工单列表
    */
   @Get('buyer')
-  async getBuyerTickets(
-    @Request() req: ExpressRequest & { user: any },
-    @Query() query: TicketQueryDto,
-  ) {
+  async getBuyerTickets(@Request() req: ExpressRequest & { user: any }, @Query() query: TicketQueryDto) {
     return this.ticketsService.findByBuyer(req.user.userId, query);
   }
 
@@ -95,21 +86,14 @@ export class TicketsController {
     @Param('ticketNo') ticketNo: string,
     @Body() dto: BuyerRespondReplacementDto,
   ) {
-    return this.ticketsService.buyerRespondReplacement(
-      ticketNo,
-      req.user.userId,
-      dto,
-    );
+    return this.ticketsService.buyerRespondReplacement(ticketNo, req.user.userId, dto);
   }
 
   /**
    * 买家确认换货
    */
   @Put(':ticketNo/confirm-replacement')
-  async confirmReplacement(
-    @Request() req: ExpressRequest & { user: any },
-    @Param('ticketNo') ticketNo: string,
-  ) {
+  async confirmReplacement(@Request() req: ExpressRequest & { user: any }, @Param('ticketNo') ticketNo: string) {
     return this.ticketsService.confirmReplacement(ticketNo, req.user.userId);
   }
 
@@ -121,10 +105,7 @@ export class TicketsController {
   @Get('seller')
   @Roles('SELLER')
   @UseGuards(RolesGuard)
-  async getSellerTickets(
-    @Request() req: ExpressRequest & { user: any },
-    @Query() query: TicketQueryDto,
-  ) {
+  async getSellerTickets(@Request() req: ExpressRequest & { user: any }, @Query() query: TicketQueryDto) {
     return this.ticketsService.findBySeller(req.user.userId, query);
   }
 
@@ -163,11 +144,7 @@ export class TicketsController {
     @Param('ticketNo') ticketNo: string,
     @Body() dto: DeliverReplacementDto,
   ) {
-    return this.ticketsService.deliverReplacement(
-      ticketNo,
-      req.user.userId,
-      dto,
-    );
+    return this.ticketsService.deliverReplacement(ticketNo, req.user.userId, dto);
   }
 
   // ==================== 管理员接口 ====================
@@ -212,10 +189,7 @@ export class TicketsController {
    * 获取工单详情
    */
   @Get(':ticketNo')
-  async getTicket(
-    @Request() req: ExpressRequest & { user: any },
-    @Param('ticketNo') ticketNo: string,
-  ) {
+  async getTicket(@Request() req: ExpressRequest & { user: any }, @Param('ticketNo') ticketNo: string) {
     return this.ticketsService.findOne(ticketNo, req.user.userId);
   }
 
@@ -226,7 +200,7 @@ export class TicketsController {
   async sendMessage(
     @Request() req: ExpressRequest & { user: any },
     @Param('ticketNo') ticketNo: string,
-    @Body() dto: SendTicketMessageDto,
+    @Body() dto: SendMessageDto,
   ) {
     return this.ticketsService.sendMessage(ticketNo, req.user.userId, dto);
   }
@@ -235,10 +209,7 @@ export class TicketsController {
    * 关闭工单
    */
   @Put(':ticketNo/close')
-  async closeTicket(
-    @Request() req: ExpressRequest & { user: any },
-    @Param('ticketNo') ticketNo: string,
-  ) {
+  async closeTicket(@Request() req: ExpressRequest & { user: any }, @Param('ticketNo') ticketNo: string) {
     return this.ticketsService.closeTicket(ticketNo, req.user.userId);
   }
 }

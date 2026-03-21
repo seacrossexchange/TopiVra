@@ -52,6 +52,3 @@ export default function MembershipCard() {
     </Card>
   );
 }
-
-
-

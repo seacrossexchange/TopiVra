@@ -93,8 +93,8 @@ export function ShareBar({ url, title = 'TopiVra', text, ogImage }: ShareBarProp
         okText: '关闭',
         content: (
           <div style={{ textAlign: 'center' }}>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 12 }}>请复制链接后在微信中打开，或截图分享给好友</p>
-            <div style={{ background: 'var(--color-bg-secondary)', padding: '10px 14px', borderRadius: 8, fontSize: 13, wordBreak: 'break-all', color: 'var(--color-text-primary)', userSelect: 'all' }}>
+            <p style={{ color: '#666', marginBottom: 12 }}>请复制链接后在微信中打开，或截图分享给好友</p>
+            <div style={{ background: '#f5f5f5', padding: '10px 14px', borderRadius: 8, fontSize: 13, wordBreak: 'break-all', color: '#333', userSelect: 'all' }}>
               {shareUrl}
             </div>
             <Button type="primary" style={{ marginTop: 12 }} onClick={() => { navigator.clipboard.writeText(shareUrl); message.success('已复制'); }}>
@@ -137,7 +137,7 @@ export function ShareBar({ url, title = 'TopiVra', text, ogImage }: ShareBarProp
         <Tooltip title={copied ? '已复制！' : '复制链接'}>
           <button className="product-share-btn product-share-copy" onClick={handleCopy} aria-label="复制链接">
             {copied
-              ? <CheckOutlined style={{ fontSize: 16, color: 'var(--color-success)' }} />
+              ? <CheckOutlined style={{ fontSize: 16, color: '#52c41a' }} />
               : <CopyOutlined style={{ fontSize: 16 }} />
             }
           </button>

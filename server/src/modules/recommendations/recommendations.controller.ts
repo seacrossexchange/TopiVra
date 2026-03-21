@@ -14,10 +14,7 @@ export class RecommendationsController {
   }
 
   @Get('related/:productId')
-  async getRelated(
-    @Param('productId') productId: string,
-    @Query('limit') limit?: number,
-  ) {
+  async getRelated(@Param('productId') productId: string, @Query('limit') limit?: number) {
     return this.service.getRelatedProducts(productId, limit ? +limit : 6);
   }
 

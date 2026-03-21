@@ -16,35 +16,7 @@ import {
   PartialType,
   OmitType,
 } from '@nestjs/swagger';
-
-// 本地定义枚举（待 prisma generate 后从 @prisma/client 导入）
-export enum ProductType {
-  ACCOUNT = 'ACCOUNT',
-  SOFTWARE = 'SOFTWARE',
-  DIGITAL = 'DIGITAL',
-}
-
-export enum DeliveryType {
-  FILE = 'FILE',
-  LINK = 'LINK',
-  KEY = 'KEY',
-  HYBRID = 'HYBRID',
-}
-
-export enum CountryMode {
-  NONE = 'NONE',
-  SINGLE = 'SINGLE',
-  MULTI = 'MULTI',
-}
-
-export enum ProductStatus {
-  DRAFT = 'DRAFT',
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  ONLINE = 'ONLINE',
-  OFFLINE = 'OFFLINE',
-}
+import { ProductStatus } from '@prisma/client';
 
 // ==================== 创建商品 DTO ====================
 
@@ -127,99 +99,6 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   metaDescription?: string;
-
-  // ===== 新增商品类型与交付相关字段 =====
-
-  @ApiPropertyOptional({
-    description: '商品类型',
-    enum: ProductType,
-    default: ProductType.ACCOUNT,
-  })
-  @IsOptional()
-  @IsEnum(ProductType)
-  productType?: ProductType;
-
-  @ApiPropertyOptional({
-    description: '交付方式',
-    enum: DeliveryType,
-    default: DeliveryType.FILE,
-  })
-  @IsOptional()
-  @IsEnum(DeliveryType)
-  deliveryType?: DeliveryType;
-
-  @ApiPropertyOptional({
-    description: '国家模式',
-    enum: CountryMode,
-    default: CountryMode.NONE,
-  })
-  @IsOptional()
-  @IsEnum(CountryMode)
-  countryMode?: CountryMode;
-
-  @ApiPropertyOptional({ description: '国家代码列表（ISO 3166-1 alpha-2）' })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  countries?: string[];
-
-  // ===== 软件商品专属字段 =====
-
-  @ApiPropertyOptional({
-    description: '适用系统 (Windows/macOS/Linux/Android/iOS/Web)',
-  })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  supportedSystems?: string[];
-
-  @ApiPropertyOptional({ description: '文件类型 (zip/exe/dmg/apk/pdf等)' })
-  @IsOptional()
-  @IsString()
-  fileType?: string;
-
-  @ApiPropertyOptional({ description: '版本号' })
-  @IsOptional()
-  @IsString()
-  version?: string;
-
-  @ApiPropertyOptional({ description: '文件大小（字节）' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  fileSize?: number;
-
-  @ApiPropertyOptional({ description: '下载链接' })
-  @IsOptional()
-  @IsString()
-  downloadUrl?: string;
-
-  @ApiPropertyOptional({ description: '安装说明' })
-  @IsOptional()
-  @IsString()
-  installGuide?: string;
-
-  @ApiPropertyOptional({ description: '更新说明' })
-  @IsOptional()
-  @IsString()
-  updateNote?: string;
-
-  // ===== 账号商品专属字段 =====
-
-  @ApiPropertyOptional({ description: '粉丝量区间' })
-  @IsOptional()
-  @IsString()
-  followerRange?: string;
-
-  @ApiPropertyOptional({ description: '登录方式说明' })
-  @IsOptional()
-  @IsString()
-  loginMethod?: string;
-
-  @ApiPropertyOptional({ description: '质保说明' })
-  @IsOptional()
-  @IsString()
-  warrantyInfo?: string;
 }
 
 // ==================== 更新商品 DTO ====================
@@ -271,16 +150,6 @@ export class ProductQueryDto {
   @IsEnum(ProductStatus)
   status?: ProductStatus;
 
-  @ApiPropertyOptional({ description: '商品类型', enum: ProductType })
-  @IsOptional()
-  @IsEnum(ProductType)
-  productType?: ProductType;
-
-  @ApiPropertyOptional({ description: '交付方式', enum: DeliveryType })
-  @IsOptional()
-  @IsEnum(DeliveryType)
-  deliveryType?: DeliveryType;
-
   @ApiPropertyOptional({ description: '最低价格' })
   @IsOptional()
   @Type(() => Number)
@@ -314,11 +183,6 @@ export class ProductQueryDto {
   @IsOptional()
   @IsUUID()
   sellerId?: string;
-
-  @ApiPropertyOptional({ description: '国家代码筛选' })
-  @IsOptional()
-  @IsString()
-  country?: string;
 }
 
 // ==================== 审核商品 DTO ====================

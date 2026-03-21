@@ -7,11 +7,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-:root:not([data-theme='light']) .login-container {
-  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-accent) 100%);
+[data-theme="dark"] .login-container {
+  background: linear-gradient(135deg, #4a5bb8 0%, #5a3d82 100%);
 }
 
 .login-card {
@@ -50,7 +50,7 @@
 }
 
 /* Dark theme adjustments */
-:root:not([data-theme='light']) .login-card {
+[data-theme="dark"] .login-card {
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
 }

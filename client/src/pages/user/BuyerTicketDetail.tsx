@@ -119,10 +119,10 @@ export default function BuyerTicketDetail() {
     const deadline = dayjs(ticket.seller_respond_deadline);
     const now = dayjs();
     const diff = deadline.diff(now, 'second');
-    if (diff <= 0) return t('ticket.timeout', 'Timed out');
+    if (diff <= 0) return '已超时';
     const hours = Math.floor(diff / 3600);
     const minutes = Math.floor((diff % 3600) / 60);
-    return t('ticket.timeRemaining', '{{hours}}h {{minutes}}m left', { hours, minutes });
+    return `${hours}小时${minutes}分`;
   };
 
   const getSenderIcon = (role: string) => {
@@ -152,11 +152,11 @@ export default function BuyerTicketDetail() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">{t('common.loading', 'Loading...')}</div>;
+    return <div className="flex items-center justify-center min-h-screen">加载中...</div>;
   }
 
   if (!ticket) {
-    return <div className="flex items-center justify-center min-h-screen">{t('ticket.notFound', 'Ticket not found')}</div>;
+    return <div className="flex items-center justify-center min-h-screen">工单不存在</div>;
   }
 
   return (
@@ -183,7 +183,7 @@ export default function BuyerTicketDetail() {
               <span className="text-gray-500">#{ticket.ticket_no}</span>
               {getStatusTag(ticket.status)}
               {ticket.type === 'REFUND' && (
-                <Tag color="red">{t('ticket.refundTicket', 'Refund Ticket')}</Tag>
+                <Tag color="red">退款工单</Tag>
               )}
             </Space>
           </div>
@@ -396,9 +396,6 @@ export default function BuyerTicketDetail() {
     </div>
   );
 }
-
-
-
 
 
 

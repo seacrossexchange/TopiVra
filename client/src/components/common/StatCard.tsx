@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { Skeleton } from 'antd';
+import i18n from '@/i18n';
 import { Icon } from './Icon';
 import type { IconName, IconColor } from './Icon';
 import './StatCard.css';
@@ -161,7 +162,7 @@ export const StatCard: React.FC<StatCardProps> = ({
                 />
                 <span className="stat-card__trend-value">{trendValue}</span>
               </span>
-              <span className="stat-card__trend-label">较昨日</span>
+              <span className="stat-card__trend-label">{i18n.t('common.vsPreviousPeriod', '较上一周期')}</span>
             </div>
           )}
         </>

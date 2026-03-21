@@ -136,7 +136,7 @@ describe('errorMessages 工具函数', () => {
   // ── ERROR_MESSAGES 映射表完整性校验 ─────────────────────────
   describe('ERROR_MESSAGES 映射表', () => {
     it('所有值均应为非空字符串', () => {
-      Object.entries(ERROR_MESSAGES).forEach(([, value]) => {
+      Object.entries(ERROR_MESSAGES).forEach(([key, value]) => {
         expect(typeof value).toBe('string');
         expect(value.length).toBeGreaterThan(0);
       });

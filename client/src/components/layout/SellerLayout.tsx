@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
   ShoppingOutlined,
@@ -12,30 +12,28 @@ import {
   LogoutOutlined,
   MessageOutlined,
   DatabaseOutlined,
-  FileTextOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
 import { useAuthStore } from '@/store/authStore';
+import { useI18nNavigate, useI18nHref } from '@/hooks/useI18nNavigate';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '@/hooks/useTheme';
-import { ThemeToggle } from '@/components/common/ThemeToggle';
 import './SellerLayout.css';
 
 const { Sider, Content, Header } = Layout;
 
 export default function SellerLayout() {
   const { t } = useTranslation();
-  const { isDark } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
+  const { navigate } = useI18nNavigate();
+  const { getHref } = useI18nHref();
   const { user, logout } = useAuthStore();
 
   const menuItems = [
     {
       key: '/seller',
       icon: <DashboardOutlined />,
-      label: t('seller.dashboard', '仪表盘'),
+      label: t('seller.dashboard', '卖家中心'),
     },
     {
       key: '/seller/products',
@@ -65,12 +63,7 @@ export default function SellerLayout() {
     {
       key: '/seller/tickets',
       icon: <CustomerServiceOutlined />,
-      label: t('seller.tickets', '工单支持'),
-    },
-    {
-      key: '/seller/blog',
-      icon: <FileTextOutlined />,
-      label: t('seller.blog', '博客投稿'),
+      label: t('seller.tickets', '工单管理'),
     },
     {
       key: '/seller/settings',
@@ -91,11 +84,11 @@ export default function SellerLayout() {
   const userMenuItems = [
     {
       key: 'profile',
-      label: <Link to="/user/profile">{t('user.profile', '个人中心')}</Link>,
+      label: <Link to={getHref('/user/profile')}>{t('user.profile', '个人中心')}</Link>,
     },
     {
       key: 'orders',
-      label: <Link to="/user/orders">{t('user.myOrders', '我的订单')}</Link>,
+      label: <Link to={getHref('/user/orders')}>{t('user.myOrders', '我的订单')}</Link>,
     },
     { type: 'divider' as const },
     {
@@ -116,12 +109,12 @@ export default function SellerLayout() {
         width={220}
       >
         <div className="seller-layout__logo">
-          <Link to="/seller">
+          <Link to={getHref('/seller')}>
             {collapsed ? 'T' : `TopiVra ${t('seller.seller', '卖家')}`}
           </Link>
         </div>
         <Menu
-          theme={isDark ? 'dark' : 'light'}
+          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
@@ -137,7 +130,6 @@ export default function SellerLayout() {
             className="seller-layout__trigger"
           />
           <div className="seller-layout__header-right">
-            <ThemeToggle />
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <div className="seller-layout__user">
                 <Avatar size="small" src={user?.avatar}>

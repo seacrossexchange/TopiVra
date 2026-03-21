@@ -26,34 +26,34 @@ export class AuditLogInterceptor implements NestInterceptor {
     '/auth/reset-password',
     '/auth/enable-2fa',
     '/auth/disable-2fa',
-
+    
     // 用户管理
     '/users/:id',
     '/admin/users',
-
+    
     // 权限管理
     '/admin/roles',
     '/sellers/apply',
     '/admin/sellers/:id/approve',
-
+    
     // 支付相关
     '/payments',
     '/payments/notify',
     '/orders/:id/pay',
-
+    
     // 退款相关
     '/refunds',
     '/refunds/:id/approve',
     '/refunds/:id/reject',
-
+    
     // 财务相关
     '/sellers/withdraw',
     '/admin/settlements',
-
+    
     // 敏感数据访问
     '/admin/audit-logs',
     '/users/:id/profile',
-
+    
     // 系统配置
     '/admin/settings',
     '/admin/payment-gateways',
@@ -79,20 +79,20 @@ export class AuditLogInterceptor implements NestInterceptor {
       userId: user?.id || null,
       userEmail: user?.email || null,
       userRole: user?.roles?.[0] || 'GUEST',
-
+      
       // 请求信息
       method: request.method,
       path: request.path,
       url: request.url,
-
+      
       // 客户端信息
       ip: this.getClientIp(request),
       userAgent: request.headers['user-agent'] || null,
-
+      
       // 请求数据（脱敏）
       requestBody: this.sanitizeData(request.body),
       queryParams: this.sanitizeData(request.query),
-
+      
       // 时间戳
       timestamp: new Date(),
     };
@@ -117,8 +117,7 @@ export class AuditLogInterceptor implements NestInterceptor {
             success: false,
             responseTime: Date.now() - startTime,
             errorMessage: error.message,
-            errorStack:
-              process.env.NODE_ENV === 'development' ? error.stack : null,
+            errorStack: process.env.NODE_ENV === 'development' ? error.stack : null,
           });
         },
       }),
@@ -138,7 +137,9 @@ export class AuditLogInterceptor implements NestInterceptor {
     const path = request.path;
     return this.sensitiveOperations.some((pattern) => {
       // 简单的路径匹配（支持 :id 参数）
-      const regex = new RegExp('^' + pattern.replace(/:\w+/g, '[^/]+') + '$');
+      const regex = new RegExp(
+        '^' + pattern.replace(/:\w+/g, '[^/]+') + '$',
+      );
       return regex.test(path);
     });
   }
@@ -201,17 +202,22 @@ export class AuditLogInterceptor implements NestInterceptor {
     try {
       await this.prisma.auditLog.create({
         data: {
-          operatorId: data.userId || 'anonymous',
-          operatorRole: data.userRole || 'GUEST',
+          userId: data.userId,
+          userEmail: data.userEmail,
+          userRole: data.userRole,
           action: `${data.method} ${data.path}`,
           module: this.extractModule(data.path),
           targetType: this.extractTargetType(data.path),
           targetId: this.extractTargetId(data.path),
-          description: data.errorMessage || `${data.method} ${data.path}`,
-          beforeData: data.requestBody || data.queryParams,
-          afterData: data.responseData,
-          ipAddress: data.ip,
+          ip: data.ip,
           userAgent: data.userAgent,
+          requestData: data.requestBody || data.queryParams,
+          responseData: data.responseData,
+          statusCode: data.statusCode,
+          success: data.success,
+          responseTime: data.responseTime,
+          errorMessage: data.errorMessage,
+          timestamp: data.timestamp,
         },
       });
     } catch (error) {
@@ -246,11 +252,7 @@ export class AuditLogInterceptor implements NestInterceptor {
     const parts = path.split('/').filter(Boolean);
     for (const part of parts) {
       // UUID 格式
-      if (
-        part.match(
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-        )
-      ) {
+      if (part.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
         return part;
       }
       // 数字 ID
@@ -261,3 +263,4 @@ export class AuditLogInterceptor implements NestInterceptor {
     return null;
   }
 }
+

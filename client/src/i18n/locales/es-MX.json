@@ -108,13 +108,6 @@
       "title": "¿Tienes cuentas de alta calidad para vender?",
       "desc": "Únete a nuestra comunidad de vendedores y comienza tu negocio en línea con baja comisión y retiros rápidos.",
       "apply": "Solicitar ser Vendedor"
-    },
-    "hotProducts": {
-      "title": "Productos populares",
-      "viewAll": "Ver todo",
-      "stock": "Inventario",
-      "sold": "Vendidos",
-      "views": "Vistas"
     }
   },
   "theme": {
@@ -172,13 +165,7 @@
       "fair": "Regular",
       "good": "Buena",
       "strong": "Fuerte"
-    },
-    "qrExpired": "El código QR expiró",
-    "generatingQr": "Generando código QR...",
-    "telegramScanLogin": "Inicia sesión escaneando con Telegram",
-    "telegramScanDesc": "Abre Telegram para escanear el código QR y entrar de forma segura.",
-    "telegramSteps": "Abre Telegram, escanea el código QR y confirma en tu teléfono.",
-    "refreshQr": "Actualizar código QR"
+    }
   },
   "user": {
     "profile": "Perfil",
@@ -256,38 +243,7 @@
     "loadError": "Error al cargar",
     "totalItems": "Total {{count}} artículos",
     "minutes": "min",
-    "hours": "h",
-    "add": "Agregar",
-    "filter": "Filtrar",
-    "reset": "Restablecer",
-    "next": "Siguiente",
-    "previous": "Anterior",
-    "noData": "Sin datos",
-    "success": "Éxito",
-    "warning": "Advertencia",
-    "info": "Información",
-    "yes": "Sí",
-    "no": "No",
-    "ok": "OK",
-    "close": "Cerrar",
-    "view": "Ver",
-    "download": "Descargar",
-    "upload": "Subir",
-    "copy": "Copiar",
-    "copySuccess": "Copiado con éxito",
-    "more": "Más",
-    "less": "Menos",
-    "all": "Todo",
-    "select": "Seleccionar",
-    "selected": "Seleccionado",
-    "clear": "Limpiar",
-    "refresh": "Actualizar",
-    "export": "Exportar",
-    "import": "Importar",
-    "print": "Imprimir",
-    "share": "Compartir",
-    "help": "Ayuda",
-    "loadMore": "Cargar más"
+    "hours": "h"
   },
   "favorite": {
     "title": "Mis Favoritos",
@@ -413,7 +369,68 @@
       "inProgress": "En Progreso",
       "replied": "Respondidos",
       "closed": "Cerrados"
-    }
+    },
+    "pending": "Pendiente",
+    "sellerReviewing": "En revisión del vendedor",
+    "sellerAgreed": "El vendedor aceptó",
+    "sellerRejected": "El vendedor rechazó",
+    "adminPendingAction": "Pendiente de tu acción",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "completed": "Completado",
+    "closed": "Cerrado",
+    "notFound": "Ticket no encontrado",
+    "refundTicket": "Ticket de reembolso",
+    "orderId": "ID del pedido",
+    "refundAmount": "Monto del reembolso",
+    "buyerId": "ID del comprador",
+    "sellerId": "ID del vendedor",
+    "refundReason": "Motivo del reembolso",
+    "sellerResponseTime": "Hora de respuesta del vendedor",
+    "buyerEvidence": "Evidencia del comprador:",
+    "evidenceImage": "Imagen de evidencia",
+    "adminProcessSuccess": "Procesado con éxito",
+    "adminReviewInstruction": "Revisa cuidadosamente el historial de conversación y la evidencia de ambas partes antes de tomar una decisión justa.",
+    "processNow": "Procesar ahora",
+    "completedDescription": "Este ticket ya fue procesado por completo.",
+    "communicationRecord": "Registro de comunicación",
+    "adminMessagePlaceholder": "Ingresa un mensaje visible para comprador y vendedor...",
+    "processRefundTicket": "Procesar ticket de reembolso",
+    "confirmProcess": "Confirmar procesamiento",
+    "processDecision": "Decisión:",
+    "approveRefund": "Aprobar reembolso",
+    "rejectRefund": "Rechazar reembolso",
+    "originalRequestedAmount": "Monto solicitado originalmente:",
+    "processDescription": "Nota de procesamiento:",
+    "processDescriptionPlaceholder": "Explica tu decisión...",
+    "importantNotice": "Aviso importante",
+    "approveRefundNotice": "Después de aprobar el reembolso, el sistema lo procesará automáticamente y devolverá el monto al saldo del comprador.",
+    "rejectRefundNotice": "Después de rechazar el reembolso, el ticket se cerrará y el comprador podrá enviar una nueva solicitud.",
+    "respondSuccess": "Respuesta enviada con éxito",
+    "sellerReplyPending": "Esperando tu respuesta",
+    "sellerAgreedSelf": "Aceptaste",
+    "sellerRejectedSelf": "Rechazaste",
+    "adminReviewing": "En revisión de la plataforma",
+    "adminApproved": "Aprobado por la plataforma",
+    "adminRejected": "Rechazado por la plataforma",
+    "overdue": "Vencido",
+    "timeRemaining": "{{hours}}h {{minutes}}m",
+    "responseDeadline": "Plazo de respuesta",
+    "remainingLabel": "Restante",
+    "respondRefundPrompt": "Responde a la solicitud de reembolso del comprador lo antes posible",
+    "respondRefundDeadlineHint": "Debes responder dentro de 48 horas; de lo contrario, el reembolso se aprobará automáticamente.",
+    "respondNow": "Responder ahora",
+    "sellerAgreedDescription": "La plataforma está revisando esta solicitud y procesará el reembolso después de aprobarlo.",
+    "adminReviewingDescription": "Espera el resultado de la revisión de la plataforma.",
+    "refundCompleted": "Reembolso completado",
+    "respondRefundRequest": "Responder a la solicitud de reembolso",
+    "yourDecision": "Tu decisión:",
+    "agreeRefund": "Aceptar reembolso",
+    "rejectReason": "Motivo del rechazo:",
+    "rejectReasonPlaceholder": "Explica por qué estás rechazando el reembolso...",
+    "friendlyReminder": "Recordatorio",
+    "agreeRefundNotice": "Después de aceptar el reembolso, la plataforma lo revisará y lo procesará.",
+    "rejectRefundSellerNotice": "Después de rechazar el reembolso, el comprador podrá solicitar la intervención de la plataforma para arbitraje."
   },
   "products": {
     "title": "Lista de Productos",
@@ -447,29 +464,7 @@
       "EU": "Unión Europea",
       "JP": "Japón",
       "GB": "Reino Unido",
-      "IN": "India",
-      "TH": "Tailandia",
-      "PH": "Filipinas",
-      "MY": "Malasia",
-      "SG": "Singapur",
-      "KR": "Corea del Sur",
-      "BR": "Brasil",
-      "MX": "México",
-      "AR": "Argentina",
-      "DE": "Alemania",
-      "FR": "Francia",
-      "IT": "Italia",
-      "ES": "España",
-      "RU": "Rusia",
-      "TR": "Turquía",
-      "SA": "Arabia Saudita",
-      "AE": "Emiratos Árabes",
-      "EG": "Egipto",
-      "ZA": "Sudáfrica",
-      "AU": "Australia",
-      "NZ": "Nueva Zelanda",
-      "CA": "Canadá",
-      "OTHER": "其他"
+      "IN": "India"
     },
     "tree": {
       "allCategories": "Todas las Categorías",
@@ -518,8 +513,7 @@
       "sellerDefault": "Vendedor",
       "tabs": {
         "description": "Detalles del Producto",
-        "reviews": "Reseñas",
-        "faq": "常见问题"
+        "reviews": "Reseñas"
       },
       "info": {
         "id": "ID del Producto",
@@ -535,18 +529,7 @@
         "sold": "Vendidos",
         "category": "Categoría",
         "rating": "Valoración",
-        "createdAt": "Creado el",
-        "productType": "商品类型",
-        "deliveryType": "交付方式",
-        "countries": "国家地区",
-        "supportedSystems": "支持系统",
-        "fileType": "文件类型",
-        "version": "版本",
-        "fileSize": "文件大小",
-        "installGuide": "安装说明",
-        "updateNote": "更新说明",
-        "loginMethod": "登录方式",
-        "warranty": "质保"
+        "createdAt": "Creado el"
       },
       "noReviews": "Aún no hay reseñas",
       "buyModal": {
@@ -567,62 +550,7 @@
         "confirm": "Confirmar Pago",
         "cancel": "Cancelar",
         "success": "Pedido creado con éxito, redirigiendo al pago..."
-      },
-      "views": "浏览量",
-      "favorites": "收藏",
-      "reviews": "评论",
-      "anonymous": "匿名用户",
-      "guarantees": {
-        "title": "交易保障",
-        "refund": "退款支持",
-        "refundDesc": "商品存在有效问题时可申请处理。",
-        "escrow": "担保交易",
-        "escrowDesc": "订单流程中付款始终受平台保护。",
-        "instant": "快速发货",
-        "instantDesc": "大多数订单付款后自动发货。",
-        "support": "人工支持",
-        "supportDesc": "如有订单问题可联系客服。"
-      },
-      "faq": {
-        "q1": "发货速度快吗？",
-        "a1": "大多数商品付款后会自动发货。",
-        "q2": "如果账号无法登录怎么办？",
-        "a2": "请联系在线客服，或提交带证据的退款申请。",
-        "q3": "有质保期吗？",
-        "a3": "质保以商品说明和平台规则为准。",
-        "q4": "购买后可以修改密码吗？",
-        "a4": "若商品支持，建议收货后尽快修改凭证。",
-        "q5": "支持哪些支付方式？",
-        "a5": "结账页面会显示当前可用的支付方式。"
       }
-    },
-    "platforms": {
-      "FACEBOOK": "Facebook",
-      "INSTAGRAM": "Instagram",
-      "TIKTOK": "TikTok",
-      "TWITTER": "Twitter",
-      "YOUTUBE": "YouTube",
-      "TELEGRAM": "Telegram",
-      "GMAIL": "Gmail",
-      "LINKEDIN": "LinkedIn",
-      "SNAPCHAT": "Snapchat",
-      "REDDIT": "Reddit",
-      "DISCORD": "Discord",
-      "TWITCH": "Twitch",
-      "PINTEREST": "Pinterest",
-      "WHATSAPP": "WhatsApp",
-      "OTHER": "其他"
-    },
-    "types": {
-      "account": "账号",
-      "software": "软件",
-      "digital": "数字商品"
-    },
-    "delivery": {
-      "file": "文件",
-      "link": "链接",
-      "key": "密钥",
-      "hybrid": "混合交付"
     }
   },
   "faq": {
@@ -670,14 +598,7 @@
     "checkout": "Pagar",
     "itemsCount": "{{count}} artículos",
     "continueShopping": "Seguir Comprando",
-    "checkoutEmpty": "El carrito está vacío",
-    "couponDiscount": "Descuento del cupón",
-    "addSuccess": "Agregado al carrito",
-    "recommendations": {
-      "title": "Los clientes también compraron",
-      "sold": "vendidos",
-      "add": "Agregar al carrito"
-    }
+    "checkoutEmpty": "El carrito está vacío"
   },
   "checkout": {
     "title": "Checkout",
@@ -715,14 +636,7 @@
     "createOrderFailed": "Error al crear pedido",
     "addressCopied": "Dirección copiada",
     "paymentSuccess": "Pago exitoso",
-    "paymentFailed": "Pago fallido",
-    "shippingInfo": "收货信息",
-    "paymentInfo": "支付信息",
-    "placeOrder": "提交订单",
-    "processing": "处理中...",
-    "success": "支付成功",
-    "failed": "支付失败",
-    "retry": "重试"
+    "paymentFailed": "Pago fallido"
   },
   "order": {
     "orderNo": "Nº de Pedido",
@@ -798,35 +712,6 @@
         "not_as_described": "No Coincide con la Descripción",
         "quality_issue": "Problema de Calidad",
         "other": "Otro"
-      },
-      "modal": {
-        "orderNo": "N.º de Pedido",
-        "orderAmount": "Monto del Pedido",
-        "reasonType": "Motivo del Reembolso",
-        "reasonTypeRequired": "Por favor selecciona un motivo del reembolso",
-        "selectReason": "Por favor selecciona un motivo del reembolso",
-        "detailReason": "Detalles",
-        "reasonMaxLength": "Máximo 500 caracteres",
-        "evidence": "Capturas de Evidencia (Opcional)",
-        "upload": "Subir",
-        "uploadTip": "Sube hasta 3 imágenes, cada una de menos de 5MB",
-        "onlyImage": "Solo se pueden subir archivos de imagen",
-        "imageSizeLimit": "El tamaño de la imagen no puede superar los 5MB",
-        "reasons": {
-          "PRODUCT_NOT_MATCH": "El producto no coincide con la descripción",
-          "ACCOUNT_ABNORMAL": "No se puede iniciar sesión en la cuenta / cuenta anormal",
-          "NOT_DELIVERED": "No recibí las credenciales de la cuenta",
-          "ACCOUNT_BANNED": "La cuenta ha sido bloqueada",
-          "WRONG_INFO": "Información de inicio de sesión incorrecta",
-          "OTHER": "Otro motivo"
-        },
-        "tips": {
-          "title": "Notas del Reembolso",
-          "tip1": "Tiempo de revisión: se procesa dentro de 24 horas",
-          "tip2": "Método de reembolso: se devuelve al saldo de tu cuenta",
-          "tip3": "Si tienes dudas: contacta al soporte en línea",
-          "tip4": "Transacciones C2C: el reembolso requiere aprobación del vendedor, y la plataforma coordinará el proceso"
-        }
       }
     }
   },
@@ -906,29 +791,7 @@
       "quantity": "Límite de Cantidad",
       "preview": "Vista Previa del Precio",
       "youSave": "El Cliente Ahorra"
-    },
-    "myProducts": "我的产品",
-    "myOrders": "我的订单",
-    "myRevenue": "我的收入",
-    "statistics": "统计数据",
-    "activeProducts": "上架产品",
-    "soldProducts": "已售产品",
-    "completedOrders": "已完成订单",
-    "revenue": "收入",
-    "commission": "佣金",
-    "balance": "余额",
-    "productManagement": "产品管理",
-    "addNewProduct": "添加新产品",
-    "deleteProduct": "删除产品",
-    "stockManagement": "库存管理",
-    "priceManagement": "价格管理",
-    "orderManagement": "订单管理",
-    "processOrder": "处理订单",
-    "shipOrder": "发货",
-    "revenueManagement": "收入管理",
-    "viewRevenue": "查看收入",
-    "requestWithdraw": "申请提现",
-    "withdrawalSettings": "提现设置"
+    }
   },
   "inventory": {
     "title": "Gestión de Inventario",
@@ -975,20 +838,7 @@
     "startImport": "Iniciar Importación",
     "uploadFileRequired": "Sube un archivo",
     "onlyCSV": "Solo se admiten archivos CSV",
-    "exportSuccess": "Exportado correctamente",
-    "addStock": "添加库存",
-    "stockList": "库存列表",
-    "stockDetails": "库存详情",
-    "lowStock": "库存不足",
-    "outOfStock": "缺货",
-    "inStock": "有货",
-    "stockAlert": "库存预警",
-    "restock": "补货",
-    "stockHistory": "库存历史",
-    "importStock": "导入库存",
-    "exportStock": "导出库存",
-    "batchUpload": "批量上传",
-    "template": "模板"
+    "exportSuccess": "Exportado correctamente"
   },
   "admin": {
     "dashboard": "Panel",
@@ -1209,39 +1059,7 @@
       "HUPIJIAO": "Hupijiao",
       "PAYPAL": "PayPal",
       "STRIPE": "Stripe"
-    },
-    "statistics": "统计数据",
-    "reports": "报告",
-    "activeUsers": "活跃用户",
-    "newUsers": "新用户",
-    "pendingOrders": "待处理订单",
-    "completedOrders": "已完成订单",
-    "revenue": "收入",
-    "growth": "增长",
-    "userManagement": "用户管理",
-    "userDetails": "用户详情",
-    "banUser": "封禁用户",
-    "unbanUser": "解封用户",
-    "deleteUser": "删除用户",
-    "productManagement": "产品管理",
-    "addProduct": "添加产品",
-    "editProduct": "编辑产品",
-    "deleteProduct": "删除产品",
-    "approveProduct": "批准产品",
-    "orderManagement": "订单管理",
-    "orderDetails": "订单详情",
-    "processOrder": "处理订单",
-    "cancelOrder": "取消订单",
-    "refundOrder": "退款订单",
-    "ticketManagement": "工单管理",
-    "ticketDetails": "工单详情",
-    "assignTicket": "分配工单",
-    "closeTicket": "关闭工单",
-    "generalSettings": "常规设置",
-    "paymentSettings": "支付设置",
-    "emailSettings": "邮件设置",
-    "notificationSettings": "通知设置",
-    "securitySettings": "安全设置"
+    }
   },
   "notifications": {
     "title": "Notificaciones",
@@ -1266,21 +1084,7 @@
       "low": "Baja",
       "medium": "Media",
       "high": "Alta"
-    },
-    "all": "全部通知",
-    "unread": "未读",
-    "read": "已读",
-    "markAsRead": "标记为已读",
-    "markAllAsRead": "全部标记为已读",
-    "deleteAll": "删除全部",
-    "noNotifications": "暂无通知",
-    "orderNotification": "订单通知",
-    "systemNotification": "系统通知",
-    "messageNotification": "消息通知",
-    "settings": "通知设置",
-    "emailNotifications": "邮件通知",
-    "pushNotifications": "推送通知",
-    "smsNotifications": "短信通知"
+    }
   },
   "footer": {
     "slogan": "Plataforma Global de Comercio de Cuentas de Redes Sociales",
@@ -1306,19 +1110,7 @@
     "weekendLabel": "Sáb – Dom",
     "onlineLabel": "En línea",
     "offlineLabel": "Fuera de línea",
-    "weekendNote": "Para casos urgentes, abre un ticket",
-    "company": "公司",
-    "aboutUs": "关于我们",
-    "careers": "招聘",
-    "blog": "博客",
-    "press": "媒体",
-    "helpCenter": "帮助中心",
-    "contactUs": "联系我们",
-    "faq": "常见问题",
-    "legal": "法律",
-    "follow": "关注我们",
-    "copyright": "© 2024 TopiVra. 保留所有权利。",
-    "allRightsReserved": "保留所有权利"
+    "weekendNote": "Para casos urgentes, abre un ticket"
   },
   "about": {
     "title": "Acerca de TopiVra",
@@ -1339,25 +1131,7 @@
     "secureTransaction": "Transacción Segura Garantizada",
     "secureTransactionDesc": "Garantía de la plataforma, transacciones más seguras",
     "professionalSupport": "Equipo de Soporte Profesional",
-    "professionalSupportDesc": "Servicio al cliente en línea 7x24 horas",
-    "subtitle": "了解 TopiVra",
-    "mission": "我们的使命",
-    "missionDesc": "让每个人都能轻松获取优质的社交媒体账号，助力个人和企业的数字化发展。",
-    "vision": "我们的愿景",
-    "visionDesc": "成为全球最值得信赖的数字账号交易平台。",
-    "values": "核心价值观",
-    "value1": "诚信",
-    "value1Desc": "诚实守信，保障每一笔交易",
-    "value2": "安全",
-    "value2Desc": "严格审核，确保账号质量",
-    "value3": "高效",
-    "value3Desc": "自动发货，即时交付",
-    "value4": "服务",
-    "value4Desc": "7×24小时客户支持",
-    "team": "我们的团队",
-    "teamDesc": "由经验丰富的互联网从业者组成，致力于为用户提供最优质的服务。",
-    "contact": "联系我们",
-    "contactDesc": "如有任何问题或建议，欢迎随时联系我们。"
+    "professionalSupportDesc": "Servicio al cliente en línea 7x24 horas"
   },
   "contact": {
     "title": "Contáctanos",
@@ -1378,36 +1152,10 @@
     "contentPlaceholder": "Por favor ingresa tu mensaje",
     "contentRequired": "Por favor ingresa tu mensaje",
     "submitMessage": "Enviar Mensaje",
-    "messageSuccess": "Mensaje enviado, ¡nos pondremos en contacto pronto!",
-    "telegram": "Telegram",
-    "email": "电子邮件",
-    "emailAddress": "support@topivra.com",
-    "workingHours": "工作时间",
-    "available247": "7×24 小时在线",
-    "responseTime": "响应时间",
-    "responseTimeDesc": "通常在 2 小时内回复",
-    "formTitle": "发送消息",
-    "subject": "主题",
-    "subjectPlaceholder": "请输入主题",
-    "message": "消息",
-    "messagePlaceholder": "请输入您的消息...",
-    "send": "发送",
-    "sendSuccess": "消息发送成功",
-    "sendFailed": "发送失败，请重试"
+    "messageSuccess": "Mensaje enviado, ¡nos pondremos en contacto pronto!"
   },
   "mobile": {
-    "me": "Yo",
-    "menu": "菜单",
-    "home": "首页",
-    "products": "产品",
-    "orders": "订单",
-    "profile": "我的",
-    "more": "更多",
-    "backToTop": "返回顶部",
-    "pullToRefresh": "下拉刷新",
-    "releaseToRefresh": "释放刷新",
-    "loading": "加载中...",
-    "noMore": "没有更多了"
+    "me": "Yo"
   },
   "blog": {
     "title": "Tutoriales",
@@ -1439,21 +1187,10 @@
       "tips": "Consejos y Trucos"
     },
     "loadError": "Error al cargar artículo",
-    "notFound": "Artículo no encontrado",
-    "allPosts": "Todos los artículos",
-    "publishedOn": "Publicado el",
-    "updatedOn": "Actualizado el",
-    "comment": "Comentario",
-    "noComments": "Aún no hay comentarios",
-    "leaveComment": "Dejar un comentario",
-    "minRead": "min de lectura"
+    "notFound": "Artículo no encontrado"
   },
   "notFound": {
-    "message": "Lo sentimos, la página que buscas no existe",
-    "title": "页面未找到",
-    "goHome": "返回首页",
-    "error404": "404 错误",
-    "pageNotFound": "页面未找到"
+    "message": "Lo sentimos, la página que buscas no existe"
   },
   "tools": {
     "title": "Herramientas Útiles",
@@ -1503,13 +1240,7 @@
         "desc": "Herramientas de gestión de cuenta Hotmail",
         "tag": "Próximamente"
       }
-    },
-    "cookieConverter": "Cookie 转换器",
-    "tokenGenerator": "Token 生成器",
-    "accountChecker": "账号检测器",
-    "bulkUpload": "批量上传",
-    "dataExport": "数据导出",
-    "apiDocs": "API 文档"
+    }
   },
   "terms": {
     "title": "Términos de Servicio",
@@ -1529,18 +1260,7 @@
     "section7Content": "La plataforma protege estrictamente la privacidad del usuario y no divulgará información del usuario a terceros a menos que lo requiera la ley.",
     "section8Title": "8. Modificación de Términos",
     "section8Content": "La plataforma se reserva el derecho de modificar estos términos en cualquier momento. Los términos modificados se publicarán en el sitio web, y el uso continuo de la plataforma indica la aceptación de los términos modificados.",
-    "lastUpdate": "Última Actualización: 28 de Febrero de 2026",
-    "lastUpdated": "最后更新",
-    "acceptance": "接受条款",
-    "services": "服务说明",
-    "userObligations": "用户义务",
-    "prohibitedActivities": "禁止行为",
-    "intellectualProperty": "知识产权",
-    "disclaimer": "免责声明",
-    "limitation": "责任限制",
-    "termination": "终止",
-    "changes": "条款变更",
-    "contact": "联系方式"
+    "lastUpdate": "Última Actualización: 28 de Febrero de 2026"
   },
   "privacy": {
     "title": "Política de Privacidad",
@@ -1560,18 +1280,7 @@
     "section7Content": "Tienes derecho a acceder, corregir y eliminar tu información personal. Si tienes alguna necesidad, por favor contacta a nuestro equipo de servicio al cliente.",
     "section8Title": "8. Actualizaciones de Política",
     "section8Content": "Podemos actualizar esta política de privacidad de vez en cuando. Los cambios significativos se te notificarán a través de anuncios en el sitio web.",
-    "lastUpdate": "Última Actualización: 28 de Febrero de 2026",
-    "lastUpdated": "最后更新",
-    "introduction": "简介",
-    "informationCollection": "信息收集",
-    "informationUse": "信息使用",
-    "informationSharing": "信息共享",
-    "dataSecurity": "数据安全",
-    "cookies": "Cookie",
-    "thirdParty": "第三方服务",
-    "userRights": "用户权利",
-    "changes": "政策变更",
-    "contact": "联系方式"
+    "lastUpdate": "Última Actualización: 28 de Febrero de 2026"
   },
   "refund": {
     "title": "Política de Reembolso",
@@ -1587,13 +1296,7 @@
     "section5Content": "Si hay una disputa entre comprador y vendedor sobre el reembolso, la plataforma tomará una determinación basada en la evidencia proporcionada por ambas partes. La determinación de la plataforma es final.",
     "section6Title": "6. Contacto de Servicio al Cliente",
     "section6Content": "Para preguntas relacionadas con reembolsos, por favor contacta al servicio al cliente: support@topivra.com o a través del servicio al cliente de Telegram.",
-    "lastUpdate": "Última Actualización: 28 de Febrero de 2026",
-    "eligibility": "退款资格",
-    "process": "退款流程",
-    "timeframe": "退款时间",
-    "method": "退款方式",
-    "exceptions": "例外情况",
-    "contact": "联系客服"
+    "lastUpdate": "Última Actualización: 28 de Febrero de 2026"
   },
   "settings": {
     "adminTitle": "Configuración del Sistema",
@@ -1624,16 +1327,7 @@
     "socialGithub": "URL de GitHub",
     "socialTwitter": "URL de Twitter / X",
     "workingHours": "Horario de Trabajo del Soporte",
-    "workingHoursDesc": "Ej: Lun–Vie 09:00–18:00 (UTC+8)",
-    "title": "设置",
-    "account": "账户设置",
-    "security": "安全设置",
-    "notifications": "通知设置",
-    "privacy": "隐私设置",
-    "language": "语言设置",
-    "theme": "主题设置",
-    "general": "常规设置",
-    "advanced": "高级设置"
+    "workingHoursDesc": "Ej: Lun–Vie 09:00–18:00 (UTC+8)"
   },
   "logs": {
     "title": "Logs del Sistema",
@@ -1653,15 +1347,7 @@
     "target": "Objetivo",
     "ip": "Dirección IP",
     "details": "Detalles",
-    "total": "Total {{count}} registros",
-    "systemLogs": "系统日志",
-    "userLogs": "用户日志",
-    "orderLogs": "订单日志",
-    "paymentLogs": "支付日志",
-    "errorLogs": "错误日志",
-    "viewDetails": "查看详情",
-    "export": "导出日志",
-    "clear": "清空日志"
+    "total": "Total {{count}} registros"
   },
   "applySeller": {
     "title": "Solicitar ser Vendedor",
@@ -1683,80 +1369,6 @@
     "description": "Información Adicional",
     "descriptionPlaceholder": "Describe tu situación de suministro, volumen de envío diario, etc.",
     "submit": "Enviar Solicitud",
-    "submitSuccess": "¡Solicitud enviada, la revisaremos pronto!",
-    "benefits": "卖家权益",
-    "benefit1": "低佣金",
-    "benefit2": "快速结算",
-    "benefit3": "流量支持",
-    "benefit4": "专属客服",
-    "benefit4Desc": "一对一客服支持",
-    "requirements": "申请要求",
-    "requirement1": "拥有稳定的账号货源",
-    "requirement2": "保证账号质量和真实性",
-    "requirement3": "及时处理订单和售后",
-    "requirement4": "遵守平台规则和政策",
-    "form": "申请表单",
-    "contactPerson": "联系人",
-    "contactPersonPlaceholder": "请输入联系人姓名",
-    "contactEmail": "联系邮箱",
-    "contactEmailPlaceholder": "请输入联系邮箱",
-    "contactPhone": "联系电话",
-    "contactPhonePlaceholder": "请输入联系电话",
-    "submitFailed": "提交失败，请重试"
-  },
-  "error": {
-    "unknown": "Error desconocido"
-  },
-  "guide": {
-    "welcome": {
-      "title": "Bienvenido a TopiVra",
-      "desc": "Empieza en solo unos minutos.",
-      "detail": "Explora cuentas, paga de forma segura y recibe la entrega automáticamente.",
-      "feature1": "Protección con escrow",
-      "feature2": "Entrega automática",
-      "feature3": "Soporte cuando lo necesites"
-    },
-    "security": {
-      "title": "Seguridad por defecto",
-      "desc": "Cada pedido está protegido por la plataforma.",
-      "escrow": "Protección con escrow",
-      "escrowDesc": "Los fondos permanecen protegidos hasta que se confirma la entrega.",
-      "auto": "Entrega automática",
-      "autoDesc": "Recibe los datos de la cuenta inmediatamente después del pago.",
-      "refund": "Soporte de reembolso",
-      "refundDesc": "Envía una solicitud de reembolso si hay un problema válido con el pedido."
-    },
-    "gift": {
-      "title": "Beneficios para nuevos usuarios",
-      "desc": "Beneficios exclusivos de bienvenida para tu primer pedido.",
-      "discount": "Descuento para nuevos usuarios",
-      "couponTitle": "Cupón de bienvenida",
-      "couponDesc": "Los pedidos elegibles aplican automáticamente el cupón de bienvenida.",
-      "autoApplied": "Se aplica automáticamente cuando esté disponible",
-      "note": "Las reglas específicas dependen de los detalles de la promoción."
-    },
-    "complete": "Listo",
-    "prev": "Anterior",
-    "next": "Siguiente",
-    "start": "Comenzar ahora",
-    "skip": "Omitir"
-  },
-  "membership": {
-    "totalSpent": "Gasto Total",
-    "discount": "Descuento",
-    "nextLevel": "Siguiente Nivel",
-    "benefits": "Beneficios de Membresía"
-  },
-  "coupon": {
-    "title": "Cupones",
-    "enterCode": "Ingresa el código del cupón",
-    "applied": "Cupón aplicado",
-    "invalid": "Cupón inválido",
-    "apply": "Aplicar",
-    "available": "Cupones disponibles",
-    "noAvailable": "No hay cupones disponibles",
-    "minPurchase": "Compra mínima",
-    "validUntil": "Válido hasta",
-    "saved": "Ahorraste"
+    "submitSuccess": "¡Solicitud enviada, la revisaremos pronto!"
   }
 }

@@ -41,10 +41,10 @@
   font-weight: 600;
   line-height: 18px;
   text-align: center;
-  color: white;
+  color: #fff;
   background: var(--color-error);
   border-radius: 9px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* 下拉面板 */
@@ -57,14 +57,14 @@
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: var(--shadow-modal);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   z-index: 1000;
 }
 
 /* 暗色主题适配 */
-:root:not([data-theme='light']) .notification-panel {
-  box-shadow: var(--shadow-modal);
+[data-theme='dark'] .notification-panel {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* 面板头部 */
@@ -231,7 +231,26 @@
   color: var(--text-tertiary);
 }
 
-/* 删除按钮 */
+.notification-item-priority-low {
+  background: var(--color-success);
+}
+
+.notification-item-priority-medium {
+  background: var(--color-warning);
+}
+
+.notification-item-priority-high {
+  background: var(--color-error);
+}
+
+.notification-item-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
 .notification-item-delete {
   flex-shrink: 0;
   width: 28px;
@@ -254,7 +273,7 @@
 
 .notification-item-delete:hover {
   background: var(--color-error);
-  color: white;
+  color: #fff;
 }
 
 /* 面板底部 */

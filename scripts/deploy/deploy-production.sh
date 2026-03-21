@@ -426,5 +426,3 @@ echo "  Database: topivra"
 echo "  User: topivra_user"
 echo "  Password: ${DB_PASSWORD}"
 echo ""
-
-

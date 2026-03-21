@@ -1,7 +1,7 @@
 /**
  * 标准化错误码体系
  * 格式: E + 模块代码(2位) + 错误序号(3位)
- *
+ * 
  * 模块代码:
  * 10 - 认证/授权
  * 20 - 用户管理
@@ -97,86 +97,6 @@ export enum ErrorCode {
 /**
  * 错误码对应的 HTTP 状态码
  */
-export const ErrorCodeTranslationKey: Record<ErrorCode, string> = {
-  // 认证/授权
-  [ErrorCode.AUTH_INVALID_CREDENTIALS]: 'errors.INVALID_CREDENTIALS',
-  [ErrorCode.AUTH_TOKEN_EXPIRED]: 'errors.TOKEN_EXPIRED',
-  [ErrorCode.AUTH_TOKEN_INVALID]: 'errors.INVALID_TOKEN',
-  [ErrorCode.AUTH_UNAUTHORIZED]: 'errors.UNAUTHORIZED',
-  [ErrorCode.AUTH_FORBIDDEN]: 'errors.FORBIDDEN',
-  [ErrorCode.AUTH_EMAIL_NOT_VERIFIED]: 'errors.AUTH_EMAIL_NOT_VERIFIED',
-  [ErrorCode.AUTH_ACCOUNT_LOCKED]: 'errors.AUTH_ACCOUNT_LOCKED',
-  [ErrorCode.AUTH_ACCOUNT_SUSPENDED]: 'errors.AUTH_ACCOUNT_SUSPENDED',
-  [ErrorCode.AUTH_2FA_REQUIRED]: 'errors.AUTH_2FA_REQUIRED',
-  [ErrorCode.AUTH_2FA_INVALID]: 'errors.AUTH_2FA_INVALID',
-  [ErrorCode.AUTH_REFRESH_TOKEN_INVALID]: 'errors.INVALID_TOKEN',
-
-  // 用户管理
-  [ErrorCode.USER_NOT_FOUND]: 'errors.USER_NOT_FOUND',
-  [ErrorCode.USER_EMAIL_EXISTS]: 'errors.EMAIL_ALREADY_EXISTS',
-  [ErrorCode.USER_PHONE_EXISTS]: 'errors.USER_PHONE_EXISTS',
-  [ErrorCode.USER_INVALID_PASSWORD]: 'errors.WEAK_PASSWORD',
-  [ErrorCode.USER_PROFILE_UPDATE_FAILED]: 'errors.USER_PROFILE_UPDATE_FAILED',
-  [ErrorCode.USER_BALANCE_INSUFFICIENT]: 'errors.INSUFFICIENT_BALANCE',
-
-  // 商品管理
-  [ErrorCode.PRODUCT_NOT_FOUND]: 'errors.PRODUCT_NOT_FOUND',
-  [ErrorCode.PRODUCT_OUT_OF_STOCK]: 'errors.INSUFFICIENT_STOCK',
-  [ErrorCode.PRODUCT_UNAVAILABLE]: 'errors.PRODUCT_UNAVAILABLE',
-  [ErrorCode.PRODUCT_PRICE_CHANGED]: 'errors.PRODUCT_PRICE_CHANGED',
-  [ErrorCode.PRODUCT_INVENTORY_INSUFFICIENT]: 'errors.INSUFFICIENT_STOCK',
-  [ErrorCode.PRODUCT_ALREADY_DELETED]: 'errors.PRODUCT_ALREADY_DELETED',
-  [ErrorCode.PRODUCT_INVALID_STATUS]: 'errors.PRODUCT_INVALID_STATUS',
-
-  // 订单管理
-  [ErrorCode.ORDER_NOT_FOUND]: 'errors.ORDER_NOT_FOUND',
-  [ErrorCode.ORDER_INVALID_STATUS]: 'errors.ORDER_INVALID_STATUS',
-  [ErrorCode.ORDER_CANNOT_CANCEL]: 'errors.CANNOT_CANCEL_ORDER',
-  [ErrorCode.ORDER_ALREADY_PAID]: 'errors.ORDER_ALREADY_PAID',
-  [ErrorCode.ORDER_PAYMENT_FAILED]: 'errors.PAYMENT_FAILED',
-  [ErrorCode.ORDER_DELIVERY_FAILED]: 'errors.ORDER_DELIVERY_FAILED',
-  [ErrorCode.ORDER_REFUND_NOT_ALLOWED]: 'errors.ORDER_REFUND_NOT_ALLOWED',
-  [ErrorCode.ORDER_EXPIRED]: 'errors.ORDER_EXPIRED',
-
-  // 支付管理
-  [ErrorCode.PAYMENT_GATEWAY_ERROR]: 'errors.PAYMENT_GATEWAY_ERROR',
-  [ErrorCode.PAYMENT_AMOUNT_MISMATCH]: 'errors.PAYMENT_AMOUNT_MISMATCH',
-  [ErrorCode.PAYMENT_SIGNATURE_INVALID]: 'errors.PAYMENT_SIGNATURE_INVALID',
-  [ErrorCode.PAYMENT_TIMEOUT]: 'errors.REQUEST_TIMEOUT',
-  [ErrorCode.PAYMENT_CANCELLED]: 'errors.PAYMENT_CANCELLED',
-  [ErrorCode.PAYMENT_REFUND_FAILED]: 'errors.PAYMENT_REFUND_FAILED',
-
-  // 工单系统
-  [ErrorCode.TICKET_NOT_FOUND]: 'errors.TICKET_NOT_FOUND',
-  [ErrorCode.TICKET_ALREADY_CLOSED]: 'errors.TICKET_ALREADY_CLOSED',
-  [ErrorCode.TICKET_INVALID_STATUS]: 'errors.TICKET_INVALID_STATUS',
-  [ErrorCode.TICKET_UNAUTHORIZED]: 'errors.FORBIDDEN',
-
-  // 评价系统
-  [ErrorCode.REVIEW_NOT_FOUND]: 'errors.REVIEW_NOT_FOUND',
-  [ErrorCode.REVIEW_ALREADY_EXISTS]: 'errors.REVIEW_ALREADY_EXISTS',
-  [ErrorCode.REVIEW_NOT_ALLOWED]: 'errors.REVIEW_NOT_ALLOWED',
-  [ErrorCode.REVIEW_INVALID_RATING]: 'errors.VALIDATION_ERROR',
-
-  // 卖家中心
-  [ErrorCode.SELLER_NOT_FOUND]: 'errors.SELLER_NOT_FOUND',
-  [ErrorCode.SELLER_NOT_APPROVED]: 'errors.SELLER_NOT_APPROVED',
-  [ErrorCode.SELLER_APPLICATION_EXISTS]: 'errors.SELLER_APPLICATION_EXISTS',
-  [ErrorCode.SELLER_WITHDRAWAL_FAILED]: 'errors.WITHDRAWAL_FAILED',
-  [ErrorCode.SELLER_BALANCE_INSUFFICIENT]: 'errors.INSUFFICIENT_BALANCE',
-
-  // 系统/通用
-  [ErrorCode.SYSTEM_ERROR]: 'errors.INTERNAL_SERVER_ERROR',
-  [ErrorCode.VALIDATION_ERROR]: 'errors.VALIDATION_ERROR',
-  [ErrorCode.RATE_LIMIT_EXCEEDED]: 'errors.RATE_LIMIT_EXCEEDED',
-  [ErrorCode.REQUEST_TIMEOUT]: 'errors.REQUEST_TIMEOUT',
-  [ErrorCode.DATABASE_ERROR]: 'errors.INTERNAL_SERVER_ERROR',
-  [ErrorCode.EXTERNAL_SERVICE_ERROR]: 'errors.INTERNAL_SERVER_ERROR',
-  [ErrorCode.FILE_UPLOAD_FAILED]: 'errors.FILE_UPLOAD_FAILED',
-  [ErrorCode.INVALID_INPUT]: 'errors.VALIDATION_ERROR',
-  [ErrorCode.RESOURCE_NOT_FOUND]: 'errors.RESOURCE_NOT_FOUND',
-};
-
 export const ErrorCodeHttpStatus: Record<ErrorCode, number> = {
   // 认证/授权
   [ErrorCode.AUTH_INVALID_CREDENTIALS]: 401,
@@ -344,17 +264,16 @@ export const ErrorCodeMessage: Record<ErrorCode, string> = {
  * 业务异常类
  */
 export class BusinessException extends Error {
-  public readonly translationKey: string;
-
   constructor(
     public readonly code: ErrorCode,
     public readonly message: string = ErrorCodeMessage[code],
     public readonly statusCode: number = ErrorCodeHttpStatus[code],
-    public readonly details?: Record<string, unknown>,
-    translationKey?: string,
+    public readonly details?: any,
   ) {
     super(message);
     this.name = 'BusinessException';
-    this.translationKey = translationKey || ErrorCodeTranslationKey[code];
   }
 }
+
+
+

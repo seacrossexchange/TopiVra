@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Avatar, Badge, Button, Input, message, Spin, Empty } from 'antd';
 import { SendOutlined, UserOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { useI18n } from '@/hooks/useI18n';
 import { useMessageStore } from '@/store/messageStore';
 import { useAuthStore } from '@/store/authStore';
 import PageLoading from '@/components/common/PageLoading';
@@ -11,7 +13,8 @@ import './Messages.css';
 const Messages = () => {
   const [searchParams] = useSearchParams();
   const userId = searchParams.get('userId');
-  
+  const { t } = useTranslation();
+  const { formatDateTime, formatDate } = useI18n();
   const { user } = useAuthStore();
   const {
     conversations,
@@ -80,32 +83,36 @@ const Messages = () => {
       });
       setInputValue('');
     } catch {
-      message.error('发送失败，请重试');
+      message.error(t('messages.sendFailedRetry', '发送失败，请重试'));
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      void handleSendMessage();
     }
   };
 
-  const formatTime = (dateStr: string) => {
+  const formatMessageTime = (dateStr: string) => {
     const date = new Date(dateStr);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (days === 0) {
-      return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-    } else if (days === 1) {
-      return '昨天';
-    } else if (days < 7) {
-      return `${days}天前`;
-    } else {
-      return date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+    if (days <= 0) {
+      return formatDateTime(date);
     }
+
+    if (days === 1) {
+      return t('common.yesterday', '昨天');
+    }
+
+    if (days < 7) {
+      return t('common.daysAgo', '{{count}}天前', { count: days });
+    }
+
+    return formatDate(date);
   };
 
   if (isLoading && conversations.length === 0) {
@@ -117,19 +124,20 @@ const Messages = () => {
       {/* 左侧会话列表 */}
       <div className="conversations-panel">
         <div className="conversations-header">
-          <h2>消息</h2>
+          <h2>{t('messages.title', '消息')}</h2>
           {unreadCount > 0 && (
             <Badge count={unreadCount} />
           )}
         </div>
-        
+
         <div className="conversations-list">
           {conversations.length === 0 ? (
-            <Empty description="暂无会话" />
+            <Empty description={t('messages.noConversations', '暂无会话')} />
           ) : (
             conversations.map(conv => (
-              <div
+              <button
                 key={conv.id}
+                type="button"
                 className={`conversation-item ${currentConversation?.id === conv.id ? 'active' : ''}`}
                 onClick={() => handleSelectConversation(conv)}
               >
@@ -142,17 +150,17 @@ const Messages = () => {
                   <div className="conversation-header">
                     <span className="conversation-name">{conv.otherUser.username}</span>
                     <span className="conversation-time">
-                      {conv.lastMessageAt && formatTime(conv.lastMessageAt)}
+                      {conv.lastMessageAt && formatMessageTime(conv.lastMessageAt)}
                     </span>
                   </div>
                   <div className="conversation-preview">
-                    <span className="last-message">{conv.lastMessage || '暂无消息'}</span>
+                    <span className="last-message">{conv.lastMessage || t('messages.noMessages', '暂无消息')}</span>
                     {conv.unreadCount > 0 && (
                       <Badge count={conv.unreadCount} />
                     )}
                   </div>
                 </div>
-              </div>
+              </button>
             ))
           )}
         </div>
@@ -185,7 +193,7 @@ const Messages = () => {
                   >
                     <div className="message-bubble">
                       <div className="message-content">{msg.content}</div>
-                      <div className="message-time">{formatTime(msg.createdAt)}</div>
+                      <div className="message-time">{formatMessageTime(msg.createdAt)}</div>
                     </div>
                   </div>
                 ))
@@ -198,8 +206,8 @@ const Messages = () => {
               <Input.TextArea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="输入消息..."
+                onKeyDown={handleInputKeyDown}
+                placeholder={t('messages.inputPlaceholder', '输入消息...')}
                 autoSize={{ minRows: 1, maxRows: 4 }}
               />
               <Button
@@ -208,13 +216,13 @@ const Messages = () => {
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim()}
               >
-                发送
+                {t('messages.send', '发送')}
               </Button>
             </div>
           </>
         ) : (
           <div className="no-conversation">
-            <Empty description="选择一个会话开始聊天" />
+            <Empty description={t('messages.selectConversationToStart', '选择一个会话开始聊天')} />
           </div>
         )}
       </div>

@@ -10,11 +10,7 @@ export const MEMBERSHIP_TIERS = [
     minSpent: 0,
     discount: 0,
     benefits: ['基础购买权限', '7天退款保障', '标准客服支持'],
-    benefitsEn: [
-      'Basic purchase rights',
-      '7-day refund guarantee',
-      'Standard customer support',
-    ],
+    benefitsEn: ['Basic purchase rights', '7-day refund guarantee', 'Standard customer support'],
     color: '#8c8c8c',
   },
   {
@@ -34,12 +30,7 @@ export const MEMBERSHIP_TIERS = [
     minSpent: 500,
     discount: 5,
     benefits: ['5% 折扣', '优先发货', '生日礼包', '专属客服'],
-    benefitsEn: [
-      '5% discount',
-      'Priority delivery',
-      'Birthday gift',
-      'Dedicated support',
-    ],
+    benefitsEn: ['5% discount', 'Priority delivery', 'Birthday gift', 'Dedicated support'],
     color: '#c0c0c0',
   },
   {
@@ -49,12 +40,7 @@ export const MEMBERSHIP_TIERS = [
     minSpent: 2000,
     discount: 8,
     benefits: ['8% 折扣', '免费换货', 'VIP 客服', '每月专属优惠'],
-    benefitsEn: [
-      '8% discount',
-      'Free exchange',
-      'VIP support',
-      'Monthly exclusive offers',
-    ],
+    benefitsEn: ['8% discount', 'Free exchange', 'VIP support', 'Monthly exclusive offers'],
     color: '#ffd700',
   },
   {
@@ -64,12 +50,7 @@ export const MEMBERSHIP_TIERS = [
     minSpent: 5000,
     discount: 12,
     benefits: ['12% 折扣', '终身质保', '专属客户经理', '优先新品体验'],
-    benefitsEn: [
-      '12% discount',
-      'Lifetime warranty',
-      'Account manager',
-      'Early access to new products',
-    ],
+    benefitsEn: ['12% discount', 'Lifetime warranty', 'Account manager', 'Early access to new products'],
     color: '#b9f2ff',
   },
 ];
@@ -95,12 +76,8 @@ export class MembershipService {
       return null;
     }
 
-    const currentTier =
-      MEMBERSHIP_TIERS.find((t) => t.level === (user.membershipLevel || 0)) ||
-      MEMBERSHIP_TIERS[0];
-    const nextTier = MEMBERSHIP_TIERS.find(
-      (t) => t.level === (user.membershipLevel || 0) + 1,
-    );
+    const currentTier = MEMBERSHIP_TIERS.find(t => t.level === (user.membershipLevel || 0)) || MEMBERSHIP_TIERS[0];
+    const nextTier = MEMBERSHIP_TIERS.find(t => t.level === (user.membershipLevel || 0) + 1);
 
     return {
       user: {
@@ -134,7 +111,7 @@ export class MembershipService {
 
     const currentLevel = user.membershipLevel || 0;
     const totalSpent = user.totalSpent || 0;
-    const nextTier = MEMBERSHIP_TIERS.find((t) => t.level === currentLevel + 1);
+    const nextTier = MEMBERSHIP_TIERS.find(t => t.level === currentLevel + 1);
 
     if (!nextTier) {
       return {
@@ -144,10 +121,7 @@ export class MembershipService {
       };
     }
 
-    const progress = Math.min(
-      100,
-      (Number(totalSpent) / nextTier.minSpent) * 100,
-    );
+    const progress = Math.min(100, (Number(totalSpent) / nextTier.minSpent) * 100);
     const remaining = Math.max(0, nextTier.minSpent - Number(totalSpent));
 
     return {
@@ -192,7 +166,7 @@ export class MembershipService {
         upgraded: true,
         oldLevel: user.membershipLevel || 0,
         newLevel,
-        tier: MEMBERSHIP_TIERS.find((t) => t.level === newLevel),
+        tier: MEMBERSHIP_TIERS.find(t => t.level === newLevel),
       };
     }
 
@@ -219,7 +193,8 @@ export class MembershipService {
 
   // 计算会员折扣
   getMemberDiscount(membershipLevel: number): number {
-    const tier = MEMBERSHIP_TIERS.find((t) => t.level === membershipLevel);
+    const tier = MEMBERSHIP_TIERS.find(t => t.level === membershipLevel);
     return tier ? tier.discount : 0;
   }
 }
+

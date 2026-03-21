@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Card,
@@ -26,6 +26,7 @@ import {
 import { ordersService } from '@/services/orders';
 import { paymentsService } from '@/services/payments';
 import { useAuthStore } from '@/store/authStore';
+import { cartService } from '@/services/cart';
 import type { Order } from '@/services/orders';
 
 const { Title, Text } = Typography;
@@ -46,7 +47,68 @@ interface CheckoutState {
   paymentMethod: string;
 }
 
+const DEFAULT_PAYMENT_METHOD = 'balance';
+const CHECKOUT_STORAGE_KEY = 'checkout-state';
+
+const getStoredCheckoutState = (): CheckoutState | null => {
+  const storage = globalThis.window?.sessionStorage;
+  if (!storage) return null;
+
+  const raw = storage.getItem(CHECKOUT_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as CheckoutState;
+  } catch {
+    storage.removeItem(CHECKOUT_STORAGE_KEY);
+    return null;
+  }
+};
+
+const saveCheckoutState = (state: CheckoutState) => {
+  globalThis.window?.sessionStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(state));
+};
+
+const clearCheckoutState = () => {
+  globalThis.window?.sessionStorage.removeItem(CHECKOUT_STORAGE_KEY);
+};
+
 type CheckoutStep = 'confirm' | 'payment' | 'success' | 'failed';
+
+type StepStatus = 'wait' | 'process' | 'finish' | 'error';
+
+const getPaymentMethodLabel = (paymentMethod: string | undefined, balanceLabel: string) => {
+  switch (paymentMethod) {
+    case 'usdt':
+      return 'USDT (TRC20)';
+    case 'balance':
+      return balanceLabel;
+    case 'paypal':
+      return 'PayPal';
+    case 'stripe':
+      return 'Stripe';
+    default:
+      return paymentMethod || DEFAULT_PAYMENT_METHOD;
+  }
+};
+
+const getCurrentStepIndex = (step: CheckoutStep) => {
+  if (step === 'confirm') return 0;
+  if (step === 'payment') return 1;
+  return 2;
+};
+
+const getPaymentStepStatus = (step: CheckoutStep): StepStatus => {
+  if (step === 'payment') return 'process';
+  if (step === 'success' || step === 'failed') return 'finish';
+  return 'wait';
+};
+
+const getCompleteStepStatus = (step: CheckoutStep): StepStatus => {
+  if (step === 'success') return 'finish';
+  if (step === 'failed') return 'error';
+  return 'wait';
+};
 
 // USDT 钱包地址（从环境变量获取）
 const USDT_WALLET_ADDRESS = import.meta.env.VITE_USDT_WALLET || 'TXyz123456789ABCDEFGHIJKLMNOPQRSTUVWxyZ';
@@ -56,7 +118,8 @@ export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
-  
+
+  const locationState = location.state as CheckoutState | null;
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('confirm');
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
@@ -65,8 +128,9 @@ export default function Checkout() {
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'verifying' | 'success' | 'failed'>('pending');
   const [countdown, setCountdown] = useState(30 * 60);
   const [paymentCreatedAt, setPaymentCreatedAt] = useState<number | null>(null);
-
-  const checkoutState = location.state as CheckoutState;
+  const [checkoutState, setCheckoutState] = useState<CheckoutState | null>(() => {
+    return locationState?.items?.length ? locationState : getStoredCheckoutState();
+  });
 
   const totalAmount = useMemo(() => {
     if (!checkoutState?.items) return 0;
@@ -78,13 +142,57 @@ export default function Checkout() {
       navigate('/login');
       return;
     }
-    if (!checkoutState?.items || checkoutState.items.length === 0) {
+
+    if (checkoutState?.items?.length === 0) {
       navigate('/cart');
+    }
+  }, [isAuthenticated, checkoutState?.items?.length, navigate]);
+
+  useEffect(() => {
+    if (locationState?.items?.length) {
+      setCheckoutState(locationState);
+      saveCheckoutState(locationState);
+    }
+  }, [locationState]);
+
+  useEffect(() => {
+    if (checkoutState?.items?.length || !isAuthenticated) {
       return;
     }
-  }, [isAuthenticated, checkoutState, navigate]);
 
-  // 倒计时：从服务端 paymentCreatedAt 动态计算剩余时间
+    const restoreCheckoutFromCart = async () => {
+      try {
+        const response = await cartService.getCart();
+        const items = response.data?.items?.map((item) => ({
+          id: item.id,
+          productId: item.productId,
+          title: item.product?.title || t('cart.product'),
+          price: item.product?.price || 0,
+          quantity: item.quantity,
+          stock: item.product?.stock,
+          platform: item.product?.category?.name,
+          image: item.product?.images?.[0],
+        })) || [];
+
+        if (items.length === 0) {
+          navigate('/cart', { replace: true });
+          return;
+        }
+
+        const restoredState = {
+          items,
+          paymentMethod: DEFAULT_PAYMENT_METHOD,
+        };
+        setCheckoutState(restoredState);
+        saveCheckoutState(restoredState);
+      } catch {
+        navigate('/cart', { replace: true });
+      }
+    };
+
+    void restoreCheckoutFromCart();
+  }, [checkoutState, isAuthenticated, navigate, t]);
+
   useEffect(() => {
     if (currentStep !== 'payment') return;
     const PAYMENT_TIMEOUT = 30 * 60; // 30分钟
@@ -132,7 +240,7 @@ export default function Checkout() {
         setPaymentCreatedAt(paymentResponse.data?.createdAt ? new Date(paymentResponse.data.createdAt).getTime() : Date.now());
         setCurrentStep('payment');
       } else if (checkoutState.paymentMethod === 'balance') {
-        // 余额支付直接处理
+        clearCheckoutState();
         setCurrentStep('success');
       } else {
         // 其他支付方式
@@ -160,6 +268,7 @@ export default function Checkout() {
       });
 
       if (response.data?.success) {
+        clearCheckoutState();
         setPaymentStatus('success');
         setCurrentStep('success');
         message.success(t('checkout.paymentSuccess'));
@@ -177,6 +286,11 @@ export default function Checkout() {
     navigator.clipboard.writeText(USDT_WALLET_ADDRESS);
     message.success(t('checkout.addressCopied'));
   };
+
+  const paymentMethodLabel = getPaymentMethodLabel(checkoutState?.paymentMethod, t('cart.balance'));
+  const currentStepIndex = getCurrentStepIndex(currentStep);
+  const paymentStepStatus = getPaymentStepStatus(currentStep);
+  const completeStepStatus = getCompleteStepStatus(currentStep);
 
   const renderConfirmStep = () => (
     <div className="max-w-2xl mx-auto">
@@ -203,12 +317,7 @@ export default function Checkout() {
         <div className="mb-6">
           <Text strong className="block mb-3 text-base">{t('checkout.paymentMethod')}</Text>
           <div className="p-3 bg-[var(--color-bg-layout)] rounded-lg">
-            <Text strong>
-              {checkoutState?.paymentMethod === 'usdt' && '🪙 USDT (TRC20)'}
-              {checkoutState?.paymentMethod === 'balance' && '💰 ' + t('cart.balance')}
-              {checkoutState?.paymentMethod === 'paypal' && '📘 PayPal'}
-              {checkoutState?.paymentMethod === 'stripe' && '💳 Stripe'}
-            </Text>
+            <Text strong>{paymentMethodLabel}</Text>
           </div>
         </div>
 
@@ -380,7 +489,7 @@ export default function Checkout() {
         <Breadcrumb
           className="mb-6"
           items={[
-            { title: <a href="/"><HomeOutlined /></a> },
+            { title: <Link to="/"><HomeOutlined /></Link> },
             { title: t('cart.title') },
             { title: t('checkout.title') },
           ]}
@@ -391,12 +500,12 @@ export default function Checkout() {
         </Title>
 
         <Steps
-          current={currentStep === 'confirm' ? 0 : currentStep === 'payment' ? 1 : 2}
+          current={currentStepIndex}
           className="mb-8 max-w-2xl"
           items={[
             { title: t('checkout.stepConfirm'), status: currentStep === 'confirm' ? 'process' : 'finish' },
-            { title: t('checkout.stepPayment'), status: currentStep === 'payment' ? 'process' : currentStep === 'success' || currentStep === 'failed' ? 'finish' : 'wait' },
-            { title: t('checkout.stepComplete'), status: currentStep === 'success' ? 'finish' : currentStep === 'failed' ? 'error' : 'wait' },
+            { title: t('checkout.stepPayment'), status: paymentStepStatus },
+            { title: t('checkout.stepComplete'), status: completeStepStatus },
           ]}
         />
 

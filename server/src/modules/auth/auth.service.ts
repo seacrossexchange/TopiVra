@@ -77,11 +77,7 @@ export class AuthService {
     }
 
     if (user.status !== 'ACTIVE') {
-      throw new UnauthorizedException({
-        code: 'AUTH_ACCOUNT_SUSPENDED',
-        translationKey: 'errors.AUTH_ACCOUNT_SUSPENDED',
-        message: 'Account is disabled or suspended',
-      });
+      throw new UnauthorizedException('账户已被禁用或封禁');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
@@ -177,19 +173,11 @@ export class AuthService {
     try {
       payload = this.jwtService.verify(tempToken);
     } catch {
-      throw new UnauthorizedException({
-        code: 'AUTH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Temporary token is invalid or expired',
-      });
+      throw new UnauthorizedException('临时令牌无效或已过期');
     }
 
     if (!payload.twoFactorPending) {
-      throw new BadRequestException({
-        code: 'AUTH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Temporary token is invalid',
-      });
+      throw new BadRequestException('无效的临时令牌');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -197,11 +185,7 @@ export class AuthService {
     });
 
     if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
-      throw new BadRequestException({
-        code: 'AUTH_2FA_REQUIRED',
-        translationKey: 'errors.AUTH_2FA_REQUIRED',
-        message: 'Two-factor authentication is not enabled for this user',
-      });
+      throw new BadRequestException('用户未启用双因素认证');
     }
 
     // 验证 TOTP 或恢复码
@@ -224,11 +208,7 @@ export class AuthService {
     }
 
     if (!isValidTotp && !isValidRecovery) {
-      throw new UnauthorizedException({
-        code: 'AUTH_2FA_INVALID',
-        translationKey: 'errors.AUTH_2FA_INVALID',
-        message: 'Invalid verification code',
-      });
+      throw new UnauthorizedException('验证码错误');
     }
 
     const { passwordHash: _passwordHash2, ...userWithoutPassword } = user;
@@ -285,30 +265,18 @@ export class AuthService {
     const authDate = parseInt(userData.auth_date, 10);
     const now = Math.floor(Date.now() / 1000);
     if (now - authDate > 86400) {
-      throw new UnauthorizedException({
-        code: 'AUTH_TOKEN_EXPIRED',
-        translationKey: 'errors.TOKEN_EXPIRED',
-        message: 'Telegram authorization data has expired',
-      });
+      throw new UnauthorizedException('Telegram 授权数据已过期');
     }
 
     // 验证 hash
     const botToken = this.configService.get('TELEGRAM_BOT_TOKEN');
     if (!botToken) {
-      throw new BadRequestException({
-        code: 'EXTERNAL_SERVICE_ERROR',
-        translationKey: 'errors.EXTERNAL_SERVICE_ERROR',
-        message: 'Telegram bot token is not configured',
-      });
+      throw new BadRequestException('Telegram Bot Token 未配置');
     }
 
     const expectedHash = this.generateTelegramHash(userData, botToken);
     if (hash !== expectedHash) {
-      throw new UnauthorizedException({
-        code: 'AUTH_UNAUTHORIZED',
-        translationKey: 'errors.UNAUTHORIZED',
-        message: 'Telegram authorization verification failed',
-      });
+      throw new UnauthorizedException('Telegram 授权验证失败');
     }
 
     // 查找或创建用户
@@ -351,11 +319,7 @@ export class AuthService {
     }
 
     if (user.status !== 'ACTIVE') {
-      throw new UnauthorizedException({
-        code: 'AUTH_ACCOUNT_SUSPENDED',
-        translationKey: 'errors.AUTH_ACCOUNT_SUSPENDED',
-        message: 'Account is disabled or suspended',
-      });
+      throw new UnauthorizedException('账户已被禁用或封禁');
     }
 
     const { passwordHash: _passwordHash3, ...userWithoutPassword } = user;
@@ -391,11 +355,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException({
-        code: 'USER_NOT_FOUND',
-        translationKey: 'errors.USER_NOT_FOUND',
-        message: 'User not found',
-      });
+      throw new BadRequestException('用户不存在');
     }
 
     const { secret, otpauthUrl } = this.totpService.generateSecret(user.email);
@@ -423,20 +383,12 @@ export class AuthService {
     });
 
     if (!user || !user.twoFactorSecret) {
-      throw new BadRequestException({
-        code: 'AUTH_2FA_REQUIRED',
-        translationKey: 'errors.AUTH_2FA_REQUIRED',
-        message: 'Please enable two-factor authentication first',
-      });
+      throw new BadRequestException('请先启用双因素认证');
     }
 
     const isValid = this.totpService.verifyToken(code, user.twoFactorSecret);
     if (!isValid) {
-      throw new UnauthorizedException({
-        code: 'AUTH_2FA_INVALID',
-        translationKey: 'errors.AUTH_2FA_INVALID',
-        message: 'Invalid verification code',
-      });
+      throw new UnauthorizedException('验证码错误');
     }
 
     await this.prisma.user.update({
@@ -455,11 +407,7 @@ export class AuthService {
       description: '用户启用双因素认证',
     });
 
-    return {
-      success: true,
-      message: 'Two-factor authentication enabled',
-      translationKey: 'auth.twoFactorEnabled',
-    };
+    return { success: true, message: '双因素认证已启用' };
   }
 
   async disableTwoFactor(userId: string, code: string) {
@@ -468,11 +416,7 @@ export class AuthService {
     });
 
     if (!user || !user.twoFactorEnabled) {
-      throw new BadRequestException({
-        code: 'AUTH_2FA_REQUIRED',
-        translationKey: 'errors.AUTH_2FA_REQUIRED',
-        message: 'Two-factor authentication is not enabled',
-      });
+      throw new BadRequestException('双因素认证未启用');
     }
 
     const isValidTotp = this.totpService.verifyToken(
@@ -490,11 +434,7 @@ export class AuthService {
     }
 
     if (!isValidTotp && !isValidRecovery) {
-      throw new UnauthorizedException({
-        code: 'AUTH_2FA_INVALID',
-        translationKey: 'errors.AUTH_2FA_INVALID',
-        message: 'Invalid verification code',
-      });
+      throw new UnauthorizedException('验证码错误');
     }
 
     await this.prisma.user.update({
@@ -517,11 +457,7 @@ export class AuthService {
       description: '用户禁用双因素认证',
     });
 
-    return {
-      success: true,
-      message: 'Two-factor authentication disabled',
-      translationKey: 'auth.twoFactorDisabled',
-    };
+    return { success: true, message: '双因素认证已禁用' };
   }
 
   // ==================== 恢复码验证 ====================
@@ -531,19 +467,11 @@ export class AuthService {
     try {
       payload = this.jwtService.verify(tempToken);
     } catch {
-      throw new UnauthorizedException({
-        code: 'AUTH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Temporary token is invalid or expired',
-      });
+      throw new UnauthorizedException('临时令牌无效或已过期');
     }
 
     if (!payload.twoFactorPending) {
-      throw new BadRequestException({
-        code: 'AUTH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Temporary token is invalid',
-      });
+      throw new BadRequestException('无效的临时令牌');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -551,11 +479,7 @@ export class AuthService {
     });
 
     if (!user || !user.twoFactorEnabled || !user.recoveryCodes) {
-      throw new BadRequestException({
-        code: 'AUTH_2FA_REQUIRED',
-        translationKey: 'errors.AUTH_2FA_REQUIRED',
-        message: 'Two-factor authentication or recovery codes are not available',
-      });
+      throw new BadRequestException('用户未启用双因素认证或没有恢复码');
     }
 
     // 验证恢复码
@@ -565,11 +489,7 @@ export class AuthService {
     );
 
     if (!result.valid) {
-      throw new UnauthorizedException({
-        code: 'AUTH_2FA_INVALID',
-        translationKey: 'errors.AUTH_2FA_INVALID',
-        message: 'Recovery code is invalid or already used',
-      });
+      throw new UnauthorizedException('恢复码无效或已使用');
     }
 
     // 更新剩余恢复码
@@ -590,11 +510,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new BadRequestException({
-        code: 'USER_EMAIL_EXISTS',
-        translationKey: 'errors.EMAIL_ALREADY_EXISTS',
-        message: 'Email already exists',
-      });
+      throw new BadRequestException('邮箱已被注册');
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -656,19 +572,14 @@ export class AuthService {
       description: `新用户注册: ${email}`,
     });
 
-    const response = {
+    return {
       success: true,
-      message: 'Registration successful, please check your verification email',
-      translationKey: 'auth.registrationSuccess',
+      message: '注册成功，请查收验证邮件',
       requiresVerification: true,
       email: user.email,
-    } as Record<string, unknown>;
-
-    if (process.env.NODE_ENV !== 'production') {
-      response.verificationCode = verificationCode;
-    }
-
-    return response;
+      // 开发环境返回验证码方便测试
+      ...(process.env.NODE_ENV !== 'production' && { verificationCode }),
+    };
   }
 
   // ==================== 邮箱验证 ====================
@@ -693,19 +604,12 @@ export class AuthService {
     }
     // 使用验证码验证
     else if (code) {
-      throw new BadRequestException({
-        code: 'INVALID_INPUT',
-        translationKey: 'errors.VALIDATION_ERROR',
-        message: 'Email is required when verifying with a code',
-      });
+      // 需要提供 email 来查找验证码
+      throw new BadRequestException('使用验证码验证时需要提供邮箱地址');
     }
 
     if (!verificationData) {
-      throw new BadRequestException({
-        code: 'AUTH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Verification link is invalid or expired',
-      });
+      throw new BadRequestException('验证链接无效或已过期');
     }
 
     // 更新用户邮箱验证状态
@@ -717,12 +621,10 @@ export class AuthService {
     this.logger.log(`用户邮箱验证成功: ${user.id}`);
 
     const { passwordHash: _, ...userWithoutPassword } = user;
-    const tokens = await this.generateTokens(userWithoutPassword);
     return {
       success: true,
-      message: 'Email verified successfully',
-      translationKey: 'auth.emailVerified',
-      ...tokens,
+      message: '邮箱验证成功',
+      ...this.generateTokens(userWithoutPassword),
     };
   }
 
@@ -732,21 +634,13 @@ export class AuthService {
     );
 
     if (!storedData) {
-      throw new BadRequestException({
-        code: 'AUTH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Verification code is invalid or expired',
-      });
+      throw new BadRequestException('验证码无效或已过期');
     }
 
     const verificationData = JSON.parse(storedData);
 
     if (verificationData.code !== code) {
-      throw new BadRequestException({
-        code: 'AUTH_2FA_INVALID',
-        translationKey: 'errors.AUTH_2FA_INVALID',
-        message: 'Verification code is invalid',
-      });
+      throw new BadRequestException('验证码错误');
     }
 
     // 验证成功后删除验证码
@@ -761,12 +655,10 @@ export class AuthService {
     this.logger.log(`用户邮箱验证成功: ${user.id}`);
 
     const { passwordHash: _, ...userWithoutPassword } = user;
-    const tokens = await this.generateTokens(userWithoutPassword);
     return {
       success: true,
-      message: 'Email verified successfully',
-      translationKey: 'auth.emailVerified',
-      ...tokens,
+      message: '邮箱验证成功',
+      ...this.generateTokens(userWithoutPassword),
     };
   }
 
@@ -776,32 +668,19 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException({
-        code: 'USER_NOT_FOUND',
-        translationKey: 'errors.USER_NOT_FOUND',
-        message: 'User not found',
-      });
+      throw new BadRequestException('用户不存在');
     }
 
     if (user.emailVerified) {
-      throw new BadRequestException({
-        code: 'AUTH_EMAIL_NOT_VERIFIED',
-        translationKey: 'errors.AUTH_EMAIL_NOT_VERIFIED',
-        message: 'Email is already verified',
-      });
+      throw new BadRequestException('邮箱已验证，无需重复验证');
     }
 
     // 检查是否在冷却期内 (60秒)
     const cooldownKey = `email:verification:cooldown:${email}`;
     const cooldown = await this.redisService.get(cooldownKey);
     if (cooldown) {
-      const remaining = Number.parseInt(cooldown, 10);
-      throw new BadRequestException({
-        code: 'RATE_LIMIT_EXCEEDED',
-        translationKey: 'errors.RATE_LIMIT_EXCEEDED',
-        message: 'Please wait before requesting another verification email',
-        details: { remainingSeconds: remaining },
-      });
+      const remaining = parseInt(cooldown, 10);
+      throw new BadRequestException(`请等待 ${remaining} 秒后再次发送`);
     }
 
     // 生成新的验证码
@@ -834,17 +713,12 @@ export class AuthService {
 
     this.logger.log(`重发验证邮件: ${email}, 发送状态: ${emailSent}`);
 
-    const response: Record<string, unknown> = {
+    return {
       success: true,
-      message: 'Verification email sent successfully',
-      translationKey: 'auth.verificationEmailSent',
+      message: '验证邮件已发送，请查收',
+      // 开发环境返回验证码
+      ...(process.env.NODE_ENV !== 'production' && { verificationCode }),
     };
-
-    if (process.env.NODE_ENV !== 'production') {
-      response.verificationCode = verificationCode;
-    }
-
-    return response;
   }
 
   // ==================== 登出与 Token 管理 ====================
@@ -856,8 +730,8 @@ export class AuthService {
     });
 
     // 将 token 加入黑名单
-    const decoded = this.jwtService.decode(token);
-    if (decoded?.exp) {
+    const decoded = this.jwtService.decode(token) as any;
+    if (decoded && decoded.exp) {
       const ttl = decoded.exp - Math.floor(Date.now() / 1000);
       if (ttl > 0) {
         await this.redisService.set(
@@ -882,11 +756,7 @@ export class AuthService {
       });
     }
 
-    return {
-      success: true,
-      message: 'Logged out successfully',
-      translationKey: 'auth.logoutSuccess',
-    };
+    return { success: true, message: '登出成功' };
   }
 
   async refreshToken(refreshToken: string) {
@@ -895,30 +765,18 @@ export class AuthService {
       `token:blacklist:${refreshToken}`,
     );
     if (isBlacklisted) {
-      throw new UnauthorizedException({
-        code: 'AUTH_REFRESH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Refresh token is invalid',
-      });
+      throw new UnauthorizedException('Refresh token 已失效');
     }
 
     let payload: any;
     try {
       payload = this.jwtService.verify(refreshToken);
     } catch {
-      throw new UnauthorizedException({
-        code: 'AUTH_REFRESH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Refresh token is invalid or expired',
-      });
+      throw new UnauthorizedException('Refresh token 无效或已过期');
     }
 
     if (payload.type !== 'refresh') {
-      throw new BadRequestException({
-        code: 'AUTH_REFRESH_TOKEN_INVALID',
-        translationKey: 'errors.INVALID_TOKEN',
-        message: 'Invalid refresh token',
-      });
+      throw new BadRequestException('无效的 refresh token');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -926,16 +784,12 @@ export class AuthService {
     });
 
     if (!user || user.status !== 'ACTIVE') {
-      throw new UnauthorizedException({
-        code: 'AUTH_ACCOUNT_SUSPENDED',
-        translationKey: 'errors.AUTH_ACCOUNT_SUSPENDED',
-        message: 'User does not exist or is disabled',
-      });
+      throw new UnauthorizedException('用户不存在或已被禁用');
     }
 
     // 将旧的 refresh token 加入黑名单
-    const decoded = this.jwtService.decode(refreshToken);
-    if (decoded?.exp) {
+    const decoded = this.jwtService.decode(refreshToken) as any;
+    if (decoded && decoded.exp) {
       const ttl = decoded.exp - Math.floor(Date.now() / 1000);
       if (ttl > 0) {
         await this.redisService.set(
@@ -972,11 +826,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException({
-        code: 'USER_NOT_FOUND',
-        translationKey: 'errors.USER_NOT_FOUND',
-        message: 'User not found',
-      });
+      throw new BadRequestException('用户不存在');
     }
 
     // 获取卖家信息（如果是卖家）
@@ -1014,11 +864,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException({
-        code: 'USER_NOT_FOUND',
-        translationKey: 'errors.USER_NOT_FOUND',
-        message: 'User not found',
-      });
+      throw new BadRequestException('用户不存在');
     }
 
     const updated = await this.prisma.user.update({
@@ -1064,12 +910,8 @@ export class AuthService {
       where: { id: userId },
     });
 
-    if (!user?.passwordHash) {
-      throw new BadRequestException({
-        code: 'USER_NOT_FOUND',
-        translationKey: 'errors.USER_NOT_FOUND',
-        message: 'User does not exist or has no password set',
-      });
+    if (!user || !user.passwordHash) {
+      throw new BadRequestException('用户不存在或未设置密码');
     }
 
     // 验证旧密码
@@ -1078,20 +920,12 @@ export class AuthService {
       user.passwordHash,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException({
-        code: 'AUTH_INVALID_CREDENTIALS',
-        translationKey: 'errors.INVALID_CREDENTIALS',
-        message: 'Current password is incorrect',
-      });
+      throw new UnauthorizedException('当前密码错误');
     }
 
     // 验证新密码强度
     if (newPassword.length < 8) {
-      throw new BadRequestException({
-        code: 'USER_INVALID_PASSWORD',
-        translationKey: 'errors.WEAK_PASSWORD',
-        message: 'New password must be at least 8 characters long',
-      });
+      throw new BadRequestException('新密码至少需要8个字符');
     }
 
     // 加密新密码
@@ -1116,10 +950,6 @@ export class AuthService {
 
     this.logger.log(`用户 ${userId} 修改密码成功`);
 
-    return {
-      success: true,
-      message: 'Password changed successfully',
-      translationKey: 'auth.passwordChanged',
-    };
+    return { success: true, message: '密码修改成功' };
   }
 }

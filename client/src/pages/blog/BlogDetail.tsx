@@ -20,164 +20,13 @@ import {
   EyeOutlined,
   ShareAltOutlined,
   ArrowLeftOutlined,
-  LockOutlined,
-  CrownOutlined,
-  DollarOutlined,
 } from '@ant-design/icons';
 import PageLoading from '@/components/common/PageLoading';
 import PageError from '@/components/common/PageError';
 import { useSeo, useStructuredData } from '@/hooks/useSeo';
-import { extractApiErrorMessage } from '@/utils/errorHandler';
 import { blogService } from '@/services/blog.service';
 import type { BlogPost } from '@/services/blog.service';
-import { useAuthStore } from '@/store/authStore';
 import './BlogDetail.css';
-
-// 权限控制组件
-function AccessGate({ 
-  post, 
-  children 
-}: { 
-  post: BlogPost; 
-  children: React.ReactNode;
-}) {
-  const { t } = useTranslation();
-  const { isAuthenticated, user } = useAuthStore();
-  const [unlocked, setUnlocked] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  
-  const accessType = post.accessType || 'PUBLIC';
-  const unlockPrice = post.unlockPrice || 0;
-  const previewContent = post.previewContent || post.excerpt || '';
-  
-    // 检查是否已解锁
-  const hasAccess = useMemo(() => {
-    if (accessType === 'PUBLIC') return true;
-    if (!isAuthenticated) return false;
-    if (accessType === 'LOGIN_REQUIRED') return true;
-    // 检查用户是否是会员（从角色判断）
-    const userRoles = user?.roles || [];
-    const isMember = userRoles.includes('MEMBER') || userRoles.includes('ADMIN');
-    if (accessType === 'MEMBER_ONLY') return isMember || unlocked;
-    if (accessType === 'PAID_UNLOCK') return unlocked;
-    if (accessType === 'MEMBER_OR_PAID') return isMember || unlocked;
-    return false;
-  }, [accessType, isAuthenticated, user?.roles, unlocked]);
-
-  const handleUnlock = async () => {
-    if (!isAuthenticated) {
-      message.warning(t('blog.pleaseLogin', '请先登录'));
-      return;
-    }
-    setProcessing(true);
-    try {
-      await blogService.unlockBlog(post.id);
-      setUnlocked(true);
-      message.success(t('blog.unlockSuccess', '解锁成功'));
-    } catch {
-      message.error(t('blog.unlockFailed', '解锁失败'));
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  // 公开文章直接显示
-  if (hasAccess) {
-    return <>{children}</>;
-  }
-
-  // 未登录且需要登录
-  if (!isAuthenticated && accessType !== 'PUBLIC') {
-    return (
-      <Card className="access-gate-card text-center py-12">
-        <LockOutlined className="text-5xl text-[var(--color-primary)] mb-4" />
-        <Title level={4}>{t('blog.loginRequired', '登录后阅读全文')}</Title>
-        <Text type="secondary" className="block mb-6">
-          {t('blog.loginRequiredDesc', '该文章需要登录后才能阅读完整内容')}
-        </Text>
-        {previewContent && (
-          <div 
-            className="prose prose-lg max-w-none mb-6 text-left"
-            dangerouslySetInnerHTML={{ __html: previewContent }}
-          />
-        )}
-        <Link to="/login">
-          <Button type="primary" size="large" icon={<LockOutlined />}>
-            {t('common.login', '登录')}
-          </Button>
-        </Link>
-      </Card>
-    );
-  }
-
-  // 会员内容
-  if (accessType === 'MEMBER_ONLY') {
-    return (
-      <Card className="access-gate-card text-center py-12">
-        <CrownOutlined className="text-5xl text-yellow-500 mb-4" />
-        <Title level={4}>{t('blog.memberRequired', '会员专属内容')}</Title>
-        <Text type="secondary" className="block mb-6">
-          {t('blog.memberRequiredDesc', '开通会员后即可阅读此文章')}
-        </Text>
-        {previewContent && (
-          <div 
-            className="prose prose-lg max-w-none mb-6 text-left"
-            dangerouslySetInnerHTML={{ __html: previewContent }}
-          />
-        )}
-        <Link to="/membership">
-          <Button type="primary" size="large" icon={<CrownOutlined />}>
-            {t('blog.becomeMember', '开通会员')}
-          </Button>
-        </Link>
-      </Card>
-    );
-  }
-
-  // 打赏解锁
-  if (accessType === 'PAID_UNLOCK' || accessType === 'MEMBER_OR_PAID') {
-    return (
-      <Card className="access-gate-card text-center py-12">
-        <DollarOutlined className="text-5xl text-green-500 mb-4" />
-        <Title level={4}>{t('blog.donationRequired', '付费阅读')}</Title>
-        <Text type="secondary" className="block mb-2">
-          {t('blog.donationRequiredDesc', `支付 ¥${unlockPrice} 后解锁全文`)}
-        </Text>
-        {accessType === 'MEMBER_OR_PAID' && (
-          <Text type="secondary" className="block mb-6">
-            {t('blog.orMember', '或开通会员免费阅读')}
-          </Text>
-        )}
-        {previewContent && (
-          <div 
-            className="prose prose-lg max-w-none mb-6 text-left"
-            dangerouslySetInnerHTML={{ __html: previewContent }}
-          />
-        )}
-        <Space>
-          <Button 
-            type="primary" 
-            size="large" 
-            icon={<DollarOutlined />}
-            loading={processing}
-            onClick={handleUnlock}
-          >
-            {t('blog.payToUnlock', `支付 ¥${unlockPrice} 解锁`)}
-          </Button>
-          {accessType === 'MEMBER_OR_PAID' && (
-            <Link to="/membership">
-              <Button size="large" icon={<CrownOutlined />}>
-                {t('blog.becomeMember', '开通会员')}
-              </Button>
-            </Link>
-          )}
-        </Space>
-      </Card>
-    );
-  }
-
-  return <>{children}</>;
-}
 
 const { Title, Text } = Typography;
 
@@ -219,7 +68,7 @@ export default function BlogDetail() {
         if (import.meta.env.DEV) {
           console.error('Failed to fetch blog:', err);
         }
-        setError(extractApiErrorMessage(err, t('blog.loadError')));
+        setError(err.response?.data?.message || t('blog.loadError'));
       } finally {
         setLoading(false);
       }
@@ -367,23 +216,21 @@ export default function BlogDetail() {
             </div>
           )}
 
-          {/* 文章内容 - 带权限控制 */}
-          <AccessGate post={post}>
-            <Card className="blog-article-content mb-8">
-              <div 
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ 
-                  __html: post.content
-                    .replace(/\n/g, '<br/>')
-                    .replace(/##\s*(.+)/g, '<h2>$1</h2>')
-                    .replace(/###\s*(.+)/g, '<h3>$1</h3>')
-                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                    .replace(/- (.+)/g, '<li>$1</li>')
-                }}
-              />
-            </Card>
-          </AccessGate>
+          {/* 文章内容 */}
+          <Card className="blog-article-content mb-8">
+            <div 
+              className="prose prose-lg max-w-none"
+              dangerouslySetInnerHTML={{ 
+                __html: post.content
+                  .replace(/\n/g, '<br/>')
+                  .replace(/##\s*(.+)/g, '<h2>$1</h2>')
+                  .replace(/###\s*(.+)/g, '<h3>$1</h3>')
+                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                  .replace(/- (.+)/g, '<li>$1</li>')
+              }}
+            />
+          </Card>
 
           {/* 文章底部操作 */}
           <div className="blog-article-actions flex justify-between items-center py-6 border-t border-b border-[var(--color-border-secondary)] mb-8">

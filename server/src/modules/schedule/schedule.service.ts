@@ -102,54 +102,39 @@ export class ScheduleService {
 
           // 更新卖家余额和统计
           for (const item of order.orderItems) {
-            if (item.settled) {
-              continue;
+            if (!item.settled) {
+              // 更新卖家余额
+              await tx.sellerProfile.update({
+                where: { userId: item.sellerId },
+                data: {
+                  balance: { increment: item.sellerAmount },
+                  totalEarnings: { increment: item.sellerAmount },
+                  soldCount: { increment: item.quantity },
+                },
+              });
+
+              // 创建资金流水
+              await tx.sellerTransaction.create({
+                data: {
+                  sellerId: item.sellerId,
+                  type: 'INCOME',
+                  amount: item.sellerAmount,
+                  balanceAfter: 0, // 将在后续查询更新
+                  orderId: order.id,
+                  orderItemId: item.id,
+                  description: `订单 ${order.orderNo} 自动确认结算`,
+                },
+              });
+
+              // 标记为已结算
+              await tx.orderItem.update({
+                where: { id: item.id },
+                data: {
+                  settled: true,
+                  settledAt: now,
+                },
+              });
             }
-
-            const sellerProfile = await tx.sellerProfile.findUnique({
-              where: { userId: item.sellerId },
-              select: {
-                balance: true,
-              },
-            });
-
-            if (!sellerProfile) {
-              throw new Error(`卖家资料不存在: ${item.sellerId}`);
-            }
-
-            const balanceAfter =
-              Number(sellerProfile.balance) + Number(item.sellerAmount);
-
-            await tx.sellerProfile.update({
-              where: { userId: item.sellerId },
-              data: {
-                balance: { increment: item.sellerAmount },
-                totalSales: { increment: item.subtotal },
-                totalEarnings: { increment: item.sellerAmount },
-                soldCount: { increment: item.quantity },
-              },
-            });
-
-            await tx.sellerTransaction.create({
-              data: {
-                sellerId: item.sellerId,
-                type: 'INCOME',
-                amount: item.sellerAmount,
-                balanceAfter,
-                currency: order.currency,
-                orderId: order.id,
-                orderItemId: item.id,
-                description: `订单 ${order.orderNo} 自动确认结算`,
-              },
-            });
-
-            await tx.orderItem.update({
-              where: { id: item.id },
-              data: {
-                settled: true,
-                settledAt: now,
-              },
-            });
           }
         });
 

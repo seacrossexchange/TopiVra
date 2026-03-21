@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Tag,
   Empty,
   Spin,
 } from 'antd';
@@ -14,13 +14,13 @@ import {
   WarningOutlined,
 } from '@ant-design/icons';
 import { ticketsService } from '@/services/tickets';
+import { useI18n } from '@/hooks/useI18n';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import './AdminTicketList.css';
 
-dayjs.extend(relativeTime);
-
 export default function AdminTicketList() {
+  const { t } = useTranslation();
+  const { formatRelativeTime } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [searchText, setSearchText] = useState('');
@@ -40,14 +40,7 @@ export default function AdminTicketList() {
   // 获取工单列表
   const { data: ticketsData, isLoading } = useQuery({
     queryKey: ['admin-tickets', currentPage, searchText, typeFilter, statusFilter],
-    queryFn: () =>
-      ticketsService.getAdminTickets({
-        page: currentPage,
-        limit: 20,
-        type: typeFilter !== 'all' ? typeFilter : undefined,
-        status: statusFilter !== 'all' ? statusFilter : undefined,
-        search: searchText || undefined,
-      }),
+    queryFn: () => ticketsService.getAdminTickets(ticketQuery),
     refetchInterval: 5000,
   });
 
@@ -62,10 +55,8 @@ export default function AdminTicketList() {
   useEffect(() => {
     const ticketNo = searchParams.get('ticket');
     if (ticketNo) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTicketNo(ticketNo);
     } else if (ticketsData?.items?.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTicketNo(ticketsData.items[0].ticket_no);
     }
   }, [searchParams, ticketsData]);
@@ -86,23 +77,34 @@ export default function AdminTicketList() {
     }
   };
 
-  const getStatusTag = (status: string) => {
-    const statusMap: Record<string, { color: string; text: string }> = {
-      SELLER_REVIEWING: { color: 'processing', text: '卖家审核中' },
-      SELLER_AGREED: { color: 'success', text: '卖家已同意' },
-      SELLER_REJECTED: { color: 'error', text: '卖家已拒绝' },
-      SELLER_OFFERED_REPLACEMENT: { color: 'warning', text: '换货协商中' },
-      BUYER_ACCEPTED_REPLACEMENT: { color: 'processing', text: '等待发货' },
-      REPLACEMENT_DELIVERED: { color: 'warning', text: '待确认收货' },
-      ADMIN_REVIEWING: { color: 'warning', text: '待处理' },
-      ADMIN_APPROVED: { color: 'success', text: '已批准' },
-      ADMIN_REJECTED: { color: 'error', text: '已拒绝' },
-      COMPLETED: { color: 'success', text: '已完成' },
-      CLOSED: { color: 'default', text: '已关闭' },
-    };
-    const { color, text } = statusMap[status] || { color: 'default', text: status };
-    return <Tag color={color}>{text}</Tag>;
+  const adminTicketStatuses: Record<string, { color: string; text: string }> = {
+    SELLER_REVIEWING: { color: 'processing', text: t('ticket.sellerReviewing', '卖家审核中') },
+    SELLER_AGREED: { color: 'success', text: t('ticket.sellerAgreed', '卖家已同意') },
+    SELLER_REJECTED: { color: 'error', text: t('ticket.sellerRejected', '卖家已拒绝') },
+    SELLER_OFFERED_REPLACEMENT: { color: 'warning', text: t('ticket.replacementNegotiating', '换货协商中') },
+    BUYER_ACCEPTED_REPLACEMENT: { color: 'processing', text: t('ticket.awaitingShipment', '等待发货') },
+    REPLACEMENT_DELIVERED: { color: 'warning', text: t('ticket.awaitingReceiptConfirmation', '待确认收货') },
+    ADMIN_REVIEWING: { color: 'warning', text: t('ticket.pending', '待处理') },
+    ADMIN_APPROVED: { color: 'success', text: t('ticket.approved', '已批准') },
+    ADMIN_REJECTED: { color: 'error', text: t('ticket.rejected', '已拒绝') },
+    COMPLETED: { color: 'success', text: t('ticket.completed', '已完成') },
+    CLOSED: { color: 'default', text: t('ticket.closed', '已关闭') },
   };
+
+  const getStatusTag = (status: string) => {
+    const currentStatus = adminTicketStatuses[status];
+    return <span className={`ant-tag ant-tag-${currentStatus?.color || 'default'}`}>{currentStatus?.text || status}</span>;
+  };
+
+  const ticketQuery = {
+    page: currentPage,
+    limit: 20,
+    search: searchText || undefined,
+    type: typeFilter === 'all' ? undefined : typeFilter,
+    status: statusFilter === 'all' ? undefined : statusFilter,
+  };
+
+  const totalPages = Math.max(1, Math.ceil((ticketsData?.total || 0) / 20));
 
   // 判断是否紧急（超过24小时未处理）
   const isUrgent = (ticket: any) => {
@@ -121,6 +123,57 @@ export default function AdminTicketList() {
     return true;
   });
 
+  const emptyList = !isLoading && (!filteredTickets || filteredTickets.length === 0);
+
+  const ticketListContent = () => {
+    if (isLoading) {
+      return (
+        <div className="text-center py-8">
+          <Spin />
+        </div>
+      );
+    }
+
+    if (emptyList) {
+      return <Empty description={t('ticket.empty', '暂无工单')} />;
+    }
+
+    return filteredTickets?.map((ticket: any) => {
+      const urgent = isUrgent(ticket);
+
+      return (
+        <button
+          key={ticket.ticket_no}
+          type="button"
+          className={`atc-ticket-item ${ticket.unread_admin > 0 ? 'unread' : ''} ${selectedTicketNo === ticket.ticket_no ? 'active' : ''} ${urgent ? 'urgent' : ''}`}
+          onClick={() => handleTicketClick(ticket.ticket_no)}
+        >
+          <div className="atc-ticket-item__icon">
+            {urgent ? <WarningOutlined /> : getTypeIcon(ticket.type)}
+          </div>
+          <div className="atc-ticket-item__main">
+            <div className="atc-ticket-item__header">
+              <span className="atc-ticket-item__no">#{ticket.ticket_no}</span>
+              {getStatusTag(ticket.status)}
+            </div>
+            <div className="atc-ticket-item__subject">{ticket.subject}</div>
+            <div className="atc-ticket-item__meta">
+              <span className="atc-ticket-item__users">
+                <UserOutlined /> {ticket.buyer_id} ↔ {ticket.seller_id || t('common.none', '无')}
+              </span>
+              <span className="atc-ticket-item__time">
+                {formatRelativeTime(ticket.created_at)}
+              </span>
+            </div>
+          </div>
+          {ticket.unread_admin > 0 && (
+            <div className="atc-ticket-item__badge">{ticket.unread_admin}</div>
+          )}
+        </button>
+      );
+    });
+  };
+
   return (
     <div className="atc-container">
       <div className="atc-layout">
@@ -129,7 +182,7 @@ export default function AdminTicketList() {
           {/* 头部 */}
           <div className="atc-sidebar__header">
             <h3>
-              <i className="fas fa-shield-alt"></i> 工单管理
+              <i className="fas fa-shield-alt"></i> {t('ticket.adminTitle', '工单管理')}
             </h3>
           </div>
 
@@ -137,19 +190,19 @@ export default function AdminTicketList() {
           <div className="atc-stats">
             <div className="atc-stat">
               <span className="atc-stat__num">{stats?.pending || 0}</span>
-              <span className="atc-stat__label">待处理</span>
+              <span className="atc-stat__label">{t('ticket.pending', '待处理')}</span>
             </div>
             <div className="atc-stat">
               <span className="atc-stat__num">{stats?.total || 0}</span>
-              <span className="atc-stat__label">总数</span>
+              <span className="atc-stat__label">{t('common.total', '总数')}</span>
             </div>
             <div className="atc-stat">
               <span className="atc-stat__num">{stats?.closed || 0}</span>
-              <span className="atc-stat__label">已关闭</span>
+              <span className="atc-stat__label">{t('ticket.closed', '已关闭')}</span>
             </div>
             <div className="atc-stat">
-              <span className="atc-stat__num">{stats?.avgResponseTime || '0小时'}</span>
-              <span className="atc-stat__label">平均处理</span>
+              <span className="atc-stat__num">{stats?.avgResponseTime || t('ticket.zeroHours', '0小时')}</span>
+              <span className="atc-stat__label">{t('ticket.averageHandle', '平均处理')}</span>
             </div>
           </div>
 
@@ -158,7 +211,7 @@ export default function AdminTicketList() {
             <SearchOutlined />
             <input
               type="text"
-              placeholder="搜索工单号/主题/用户..."
+              placeholder={t('ticket.searchAdminTickets', '搜索工单号/主题/用户...')}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
@@ -166,143 +219,71 @@ export default function AdminTicketList() {
 
           {/* 筛选按钮 */}
           <div className="atc-filters">
-            {/* 类型筛选 */}
             <div className="atc-filters__row">
-              <button
-                className={`atc-filter-btn ${typeFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setTypeFilter('all')}
-              >
-                全部
+              <button type="button" className={`atc-filter-btn ${typeFilter === 'all' ? 'active' : ''}`} onClick={() => setTypeFilter('all')}>
+                {t('ticket.filter.all', '全部')}
               </button>
-              <button
-                className={`atc-filter-btn ${typeFilter === 'REFUND' ? 'active' : ''}`}
-                onClick={() => setTypeFilter('REFUND')}
-              >
-                售后
+              <button type="button" className={`atc-filter-btn ${typeFilter === 'REFUND' ? 'active' : ''}`} onClick={() => setTypeFilter('REFUND')}>
+                {t('ticket.refundType', '售后')}
               </button>
-              <button
-                className={`atc-filter-btn ${typeFilter === 'DM' ? 'active' : ''}`}
-                onClick={() => setTypeFilter('DM')}
-              >
-                私信
+              <button type="button" className={`atc-filter-btn ${typeFilter === 'DM' ? 'active' : ''}`} onClick={() => setTypeFilter('DM')}>
+                {t('ticket.directMessageType', '私信')}
               </button>
             </div>
 
-            {/* 状态筛选 */}
             <div className="atc-filters__row">
-              <button
-                className={`atc-filter-btn ${statusFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('all')}
-              >
-                全部
+              <button type="button" className={`atc-filter-btn ${statusFilter === 'all' ? 'active' : ''}`} onClick={() => setStatusFilter('all')}>
+                {t('ticket.filter.all', '全部')}
               </button>
-              <button
-                className={`atc-filter-btn ${statusFilter === 'ADMIN_REVIEWING' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('ADMIN_REVIEWING')}
-              >
-                待处理
+              <button type="button" className={`atc-filter-btn ${statusFilter === 'ADMIN_REVIEWING' ? 'active' : ''}`} onClick={() => setStatusFilter('ADMIN_REVIEWING')}>
+                {t('ticket.pending', '待处理')}
               </button>
-              <button
-                className={`atc-filter-btn ${statusFilter === 'SELLER_REVIEWING' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('SELLER_REVIEWING')}
-              >
-                卖家处理中
+              <button type="button" className={`atc-filter-btn ${statusFilter === 'SELLER_REVIEWING' ? 'active' : ''}`} onClick={() => setStatusFilter('SELLER_REVIEWING')}>
+                {t('ticket.sellerProcessing', '卖家处理中')}
               </button>
-              <button
-                className={`atc-filter-btn ${statusFilter === 'COMPLETED' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('COMPLETED')}
-              >
-                已完成
+              <button type="button" className={`atc-filter-btn ${statusFilter === 'COMPLETED' ? 'active' : ''}`} onClick={() => setStatusFilter('COMPLETED')}>
+                {t('ticket.completed', '已完成')}
               </button>
-              <button
-                className={`atc-filter-btn ${statusFilter === 'CLOSED' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('CLOSED')}
-              >
-                已关闭
+              <button type="button" className={`atc-filter-btn ${statusFilter === 'CLOSED' ? 'active' : ''}`} onClick={() => setStatusFilter('CLOSED')}>
+                {t('ticket.closed', '已关闭')}
               </button>
             </div>
 
-            {/* 紧急程度筛选 */}
             <div className="atc-filters__row">
-              <button
-                className={`atc-filter-btn ${urgencyFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setUrgencyFilter('all')}
-              >
-                全部
+              <button type="button" className={`atc-filter-btn ${urgencyFilter === 'all' ? 'active' : ''}`} onClick={() => setUrgencyFilter('all')}>
+                {t('ticket.filter.all', '全部')}
               </button>
-              <button
-                className={`atc-filter-btn ${urgencyFilter === 'urgent' ? 'active' : ''}`}
-                onClick={() => setUrgencyFilter('urgent')}
-              >
-                紧急
+              <button type="button" className={`atc-filter-btn ${urgencyFilter === 'urgent' ? 'active' : ''}`} onClick={() => setUrgencyFilter('urgent')}>
+                {t('ticket.urgent', '紧急')}
               </button>
-              <button
-                className={`atc-filter-btn ${urgencyFilter === 'normal' ? 'active' : ''}`}
-                onClick={() => setUrgencyFilter('normal')}
-              >
-                正常
+              <button type="button" className={`atc-filter-btn ${urgencyFilter === 'normal' ? 'active' : ''}`} onClick={() => setUrgencyFilter('normal')}>
+                {t('ticket.normal', '正常')}
               </button>
             </div>
           </div>
 
-          {/* 工单列表 */}
           <div className="atc-sidebar__list">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <Spin />
-              </div>
-            ) : filteredTickets?.length === 0 ? (
-              <Empty description="暂无工单" />
-            ) : (
-              filteredTickets?.map((ticket: any) => (
-                <div
-                  key={ticket.ticket_no}
-                  className={`atc-ticket-item ${
-                    ticket.unread_admin > 0 ? 'unread' : ''
-                  } ${selectedTicketNo === ticket.ticket_no ? 'active' : ''} ${
-                    isUrgent(ticket) ? 'urgent' : ''
-                  }`}
-                  onClick={() => handleTicketClick(ticket.ticket_no)}
-                >
-                  <div className="atc-ticket-item__icon">
-                    {isUrgent(ticket) ? <WarningOutlined /> : getTypeIcon(ticket.type)}
-                  </div>
-                  <div className="atc-ticket-item__main">
-                    <div className="atc-ticket-item__header">
-                      <span className="atc-ticket-item__no">#{ticket.ticket_no}</span>
-                      {getStatusTag(ticket.status)}
-                    </div>
-                    <div className="atc-ticket-item__subject">{ticket.subject}</div>
-                    <div className="atc-ticket-item__meta">
-                      <span className="atc-ticket-item__users">
-                        <UserOutlined /> {ticket.buyer_id} ↔ {ticket.seller_id || '无'}
-                      </span>
-                      <span className="atc-ticket-item__time">
-                        {dayjs(ticket.created_at).fromNow()}
-                      </span>
-                    </div>
-                  </div>
-                  {ticket.unread_admin > 0 && (
-                    <div className="atc-ticket-item__badge">{ticket.unread_admin}</div>
-                  )}
-                </div>
-              ))
-            )}
+            {ticketListContent()}
           </div>
 
-          {/* 分页 */}
           <div className="atc-pagination">
             <button
+              type="button"
               disabled={currentPage === 1}
+              aria-label={t('common.previousPage', '上一页')}
+              title={t('common.previousPage', '上一页')}
               onClick={() => setCurrentPage(currentPage - 1)}
             >
               <i className="fas fa-chevron-left"></i>
             </button>
             <span>
-              {currentPage} / {Math.ceil((ticketsData?.total || 0) / 20)}
+              {currentPage} / {totalPages}
             </span>
             <button
-              disabled={currentPage >= Math.ceil((ticketsData?.total || 0) / 20)}
+              type="button"
+              disabled={currentPage >= totalPages}
+              aria-label={t('common.nextPage', '下一页')}
+              title={t('common.nextPage', '下一页')}
               onClick={() => setCurrentPage(currentPage + 1)}
             >
               <i className="fas fa-chevron-right"></i>
@@ -310,17 +291,16 @@ export default function AdminTicketList() {
           </div>
         </aside>
 
-        {/* 右侧主区域 */}
         <main className="atc-main has-ticket">
           {selectedTicket ? (
             <iframe
               src={`/admin/tickets/${selectedTicketNo}`}
               className="atc-detail-iframe"
-              title="工单详情"
+              title={t('ticket.detail', '工单详情')}
             />
           ) : (
             <div className="atc-empty-state">
-              <Empty description="请选择一个工单查看详情" />
+              <Empty description={t('ticket.selectTicket', '请选择一个工单')} />
             </div>
           )}
         </main>
@@ -328,9 +308,6 @@ export default function AdminTicketList() {
     </div>
   );
 }
-
-
-
 
 
 

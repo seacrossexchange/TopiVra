@@ -293,6 +293,15 @@
   white-space: nowrap;
 }
 
+.pl-toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pl-sort-select {
+  width: 130px;
+}
+
 /* ========== 商品网格 ========== */
 .pl-grid {
   display: grid;

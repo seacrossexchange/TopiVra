@@ -1,8 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger, RequestMethod } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { I18nService } from 'nestjs-i18n';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import { AppModule } from './app.module';
@@ -33,7 +32,6 @@ async function bootstrap() {
 
   // 使用 ConfigService 获取配置
   const configService = app.get(ConfigService);
-  const i18nService = app.get(I18nService) as I18nService<Record<string, unknown>>;
 
   // ==================== 安全检查 ====================
 
@@ -119,9 +117,7 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: allowedOrigins.filter(
-      (url, index, self) => self.indexOf(url) === index,
-    ),
+    origin: allowedOrigins.filter((url, index, self) => self.indexOf(url) === index),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -141,16 +137,12 @@ async function bootstrap() {
     configService.get<string>('API_PREFIX') || `api/${apiVersion}`;
 
   // 设置全局路由前缀（支持版本化）
-  // Terminus health endpoints must remain un-prefixed so probes can call /health/** directly.
   app.setGlobalPrefix(apiPrefix, {
-    exclude: [
-      { path: 'health', method: RequestMethod.ALL },
-      { path: 'health/(.*)', method: RequestMethod.ALL },
-    ],
+    exclude: ['health', 'health/ready', 'health/live'], // 健康检查不需要版本前缀
   });
 
   // 全局异常过滤器
-  app.useGlobalFilters(new GlobalExceptionFilter(i18nService));
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   // 全局响应转换拦截器（统一响应格式）
   app.useGlobalInterceptors(new TransformInterceptor());
@@ -171,7 +163,7 @@ async function bootstrap() {
   );
 
   // Swagger API 文档配置 - 强制在生产环境禁用
-  if (nodeEnv === 'development') {
+  if (nodeEnv !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('TokBazaar API')
       .setDescription('TokBazaar 全球数字账号交易平台 API 文档')

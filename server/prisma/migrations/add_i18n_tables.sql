@@ -109,6 +109,3 @@ WHERE NOT EXISTS (
 
 
 
-
-
-

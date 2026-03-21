@@ -1,32 +1,31 @@
-
-import { useEffect, useMemo } from 'react';
-import { Layout, Button, Dropdown, Space, Badge, Avatar, Tag, Tooltip } from 'antd';
+import { useEffect } from 'react';
+import { Layout, Button, Dropdown, Space, Badge, Avatar } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useI18nNavigate, useI18nHref } from '@/hooks/useI18nNavigate';
+import { LANGUAGE_OPTIONS } from '@/i18n/config';
 import {
   ShoppingCartOutlined,
   UserOutlined,
   LoginOutlined,
   ShopOutlined,
   MessageOutlined,
-  CrownOutlined,
-  UserSwitchOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import NotificationBell from '@/components/common/NotificationBell';
-import { useI18nHref, useI18nNavigate } from '@/hooks/useI18nNavigate';
 import './Header.css';
 
 const { Header: AntHeader } = Layout;
 
 export default function Header() {
   const { t, i18n } = useTranslation();
-  const location = useLocation();
-  const { navigate: i18nNavigate, switchLanguage } = useI18nNavigate();
+  const { navigate, switchLanguage } = useI18nNavigate();
   const { getHref } = useI18nHref();
+  const location = useLocation();
+  
   const { user, isAuthenticated, logout } = useAuthStore();
   const { itemCount, fetchCart } = useCartStore();
   const isLoggedIn = isAuthenticated;
@@ -39,13 +38,7 @@ export default function Header() {
   }, [isLoggedIn, fetchCart]);
 
   // 语言选项配置 - 与 i18n locales 保持一致
-  const languageOptions = [
-    { key: 'zh-CN', flag: '🇨🇳', label: '简体中文' },
-    { key: 'en',    flag: '🇺🇸', label: 'English' },
-    { key: 'id',    flag: '🇮🇩', label: 'Bahasa Indonesia' },
-    { key: 'pt-BR', flag: '🇧🇷', label: 'Português (Brasil)' },
-    { key: 'es-MX', flag: '🇲🇽', label: 'Español (México)' },
-  ];
+  const languageOptions = LANGUAGE_OPTIONS;
 
   const currentLang = languageOptions.find(l => l.key === i18n.language) || languageOptions[0];
 
@@ -54,8 +47,8 @@ export default function Header() {
     items: languageOptions.map(lang => ({
       key: lang.key,
       label: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 18, lineHeight: 1 }}>{lang.flag}</span>
+        <span className="header-language-option">
+          <span className="header-language-flag">{lang.flag}</span>
           <span>{lang.label}</span>
         </span>
       ),
@@ -64,128 +57,37 @@ export default function Header() {
     selectedKeys: [i18n.language],
   };
 
-  const roles = (user?.roles || []).map((r) => r.toUpperCase());
-  const isSeller = roles.includes('SELLER') || user?.isSeller === true;
-  const isAdmin = roles.includes('ADMIN');
-
-  // 检测当前所在的角色后台
-  const currentRole = useMemo(() => {
-    const path = location.pathname;
-    if (path.startsWith('/admin')) return 'admin';
-    if (path.startsWith('/seller')) return 'seller';
-    return 'buyer';
-  }, [location.pathname]);
-
-  // 角色配置
-  const roleConfig = useMemo(() => ({
-    buyer: {
-      icon: <UserSwitchOutlined />,
-      color: '#1890ff',
-      bgColor: '#e6f4ff',
-      label: t('header.roleBuyer', '买家'),
-    },
-    seller: {
-      icon: <ShopOutlined />,
-      color: '#52c41a',
-      bgColor: '#f6ffed',
-      label: t('header.roleSeller', '卖家'),
-    },
-    admin: {
-      icon: <CrownOutlined />,
-      color: '#722ed1',
-      bgColor: '#f9f0ff',
-      label: t('header.roleAdmin', '管理员'),
-    },
-  }), [t]);
-
-  // 角色后台入口菜单 - 先定义
-  const roleMenuItems: MenuProps['items'] = [];
-  
-  // 买家中心入口（所有登录用户都有）
-  roleMenuItems.push({
-    key: 'buyer-center',
-    label: (
-      <Space>
-        <UserSwitchOutlined />
-        <span>{t('header.buyerCenter', '买家中心')}</span>
-      </Space>
-    ),
-    onClick: () => i18nNavigate('/user/orders'),
-  });
-
-  // 卖家后台入口
-  if (isSeller) {
-    roleMenuItems.push({
-      key: 'seller-center',
-      label: (
-        <Space>
-          <ShopOutlined />
-          <span>{t('header.sellerCenter', '卖家后台')}</span>
-        </Space>
-      ),
-      onClick: () => i18nNavigate('/seller/products'),
-    });
-  }
-
-  // 管理后台入口
-  if (isAdmin) {
-    roleMenuItems.push({
-      key: 'admin-center',
-      label: (
-        <Space>
-          <CrownOutlined />
-          <span>{t('header.adminCenter', '管理后台')}</span>
-        </Space>
-      ),
-      onClick: () => i18nNavigate('/admin/dashboard'),
-    });
-  }
-
-  // 用户菜单（已登录状态） - 在 roleMenuItems 之后定义
+  // 用户菜单（已登录状态）
   const userMenu: MenuProps['items'] = [
-    // 角色后台直达入口区域
-    ...(roleMenuItems.length > 0 ? [
-      {
-        type: 'group' as const,
-        key: 'role-switch',
-        label: <span className="header-menu-group-label">{t('header.roleSwitch', '角色切换')}</span>,
-        children: roleMenuItems,
-      },
-      { type: 'divider' as const, key: 'role-divider' },
-    ] : []),
-    // 个人中心功能
     {
       key: 'profile',
-      icon: <UserOutlined />,
       label: t('user.profile'),
-      onClick: () => i18nNavigate('/user/profile'),
+      onClick: () => navigate('/user/profile'),
     },
     {
       key: 'orders',
-      icon: <ShoppingCartOutlined />,
       label: t('user.myOrders'),
-      onClick: () => i18nNavigate('/user/orders'),
+      onClick: () => navigate('/user/orders'),
     },
     {
       key: 'tickets',
-      icon: <MessageOutlined />,
       label: t('user.myTickets'),
-      onClick: () => i18nNavigate('/buyer/tickets'),
+      onClick: () => navigate('/buyer/tickets'),
     },
     {
       type: 'divider',
     },
     {
       key: 'logout',
-      icon: <LoginOutlined />,
       label: t('user.logout'),
-      danger: true,
       onClick: () => {
         logout();
-        i18nNavigate('/login');
+        navigate('/login');
       },
     },
   ];
+
+  const isSeller = user?.roles?.includes('seller') || false;
 
   return (
     <AntHeader className="header">
@@ -232,10 +134,10 @@ export default function Header() {
 
       {/* 导航菜单 */}
       <nav className="header-nav">
-        <Link to={getHref('/')} className={`header-nav-item${location.pathname === '/' ? ' header-nav-item--active' : ''}`}>{t('header.home', '首页')}</Link>
-        <Link to={getHref('/products')} className={`header-nav-item${location.pathname.startsWith('/products') ? ' header-nav-item--active' : ''}`}>{t('header.products', '商品')}</Link>
-        <Link to={getHref('/blog')} className={`header-nav-item${location.pathname.startsWith('/blog') ? ' header-nav-item--active' : ''}`}>{t('nav.tutorials', '使用教程')}</Link>
-        <Link to={getHref('/contact')} className={`header-nav-item${location.pathname === '/contact' ? ' header-nav-item--active' : ''}`}>{t('header.contact', '联系')}</Link>
+        <Link to={getHref('/')} className={`header-nav-item${location.pathname === '/' || location.pathname === `/${i18n.language}` ? ' header-nav-item--active' : ''}`}>{t('header.home', '首页')}</Link>
+        <Link to={getHref('/products')} className={`header-nav-item${location.pathname.endsWith('/products') || location.pathname.includes('/products/') ? ' header-nav-item--active' : ''}`}>{t('header.products', '商品')}</Link>
+        <Link to={getHref('/blog')} className={`header-nav-item${location.pathname.endsWith('/blog') || location.pathname.includes('/blog/') ? ' header-nav-item--active' : ''}`}>{t('nav.tutorials', '使用教程')}</Link>
+        <Link to={getHref('/contact')} className={`header-nav-item${location.pathname.endsWith('/contact') ? ' header-nav-item--active' : ''}`}>{t('header.contact', '联系')}</Link>
       </nav>
 
       {/* 右侧操作区 */}
@@ -245,7 +147,7 @@ export default function Header() {
           <Button
             type="link"
             icon={<ShopOutlined />}
-            onClick={() => i18nNavigate('/seller/products')}
+            onClick={() => navigate('/seller/products')}
           >
             {t('header.sellerCenter', '卖家中心')}
           </Button>
@@ -254,7 +156,7 @@ export default function Header() {
             type="primary"
             ghost
             icon={<ShopOutlined />}
-            onClick={() => i18nNavigate('/apply-seller')}
+            onClick={() => navigate('/apply-seller')}
           >
             {t('header.applySeller', '申请成为卖家')}
           </Button>
@@ -264,8 +166,8 @@ export default function Header() {
         <Badge count={itemCount} showZero={false}>
           <Button
             type="text"
-            icon={<ShoppingCartOutlined style={{ fontSize: 20 }} />}
-            onClick={() => i18nNavigate('/cart')}
+            icon={<ShoppingCartOutlined className="header-action-icon" />}
+            onClick={() => navigate('/cart')}
           />
         </Badge>
 
@@ -273,8 +175,8 @@ export default function Header() {
         {isLoggedIn && (
           <Button
             type="text"
-            icon={<MessageOutlined style={{ fontSize: 20 }} />}
-            onClick={() => i18nNavigate(isSeller ? '/seller/messages' : '/user/messages')}
+            icon={<MessageOutlined className="header-action-icon" />}
+            onClick={() => navigate(isSeller ? '/seller/messages' : '/user/messages')}
             data-testid="messages-button"
           />
         )}
@@ -287,59 +189,28 @@ export default function Header() {
 
         {/* 语言切换 */}
         <Dropdown menu={languageMenu} placement="bottomRight">
-          <Button type="text" style={{ padding: '0 8px', fontSize: 20, lineHeight: 1 }}>
+          <Button type="text" className="header-language-button">
             {currentLang.flag}
           </Button>
         </Dropdown>
 
         {/* 用户菜单 */}
         {isLoggedIn ? (
-          <Dropdown menu={{ items: userMenu }} placement="bottomRight" trigger={['click']}>
+          <Dropdown menu={{ items: userMenu }} placement="bottomRight">
             <Space className="header-user">
-              <div className="header-avatar-wrapper">
-                <Avatar
-                  src={user?.avatar}
-                  icon={<UserOutlined />}
-                  className="header-avatar"
-                />
-                {/* 当前角色徽章 */}
-                <Tooltip title={t('header.currentRole', '当前身份') + ': ' + roleConfig[currentRole].label}>
-                  <span 
-                    className="header-role-badge"
-                    style={{ 
-                      backgroundColor: roleConfig[currentRole].color,
-                    }}
-                  >
-                    {currentRole === 'admin' && <CrownOutlined style={{ fontSize: 10 }} />}
-                    {currentRole === 'seller' && <ShopOutlined style={{ fontSize: 10 }} />}
-                    {currentRole === 'buyer' && <UserSwitchOutlined style={{ fontSize: 10 }} />}
-                  </span>
-                </Tooltip>
-              </div>
-              <div className="header-user-info">
-                <span className="header-username">{user?.username || '用户'}</span>
-                <Tag 
-                  className="header-role-tag"
-                  style={{ 
-                    color: roleConfig[currentRole].color,
-                    backgroundColor: roleConfig[currentRole].bgColor,
-                    border: 'none',
-                    fontSize: 11,
-                    lineHeight: '16px',
-                    padding: '0 4px',
-                    margin: 0,
-                  }}
-                >
-                  {roleConfig[currentRole].icon} {roleConfig[currentRole].label}
-                </Tag>
-              </div>
+              <Avatar
+                src={user?.avatar}
+                icon={<UserOutlined />}
+                className="header-avatar"
+              />
+              <span>{user?.username || t('user.user', '用户')}</span>
             </Space>
           </Dropdown>
         ) : (
           <Button
             type="primary"
             icon={<LoginOutlined />}
-            onClick={() => i18nNavigate('/login')}
+            onClick={() => navigate('/login')}
           >
             {t('header.login', '登录')}
           </Button>

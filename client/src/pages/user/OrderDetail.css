@@ -58,7 +58,7 @@
 }
 
 .product-item:hover {
-  background: var(--color-bg-tertiary);
+  background: var(--bg-tertiary);
 }
 
 .product-image {
@@ -163,7 +163,7 @@
   flex: 1;
   margin: 0;
   padding: var(--spacing-md);
-  background: var(--color-bg-tertiary);
+  background: var(--bg-tertiary);
   border-radius: var(--radius-md);
   font-family: var(--font-family-mono);
   font-size: var(--font-size-sm);
@@ -265,24 +265,24 @@
 
 .stream-event--item_processing {
   color: var(--color-primary);
-  background: var(--color-primary-bg);
+  background: var(--color-primary-light, #e6f4ff);
 }
 
 .stream-event--item_success {
-  background: var(--color-success-bg);
+  background: #f6ffed;
 }
 
 .stream-event--item_failed {
-  background: var(--color-error-bg);
+  background: #fff2f0;
 }
 
 .stream-event--completed {
-  background: var(--color-success-bg);
+  background: #f6ffed;
   font-weight: var(--font-weight-medium);
 }
 
 .stream-event--partial_failed {
-  background: var(--color-warning-bg);
+  background: #fffbe6;
   font-weight: var(--font-weight-medium);
 }
 
@@ -298,18 +298,18 @@
 }
 
 /* 暗色主题 */
-:root:not([data-theme='light']) .product-item {
-  background: var(--color-bg-tertiary);
+[data-theme='dark'] .product-item {
+  background: var(--bg-tertiary);
 }
 
-:root:not([data-theme='light']) .product-item:hover {
+[data-theme='dark'] .product-item:hover {
   background: var(--bg-secondary);
 }
 
-:root:not([data-theme='light']) .delivery-item {
-  background: var(--color-bg-tertiary);
+[data-theme='dark'] .delivery-item {
+  background: var(--bg-tertiary);
 }
 
-:root:not([data-theme='light']) .delivery-content pre {
+[data-theme='dark'] .delivery-content pre {
   background: var(--bg-secondary);
 }

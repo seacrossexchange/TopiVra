@@ -135,7 +135,8 @@ export default function ProductList() {
     const filters: ProductFilters = { page: currentPage, limit: pageSize };
     if (debouncedSearch) filters.search = debouncedSearch;
     if (selectedPlatform !== 'all') filters.platform = selectedPlatform;
-    if (selectedCountry !== 'ALL') filters.categoryId = selectedCountry;
+    if (selectedSub) filters.accountType = selectedSub;
+    if (selectedCountry !== 'ALL') filters.region = selectedCountry;
     const sortMapping: Record<string, { sortBy: 'price' | 'soldCount' | 'createdAt' | 'viewCount'; sortOrder: 'asc' | 'desc' }> = {
       latest: { sortBy: 'createdAt', sortOrder: 'desc' },
       'price-asc': { sortBy: 'price', sortOrder: 'asc' },
@@ -150,7 +151,7 @@ export default function ProductList() {
   };
 
   const { data: productsData, isLoading } = useQuery({
-    queryKey: ['products', currentPage, debouncedSearch, selectedPlatform, selectedCountry, sortBy],
+    queryKey: ['products', currentPage, debouncedSearch, selectedPlatform, selectedSub, selectedCountry, sortBy],
     queryFn: async () => {
       const response = await productsService.getProducts(buildFilters());
       return response.data;
@@ -176,9 +177,9 @@ export default function ProductList() {
     setCurrentPage(1);
   };
 
-  const selectSub = (platformKey: string, sub: string) => {
+  const selectSub = (platformKey: string, subKey: string) => {
     setSelectedPlatform(platformKey);
-    setSelectedSub(sub);
+    setSelectedSub(subKey);
     setCurrentPage(1);
   };
 
@@ -190,7 +191,11 @@ export default function ProductList() {
 
   const getPageTitle = () => {
     if (selectedPlatform === 'all') return t('products.allProducts', '全部商品');
-    if (selectedSub) return `${selectedPlatform} · ${selectedSub}`;
+    if (selectedSub) {
+      const selectedNode = PLATFORM_TREE.find((node) => node.key === selectedPlatform);
+      const selectedSubNode = selectedNode?.subs.find((sub) => sub.key === selectedSub);
+      return `${selectedPlatform} · ${selectedSubNode?.label || selectedSub}`;
+    }
     return selectedPlatform;
   };
 
@@ -232,7 +237,7 @@ export default function ProductList() {
                     type="button"
                     className={`pl-tree-toggle${isOpen ? ' open' : ''}`}
                     onClick={() => toggleNode(node.key)}
-                    aria-expanded={isOpen ? 'true' : 'false'}
+                    aria-expanded={isOpen}
                   >
                     <span className="pl-tree-arrow">▶</span>
                   </button>
@@ -250,8 +255,8 @@ export default function ProductList() {
                   {node.subs.map((sub) => (
                     <li key={sub.key} className="pl-tree-child">
                       <span
-                        className={`pl-tree-sub${isActive && selectedSub === sub.label ? ' active' : ''}`}
-                        onClick={() => selectSub(node.key, sub.label)}
+                        className={`pl-tree-sub${isActive && selectedSub === sub.key ? ' active' : ''}`}
+                        onClick={() => selectSub(node.key, sub.key)}
                       >
                         <span className="pl-tree-line" />
                         <span className="pl-tree-label">{sub.label}</span>
@@ -297,7 +302,7 @@ export default function ProductList() {
             />
             <span className="pl-result-count">{t('products.found', {count: totalItems})}</span>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="pl-toolbar-actions">
             <Button
               icon={<FilterOutlined />}
               onClick={() => setMobileFilterVisible(true)}
@@ -305,7 +310,7 @@ export default function ProductList() {
             >
               {t('products.filter', '筛选')}
             </Button>
-            <Select value={sortBy} onChange={setSortBy} style={{ width: 130 }} size="small">
+            <Select value={sortBy} onChange={setSortBy} className="pl-sort-select" size="small">
               <Option value="latest">{t('products.latest', '最新上架')}</Option>
               <Option value="price-asc">{t('products.priceAsc', '价格从低到高')}</Option>
               <Option value="price-desc">{t('products.priceDesc', '价格从高到低')}</Option>

@@ -29,19 +29,14 @@ const notificationIcons: Record<string, string> = {
   price_drop: '📉',
 };
 
-// 通知优先级颜色
-const priorityColors: Record<string, string> = {
-  low: 'var(--color-success)',
-  medium: 'var(--color-warning)',
-  high: 'var(--color-error)',
-};
+// 通知优先级样式
 
 export default function NotificationBell() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const panelRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLButtonElement>(null);
-  
+
   const {
     notifications,
     unreadCount,
@@ -58,6 +53,9 @@ export default function NotificationBell() {
   } = useNotificationStore();
 
   const { accessToken, isAuthenticated } = useAuthStore();
+  const hasNotifications = notifications.length > 0;
+  const showInitialLoading = isLoading && !hasNotifications;
+  const showEmptyState = !isLoading && !hasNotifications;
 
   // 初始化 WebSocket 连接
   useEffect(() => {
@@ -65,20 +63,23 @@ export default function NotificationBell() {
       initWebSocket(accessToken);
       fetchNotifications();
     }
-    
+
     return () => {
       disconnectWebSocket();
     };
-  }, [isAuthenticated, accessToken]);
+  }, [isAuthenticated, accessToken, initWebSocket, fetchNotifications, disconnectWebSocket]);
 
   // 点击外部关闭面板
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+
       if (
         panelRef.current &&
         bellRef.current &&
-        !panelRef.current.contains(event.target as Node) &&
-        !bellRef.current.contains(event.target as Node)
+        !panelRef.current.contains(target) &&
+        !bellRef.current.contains(target)
       ) {
         closePanel();
       }
@@ -91,7 +92,7 @@ export default function NotificationBell() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, closePanel]);
 
   // 格式化时间 - 支持 i18n 语言代码到 dayjs locale 的映射
   const formatTime = (dateStr: string) => {
@@ -113,24 +114,94 @@ export default function NotificationBell() {
     if (notification.status === 'unread') {
       markAsRead(notification.id);
     }
-    
-    // 根据通知类型跳转
-    if (notification.data) {
-      const data = notification.data as Record<string, unknown>;
+
+    const data = notification.data;
+    if (data) {
       if ('orderNo' in data) {
         navigate(`/user/orders/${data.orderNo}`);
       } else if ('ticketNo' in data) {
-        navigate(`/user/tickets/${data.ticketNo}`);
+        navigate(`/buyer/tickets/${data.ticketNo}`);
       }
     }
-    
+
     closePanel();
   };
 
-  // 删除通知
-  const handleDelete = (e: React.MouseEvent, notificationId: string) => {
-    e.stopPropagation();
+  const handleDelete = (event: React.MouseEvent<HTMLButtonElement>, notificationId: string) => {
+    event.stopPropagation();
     deleteNotification(notificationId);
+  };
+
+  const getPriorityClassName = (priority: Notification['priority']) => {
+    if (priority === 'low') return 'notification-item-priority-low';
+    if (priority === 'medium') return 'notification-item-priority-medium';
+    return 'notification-item-priority-high';
+  };
+
+  const renderNotificationList = () => {
+    if (showInitialLoading) {
+      return (
+        <div className="notification-loading">
+          <ReloadOutlined spin />
+          <span>{t('notifications.loading', '加载中...')}</span>
+        </div>
+      );
+    }
+
+    if (showEmptyState) {
+      return (
+        <div className="notification-empty">
+          <BellOutlined className="notification-empty-icon" />
+          <p>{t('notifications.empty', '暂无通知')}</p>
+        </div>
+      );
+    }
+
+    return notifications.map((notification) => (
+      <div
+        key={notification.id}
+        className={`notification-item ${notification.status === 'unread' ? 'unread' : ''}`}
+      >
+        <div
+          className="notification-item-main"
+          onClick={() => handleNotificationClick(notification)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleNotificationClick(notification);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+        >
+          <div className="notification-item-icon">
+            {notificationIcons[notification.type] || '🔔'}
+          </div>
+          <div className="notification-item-content">
+            <div className="notification-item-header">
+              <span className="notification-item-title">
+                {notification.title}
+              </span>
+              <span
+                className={`notification-item-priority ${getPriorityClassName(notification.priority)}`}
+              />
+            </div>
+            <p className="notification-item-text">{notification.content}</p>
+            <span className="notification-item-time">
+              {formatTime(notification.createdAt)}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="notification-item-delete"
+          onClick={(e) => handleDelete(e, notification.id)}
+          title={t('notifications.delete', '删除')}
+        >
+          <DeleteOutlined />
+        </button>
+      </div>
+    ));
   };
 
   if (!isAuthenticated) {
@@ -141,6 +212,7 @@ export default function NotificationBell() {
     <div className="notification-bell-container">
       {/* 铃铛按钮 */}
       <button
+        type="button"
         ref={bellRef}
         className="notification-bell-btn"
         onClick={togglePanel}
@@ -176,6 +248,7 @@ export default function NotificationBell() {
               <div className="notification-panel-actions">
                 {unreadCount > 0 && (
                   <button
+                    type="button"
                     className="notification-action-btn"
                     onClick={markAllAsRead}
                     title={t('notifications.markAllRead', '全部已读')}
@@ -184,6 +257,7 @@ export default function NotificationBell() {
                   </button>
                 )}
                 <button
+                  type="button"
                   className="notification-action-btn"
                   onClick={() => fetchNotifications()}
                   title={t('notifications.refresh', '刷新')}
@@ -194,60 +268,12 @@ export default function NotificationBell() {
             </div>
 
             {/* 通知列表 */}
-            <div className="notification-list">
-              {isLoading && notifications.length === 0 ? (
-                <div className="notification-loading">
-                  <ReloadOutlined spin />
-                  <span>{t('notifications.loading', '加载中...')}</span>
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="notification-empty">
-                  <BellOutlined className="notification-empty-icon" />
-                  <p>{t('notifications.empty', '暂无通知')}</p>
-                </div>
-              ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`notification-item ${
-                      notification.status === 'unread' ? 'unread' : ''
-                    }`}
-                    onClick={() => handleNotificationClick(notification)}
-                  >
-                    <div className="notification-item-icon">
-                      {notificationIcons[notification.type] || '🔔'}
-                    </div>
-                    <div className="notification-item-content">
-                      <div className="notification-item-header">
-                        <span className="notification-item-title">
-                          {notification.title}
-                        </span>
-                        <span
-                          className="notification-item-priority"
-                          style={{ backgroundColor: priorityColors[notification.priority] }}
-                        />
-                      </div>
-                      <p className="notification-item-text">{notification.content}</p>
-                      <span className="notification-item-time">
-                        {formatTime(notification.createdAt)}
-                      </span>
-                    </div>
-                    <button
-                      className="notification-item-delete"
-                      onClick={(e) => handleDelete(e, notification.id)}
-                      title={t('notifications.delete', '删除')}
-                    >
-                      <DeleteOutlined />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
+            <div className="notification-list">{renderNotificationList()}</div>
 
             {/* 底部 */}
             {notifications.length > 0 && (
               <div className="notification-panel-footer">
-                <button onClick={() => { closePanel(); navigate('/user/notifications'); }}>
+                <button type="button" onClick={() => { closePanel(); navigate('/buyer/tickets'); }}>
                   {t('notifications.viewAll', '查看全部')}
                 </button>
               </div>

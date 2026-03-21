@@ -1,6 +1,6 @@
-/// <reference types="vitest/globals" />
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
+import { afterEach, vi } from 'vitest';
 
 // 清理每个测试后的 DOM
 afterEach(() => {
@@ -10,7 +10,7 @@ afterEach(() => {
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query: string) => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -23,7 +23,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock IntersectionObserver
-globalThis.IntersectionObserver = class IntersectionObserver {
+global.IntersectionObserver = class IntersectionObserver {
   constructor() {}
   disconnect() {}
   observe() {}
@@ -34,7 +34,7 @@ globalThis.IntersectionObserver = class IntersectionObserver {
 } as any;
 
 // Mock ResizeObserver
-globalThis.ResizeObserver = class ResizeObserver {
+global.ResizeObserver = class ResizeObserver {
   constructor() {}
   disconnect() {}
   observe() {}
@@ -48,7 +48,7 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 };
-globalThis.localStorage = localStorageMock as any;
+global.localStorage = localStorageMock as any;
 
 // Mock sessionStorage
 const sessionStorageMock = {
@@ -57,7 +57,7 @@ const sessionStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 };
-globalThis.sessionStorage = sessionStorageMock as any;
+global.sessionStorage = sessionStorageMock as any;
 
 // Mock Ant Design message
 vi.mock('antd', async () => {
@@ -75,7 +75,7 @@ vi.mock('antd', async () => {
 });
 
 // Mock EventSource for SSE
-globalThis.EventSource = class EventSource {
+global.EventSource = class EventSource {
   constructor(public url: string) {}
   close() {}
   addEventListener() {}

@@ -4,16 +4,6 @@ import { message } from 'antd';
 import { useAuthStore } from '@/store/authStore';
 import { handleApiError } from '@/utils/errorHandler';
 
-declare module 'axios' {
-  interface AxiosRequestConfig {
-    skipAuthRedirect?: boolean;
-  }
-
-  interface InternalAxiosRequestConfig {
-    skipAuthRedirect?: boolean;
-  }
-}
-
 // ─── 重试配置 ──────────────────────────────────────────────────────────────────
 const MAX_RETRY_COUNT = 3;
 const RETRY_DELAY_BASE = 500; // ms，指数退避基数
@@ -129,7 +119,7 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    throw error;
+    return Promise.reject(error);
   }
 );
 
@@ -152,50 +142,46 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     // 被取消的请求直接 reject，不走错误处理
     if (isRequestCancelled(error)) {
-      throw error;
+      return Promise.reject(error);
     }
 
-    const originalRequest = error.config as (InternalAxiosRequestConfig & {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
       _retryCount?: number;
-    }) | undefined;
-    const skipAuthRedirect = originalRequest?.skipAuthRedirect === true;
+    };
 
     // ─── 429 限流：显示友好提示 ───────────────────────────────────────────────
     if (error.response?.status === 429) {
       // 尝试从响应头获取重试等待时间
       const retryAfter = error.response.headers['retry-after'];
       if (retryAfter) {
-        const seconds = Number.parseInt(retryAfter, 10);
+        const seconds = parseInt(retryAfter, 10);
         message.warning(`操作过于频繁，请 ${seconds} 秒后再试`, seconds);
       } else {
         message.warning('操作过于频繁，请稍后再试');
       }
-      throw error;
+      return Promise.reject(error);
     }
 
     // ─── GET + 5xx 指数退避重试 ──────────────────────────────────────────────
-    const retryCount = originalRequest?._retryCount ?? 0;
-    if (originalRequest && shouldRetry(error, retryCount)) {
+    const retryCount = originalRequest._retryCount ?? 0;
+    if (shouldRetry(error, retryCount)) {
       originalRequest._retryCount = retryCount + 1;
       await retryDelay(retryCount);
       return apiClient(originalRequest);
     }
 
     // ─── 401 Token 刷新 ──────────────────────────────────────────────────────
-    if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
+    if (error.response?.status !== 401 || originalRequest._retry) {
       handleApiError(error);
-      throw error;
-    }
-
-    if (skipAuthRedirect) {
-      throw error;
+      return Promise.reject(error);
     }
 
     // refresh 请求本身失败，直接登出
     if (originalRequest.url === '/auth/refresh') {
-      await useAuthStore.getState().logout();
-      throw error;
+      useAuthStore.getState().logout();
+      window.location.href = '/login';
+      return Promise.reject(error);
     }
 
     // 已在刷新中，排队等待
@@ -204,9 +190,7 @@ apiClient.interceptors.response.use(
         failedQueue.push({ resolve, reject });
       })
         .then(() => apiClient(originalRequest))
-        .catch((err) => {
-          throw err;
-        });
+        .catch((err) => Promise.reject(err));
     }
 
     // 发起 token 刷新
@@ -243,8 +227,9 @@ apiClient.interceptors.response.use(
       return apiClient(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError as AxiosError);
-      await useAuthStore.getState().logout();
-      throw refreshError;
+      useAuthStore.getState().logout();
+      window.location.href = '/login';
+      return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
     }

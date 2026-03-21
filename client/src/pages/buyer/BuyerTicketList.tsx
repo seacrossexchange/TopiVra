@@ -6,7 +6,6 @@ import {
   Empty,
   Spin,
 } from 'antd';
-import { useTranslation } from 'react-i18next';
 import {
   SearchOutlined,
   CommentOutlined,
@@ -22,7 +21,6 @@ import './BuyerTicketList.css';
 dayjs.extend(relativeTime);
 
 export default function BuyerTicketList() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -65,10 +63,8 @@ export default function BuyerTicketList() {
   useEffect(() => {
     const ticketNo = searchParams.get('ticket');
     if (ticketNo) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTicketNo(ticketNo);
     } else if (ticketsData?.items?.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTicketNo(ticketsData.items[0].ticket_no);
     }
   }, [searchParams, ticketsData]);
@@ -91,15 +87,15 @@ export default function BuyerTicketList() {
 
   const getStatusTag = (status: string) => {
     const statusMap: Record<string, { color: string; text: string }> = {
-      SELLER_REVIEWING: { color: 'processing', text: t('ticket.status.sellerReviewing', '卖家审核中') },
-      SELLER_AGREED: { color: 'success', text: t('ticket.status.sellerAgreed', '卖家已同意') },
-      SELLER_REJECTED: { color: 'error', text: t('ticket.status.sellerRejected', '卖家已拒绝') },
-      SELLER_OFFERED_REPLACEMENT: { color: 'warning', text: t('ticket.status.sellerOfferedReplacement', '卖家提供换货') },
-      BUYER_ACCEPTED_REPLACEMENT: { color: 'processing', text: t('ticket.status.waitingShipment', '等待发货') },
-      REPLACEMENT_DELIVERED: { color: 'warning', text: t('ticket.status.confirmReceipt', '待确认收货') },
-      ADMIN_REVIEWING: { color: 'warning', text: t('ticket.status.adminReviewing', '平台审核中') },
-      COMPLETED: { color: 'success', text: t('ticket.status.completed', '已完成') },
-      CLOSED: { color: 'default', text: t('ticket.status.closed', '已关闭') },
+      SELLER_REVIEWING: { color: 'processing', text: '卖家审核中' },
+      SELLER_AGREED: { color: 'success', text: '卖家已同意' },
+      SELLER_REJECTED: { color: 'error', text: '卖家已拒绝' },
+      SELLER_OFFERED_REPLACEMENT: { color: 'warning', text: '卖家提供换货' },
+      BUYER_ACCEPTED_REPLACEMENT: { color: 'processing', text: '等待发货' },
+      REPLACEMENT_DELIVERED: { color: 'warning', text: '待确认收货' },
+      ADMIN_REVIEWING: { color: 'warning', text: '平台审核中' },
+      COMPLETED: { color: 'success', text: '已完成' },
+      CLOSED: { color: 'default', text: '已关闭' },
     };
     const { color, text } = statusMap[status] || { color: 'default', text: status };
     return <Tag color={color}>{text}</Tag>;
@@ -123,13 +119,13 @@ export default function BuyerTicketList() {
           {/* 头部 */}
           <div className="btc-sidebar__header">
             <h3>
-              <i className="fas fa-headset"></i> {t('ticket.myTickets', '我的工单')}
+              <i className="fas fa-headset"></i> 我的工单
             </h3>
             <button 
               className="btc-create-btn"
               onClick={() => navigate('/buyer/orders')}
             >
-              <PlusOutlined /> {t('ticket.newTicket', '新建工单')}
+              <PlusOutlined /> 新建工单
             </button>
           </div>
 
@@ -137,19 +133,19 @@ export default function BuyerTicketList() {
           <div className="btc-stats">
             <div className="btc-stat">
               <span className="btc-stat__num">{stats?.pending || 0}</span>
-              <span className="btc-stat__label">{t('ticket.stats.processing', '处理中')}</span>
+              <span className="btc-stat__label">处理中</span>
             </div>
             <div className="btc-stat">
               <span className="btc-stat__num">{stats?.total || 0}</span>
-              <span className="btc-stat__label">{t('ticket.stats.total', '总数')}</span>
+              <span className="btc-stat__label">总数</span>
             </div>
             <div className="btc-stat">
               <span className="btc-stat__num">{stats?.closed || 0}</span>
-              <span className="btc-stat__label">{t('ticket.stats.closed', '已关闭')}</span>
+              <span className="btc-stat__label">已关闭</span>
             </div>
             <div className="btc-stat">
-              <span className="btc-stat__num">{stats?.avgResponseTime || t('ticket.stats.zeroHours', '0小时')}</span>
-              <span className="btc-stat__label">{t('ticket.stats.avgResponse', '平均回复')}</span>
+              <span className="btc-stat__num">{stats?.avgResponseTime || '0小时'}</span>
+              <span className="btc-stat__label">平均回复</span>
             </div>
           </div>
 
@@ -158,7 +154,7 @@ export default function BuyerTicketList() {
             <SearchOutlined />
             <input
               type="text"
-              placeholder={t('ticket.searchPlaceholder', '搜索工单号/主题/卖家...')}
+              placeholder="搜索工单号/主题/卖家..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
@@ -172,19 +168,19 @@ export default function BuyerTicketList() {
                 className={`btc-filter-btn ${typeFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setTypeFilter('all')}
               >
-                {t('common.all', '全部')}
+                全部
               </button>
               <button
                 className={`btc-filter-btn ${typeFilter === 'REFUND' ? 'active' : ''}`}
                 onClick={() => setTypeFilter('REFUND')}
               >
-                {t('ticket.type.refund', '售后')}
+                售后
               </button>
               <button
                 className={`btc-filter-btn ${typeFilter === 'DM' ? 'active' : ''}`}
                 onClick={() => setTypeFilter('DM')}
               >
-                {t('ticket.type.dm', '私信')}
+                私信
               </button>
             </div>
 
@@ -194,37 +190,37 @@ export default function BuyerTicketList() {
                 className={`btc-filter-btn ${statusFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setStatusFilter('all')}
               >
-                {t('common.all', '全部')}
+                全部
               </button>
               <button
                 className={`btc-filter-btn ${statusFilter === 'SELLER_REVIEWING' ? 'active' : ''}`}
                 onClick={() => setStatusFilter('SELLER_REVIEWING')}
               >
-                {t('ticket.filter.waitingSeller', '待卖家处理')}
+                待卖家处理
               </button>
               <button
                 className={`btc-filter-btn ${statusFilter === 'SELLER_OFFERED_REPLACEMENT' ? 'active' : ''}`}
                 onClick={() => setStatusFilter('SELLER_OFFERED_REPLACEMENT')}
               >
-                {t('ticket.filter.waitingMe', '待我响应')}
+                待我响应
               </button>
               <button
                 className={`btc-filter-btn ${statusFilter === 'ADMIN_REVIEWING' ? 'active' : ''}`}
                 onClick={() => setStatusFilter('ADMIN_REVIEWING')}
               >
-                {t('ticket.filter.adminReviewing', '平台审核中')}
+                平台审核中
               </button>
               <button
                 className={`btc-filter-btn ${statusFilter === 'COMPLETED' ? 'active' : ''}`}
                 onClick={() => setStatusFilter('COMPLETED')}
               >
-                {t('ticket.filter.completed', '已完成')}
+                已完成
               </button>
               <button
                 className={`btc-filter-btn ${statusFilter === 'CLOSED' ? 'active' : ''}`}
                 onClick={() => setStatusFilter('CLOSED')}
               >
-                {t('ticket.filter.closed', '已关闭')}
+                已关闭
               </button>
             </div>
 
@@ -234,19 +230,19 @@ export default function BuyerTicketList() {
                 className={`btc-filter-btn ${interventionFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setInterventionFilter('all')}
               >
-                {t('common.all', '全部')}
+                全部
               </button>
               <button
                 className={`btc-filter-btn ${interventionFilter === 'intervened' ? 'active' : ''}`}
                 onClick={() => setInterventionFilter('intervened')}
               >
-                {t('ticket.filter.intervened', '已介入')}
+                已介入
               </button>
               <button
                 className={`btc-filter-btn ${interventionFilter === 'not_intervened' ? 'active' : ''}`}
                 onClick={() => setInterventionFilter('not_intervened')}
               >
-                {t('ticket.filter.notIntervened', '未介入')}
+                未介入
               </button>
             </div>
           </div>
@@ -258,7 +254,7 @@ export default function BuyerTicketList() {
                 <Spin />
               </div>
             ) : filteredTickets?.length === 0 ? (
-              <Empty description={t('ticket.noTickets', '暂无工单')} />
+              <Empty description="暂无工单" />
             ) : (
               filteredTickets?.map((ticket: any) => (
                 <div
@@ -279,7 +275,7 @@ export default function BuyerTicketList() {
                     <div className="btc-ticket-item__subject">{ticket.subject}</div>
                     <div className="btc-ticket-item__meta">
                       <span className="btc-ticket-item__seller">
-                        <UserOutlined /> {ticket.seller_id || t('common.platform', '平台')}
+                        <UserOutlined /> {ticket.seller_id || '平台'}
                       </span>
                       <span className="btc-ticket-item__time">
                         {dayjs(ticket.created_at).fromNow()}
@@ -320,11 +316,11 @@ export default function BuyerTicketList() {
             <iframe
               src={`/buyer/tickets/${selectedTicketNo}`}
               className="btc-detail-iframe"
-              title={t('ticket.detailTitle', '工单详情')}
+              title="工单详情"
             />
           ) : (
             <div className="btc-empty-state">
-              <Empty description={t('ticket.selectToView', '请选择一个工单查看详情')} />
+              <Empty description="请选择一个工单查看详情" />
             </div>
           )}
         </main>
@@ -332,9 +328,6 @@ export default function BuyerTicketList() {
     </div>
   );
 }
-
-
-
 
 
 

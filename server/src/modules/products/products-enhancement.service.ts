@@ -8,7 +8,7 @@ export class ProductsEnhancementService {
   // 获取热门特惠商品
   async getHotDeals(limit = 8) {
     const now = new Date();
-
+    
     return this.prisma.product.findMany({
       where: {
         status: 'APPROVED',
@@ -17,7 +17,10 @@ export class ProductsEnhancementService {
         stock: { gt: 0 },
       },
       take: limit,
-      orderBy: [{ soldCount: 'desc' }, { viewCount: 'desc' }],
+      orderBy: [
+        { soldCount: 'desc' },
+        { viewCount: 'desc' },
+      ],
       include: {
         category: { select: { id: true, name: true } },
       },
@@ -53,3 +56,6 @@ export class ProductsEnhancementService {
     });
   }
 }
+
+
+

@@ -4,52 +4,50 @@ import { getFriendlyErrorMessage, getStatusMessage } from './errorMessages';
 
 interface ApiErrorResponse {
   statusCode?: number;
-  message?: string | string[];
+  message?: string;
   error?: string;
-  code?: string;
-  translationKey?: string;
   details?: Record<string, unknown>;
 }
-
-function normalizeBackendMessage(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) {
-    return value.find(Boolean);
-  }
-  return value;
-}
-
-export const extractApiErrorMessage = (
-  error: unknown,
-  defaultMessage = '操作失败'
-): string => {
-  if (!error) return defaultMessage;
-
-  const axiosError = error as AxiosError<ApiErrorResponse>;
-
-  if (!axiosError.response) {
-    if (axiosError.code === 'ECONNABORTED') {
-      return '请求超时，请检查网络连接';
-    }
-    if (axiosError.message === 'Network Error') {
-      return '网络错误，请检查网络连接';
-    }
-    return '网络异常，请稍后重试';
-  }
-
-  const backendMessage = normalizeBackendMessage(axiosError.response.data?.message);
-  if (backendMessage) {
-    return getFriendlyErrorMessage(backendMessage, defaultMessage);
-  }
-
-  return getStatusMessage(axiosError.response.status) || defaultMessage;
-};
 
 /**
  * 统一处理 API 错误
  * @param error - Axios 错误对象
  */
 export const handleApiError = (error: unknown): void => {
-  message.error(extractApiErrorMessage(error, '未知错误'));
+  if (!error) {
+    message.error('未知错误');
+    return;
+  }
+
+  const axiosError = error as AxiosError<ApiErrorResponse>;
+
+  // 网络错误
+  if (!axiosError.response) {
+    if (axiosError.code === 'ECONNABORTED') {
+      message.error('请求超时，请检查网络连接');
+    } else if (axiosError.message === 'Network Error') {
+      message.error('网络错误，请检查网络连接');
+    } else {
+      message.error('网络异常，请稍后重试');
+    }
+    return;
+  }
+
+  const { status, data } = axiosError.response;
+  
+  // 优先使用后端返回的错误消息
+  const backendMessage = data?.message;
+  
+  // 如果有后端消息，尝试转换为友好消息
+  if (backendMessage) {
+    const friendlyMessage = getFriendlyErrorMessage(backendMessage);
+    message.error(friendlyMessage);
+    return;
+  }
+
+  // 否则使用状态码对应的消息
+  const statusMessage = getStatusMessage(status);
+  message.error(statusMessage);
 };
 
 /**
@@ -62,6 +60,18 @@ export const getErrorMessage = (
   error: unknown,
   defaultMessage = '操作失败'
 ): string => {
-  return extractApiErrorMessage(error, defaultMessage);
+  if (!error) return defaultMessage;
+
+  const axiosError = error as AxiosError<ApiErrorResponse>;
+
+  if (axiosError.response?.data?.message) {
+    return getFriendlyErrorMessage(axiosError.response.data.message);
+  }
+
+  if (axiosError.message) {
+    return getFriendlyErrorMessage(axiosError.message);
+  }
+
+  return defaultMessage;
 };
 

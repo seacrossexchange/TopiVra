@@ -10,6 +10,7 @@ import {
   ClockCircleOutlined, RightOutlined,
 } from '@ant-design/icons';
 import { useSeo } from '@/hooks/useSeo';
+import { SEO } from '@/components/SEO';
 import apiClient from '@/services/apiClient';
 import { useAuthStore } from '@/store/authStore';
 import HotDeals from '@/components/home/HotDeals';
@@ -34,11 +35,11 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    apiClient.get('/admin/dashboard/stats', { skipAuthRedirect: true }).then(({ data }) => {
+    apiClient.get('/admin/dashboard/stats').then(({ data }) => {
       if (data) setSiteStats({ userCount: data.userCount || 0, orderCount: data.orderCount || 0 });
     }).catch(() => {});
     // 读取广告位配置
-    apiClient.get('/admin/config/ad-slots', { skipAuthRedirect: true }).then(({ data }) => {
+    apiClient.get('/admin/config/ad-slots').then(({ data }) => {
       if (Array.isArray(data) && data.length > 0) {
         setAdSlots(data);
       }
@@ -87,6 +88,12 @@ export default function Home() {
 
   return (
     <div className="home-container">
+      <SEO 
+        title={t('home.seoDesc')}
+        description={t('home.seoDesc')}
+        keywords="TopiVra, TikTok, Instagram, Facebook, social accounts, digital accounts"
+      />
+
       {/* Hero */}
       <section className="hero-section">
         <div className="hero-inner">

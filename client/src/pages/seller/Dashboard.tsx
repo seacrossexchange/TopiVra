@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, Row, Col, Statistic, Table, Typography, Tag, Space, Avatar } from 'antd';
 import {
   ShoppingCartOutlined,
@@ -13,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 import PageLoading from '@/components/common/PageLoading';
 import PageError from '@/components/common/PageError';
 import apiClient from '@/services/apiClient';
-import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 const { Title, Text } = Typography;
 
@@ -61,22 +60,25 @@ const SellerDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<SellerStats | null>(null);
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await apiClient.get('/sellers/dashboard/stats');
       setStats(response.data);
-    } catch (error: unknown) {
-      setError(extractApiErrorMessage(error, 'Failed to load dashboard data'));
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error
+        ? err.message
+        : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || t('common.loadError', '加载失败');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    void fetchDashboardStats();
+  }, [fetchDashboardStats]);
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -193,7 +195,7 @@ const SellerDashboard: React.FC = () => {
         <Col xs={12} sm={12} md={6}>
           <Card className="bg-[var(--color-bg-secondary)] border-[var(--color-border)]">
             <Statistic
-              title={t('admin.rating')}
+              title={t('seller.rating', '评分')}
               value={stats?.rating || 0}
               prefix={<StarOutlined />}
               suffix="/ 5"

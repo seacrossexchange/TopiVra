@@ -24,9 +24,6 @@ import {
   BlogQueryDto,
   CreateTagDto,
   CreateCommentDto,
-  ApproveBlogDto,
-  RejectBlogDto,
-  AuthorQueryDto,
 } from './dto/blog.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Public } from '../auth/decorators/public.decorator';
@@ -215,77 +212,5 @@ export class BlogController {
   @ApiResponse({ status: 404, description: '文章不存在' })
   async remove(@Param('id') id: string) {
     return this.blogService.remove(id);
-  }
-
-  // ==================== 审核接口 ====================
-
-  @Post(':id/submit')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '提交文章审核' })
-  @ApiParam({ name: 'id', description: '文章 ID' })
-  @ApiResponse({ status: 200, description: '提交成功' })
-  @ApiResponse({ status: 400, description: '文章状态不允许提交' })
-  @ApiResponse({ status: 404, description: '文章不存在' })
-  async submitForReview(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
-    return this.blogService.submitForReview(id, userId);
-  }
-
-  @Post(':id/approve')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '审核通过（管理员）' })
-  @ApiParam({ name: 'id', description: '文章 ID' })
-  @ApiResponse({ status: 200, description: '审核通过' })
-  @ApiResponse({ status: 400, description: '文章状态不允许审核' })
-  @ApiResponse({ status: 404, description: '文章不存在' })
-  async approve(
-    @Param('id') id: string,
-    @CurrentUser('id') adminId: string,
-    @Body() dto: ApproveBlogDto,
-  ) {
-    return this.blogService.approveBlog(id, adminId, dto.reviewNotes);
-  }
-
-  @Post(':id/reject')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '审核驳回（管理员）' })
-  @ApiParam({ name: 'id', description: '文章 ID' })
-  @ApiResponse({ status: 200, description: '已驳回' })
-  @ApiResponse({ status: 400, description: '文章状态不允许审核' })
-  @ApiResponse({ status: 404, description: '文章不存在' })
-  async reject(
-    @Param('id') id: string,
-    @CurrentUser('id') adminId: string,
-    @Body() dto: RejectBlogDto,
-  ) {
-    return this.blogService.rejectBlog(id, adminId, dto.reason);
-  }
-
-  @Get('admin/pending')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '获取待审核文章列表（管理员）' })
-  @ApiResponse({ status: 200, description: '返回待审核文章列表' })
-  async findPending(@Query() query: AuthorQueryDto) {
-    return this.blogService.findPending(query);
-  }
-
-  // ==================== 卖家投稿接口 ====================
-
-  @Get('seller/my')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '获取我的文章（卖家）' })
-  @ApiResponse({ status: 200, description: '返回我的文章列表' })
-  async findMyBlogs(
-    @CurrentUser('id') authorId: string,
-    @Query() query: BlogQueryDto,
-  ) {
-    return this.blogService.findByAuthor(authorId, query);
   }
 }

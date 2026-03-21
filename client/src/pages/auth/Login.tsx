@@ -1,75 +1,79 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card, Form, Input, Button, Typography, Space, Checkbox, message, Divider } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { extractApiErrorMessage } from '@/utils/errorHandler';
+import { AxiosError } from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import apiClient from '@/services/apiClient';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import './Login.css';
 
 const { Title, Text, Link } = Typography;
 
+interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    avatar?: string;
+    roles?: string[];
+    isSeller?: boolean;
+  };
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+}
+
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const login = useAuthStore((state) => state.login);
+  const { setTokens, setUser } = useAuthStore();
 
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
-
+    
     try {
-      const result = await login(values.email, values.password);
-
-      if (result && 'requiresTwoFactor' in result && result.requiresTwoFactor && result.tempToken) {
-        navigate('/2fa', {
-          replace: true,
-          state: {
-            tempToken: result.tempToken,
-            from: (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | undefined)?.from,
-          },
-        });
-        return;
-      }
-
+      // 调用真实 API
+      const response = await apiClient.post<ApiResponse<LoginResponse> | LoginResponse>('/auth/login', {
+        email: values.email,
+        password: values.password,
+      });
+      
+      // 兼容两种响应格式
+      const responseData = 'data' in response.data ? response.data.data : response.data;
+      const { accessToken, refreshToken, user } = responseData;
+      
+      // 存储 tokens 和用户信息
+      setTokens({ accessToken, refreshToken });
+      setUser({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        avatar: user.avatar,
+        roles: user.roles || [],
+      });
+      
       message.success(t('auth.loginSuccess'));
-
-      const state = location.state as
-        | {
-            from?: {
-              pathname?: string;
-              search?: string;
-              hash?: string;
-            };
-          }
-        | undefined;
-
-      const from = state?.from;
-      const fromPath = from?.pathname
-        ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
-        : null;
-
-      if (fromPath && from?.pathname && !['/login', '/register', '/auth/login', '/auth/register'].includes(from.pathname)) {
-        navigate(fromPath, { replace: true });
-        return;
-      }
-
-      const currentUser = useAuthStore.getState().user;
-      const roles = (currentUser?.roles || []).map((r) => r.toUpperCase());
-      const isAdmin = currentUser?.email === 'admin@topivra.com' || roles.includes('ADMIN');
-      const isSeller = currentUser?.isSeller || roles.includes('SELLER');
-
-      if (isAdmin) {
-        navigate('/admin', { replace: true });
-      } else if (isSeller) {
-        navigate('/seller', { replace: true });
+      
+      // 根据用户角色跳转（后端无 roles 字段，通过 isSeller 和邮箱判断角色）
+      if (user.email === 'admin@topivra.com' || (user as any).isAdmin) {
+        navigate('/admin');
+      } else if (user.isSeller) {
+        navigate('/seller');
       } else {
-        navigate('/user/profile', { replace: true });
+        navigate('/buyer/tickets');
       }
     } catch (error) {
-      message.error(extractApiErrorMessage(error, t('auth.loginFailed')));
+      const axiosError = error as AxiosError<{ message: string }>;
+      const errorMsg = axiosError.response?.data?.message || t('auth.loginFailed');
+      message.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -112,7 +116,7 @@ export default function Login() {
             <Form.Item>
               <div className="login-form-footer">
                 <Checkbox>{t('auth.rememberMe')}</Checkbox>
-                <a href="/auth/forgot-password">{t('auth.forgotPassword')}</a>
+                <Link onClick={() => navigate('/contact')}>{t('auth.forgotPassword')}</Link>
               </div>
             </Form.Item>
 

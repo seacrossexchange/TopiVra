@@ -27,18 +27,8 @@ export default function HotDeals() {
   const [deals, setDeals] = useState<HotDeal[]>([]);
   const [countdown, setCountdown] = useState<Record<string, number>>({});
 
-  async function fetchHotDeals() {
-    try {
-      const response = await apiClient.get('/products/hot-deals');
-      setDeals(response.data || []);
-    } catch (error) {
-      console.error('Failed to fetch hot deals:', error);
-    }
-  }
-
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void fetchHotDeals();
+    fetchHotDeals();
   }, []);
 
   useEffect(() => {
@@ -55,6 +45,14 @@ export default function HotDeals() {
     return () => clearInterval(timer);
   }, [deals]);
 
+  const fetchHotDeals = async () => {
+    try {
+      const response = await apiClient.get('/products/hot-deals');
+      setDeals(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch hot deals:', error);
+    }
+  };
 
   const formatCountdown = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -116,7 +114,7 @@ export default function HotDeals() {
                       <Text delete type="secondary" style={{ fontSize: 12 }}>
                         ${deal.originalPrice}
                       </Text>
-                      <Text strong style={{ fontSize: 20, color: 'var(--color-error)' }}>
+                      <Text strong style={{ fontSize: 20, color: '#ff4d4f' }}>
                         ${deal.price}
                       </Text>
                     </Space>
@@ -137,7 +135,7 @@ export default function HotDeals() {
                   <div className="hot-deal-progress">
                     <Progress
                       percent={Math.round((deal.soldCount / (deal.soldCount + deal.stock)) * 100)}
-                      strokeColor="var(--color-error)"
+                      strokeColor="#ff4d4f"
                       showInfo={false}
                       size="small"
                     />
@@ -161,9 +159,6 @@ export default function HotDeals() {
     </section>
   );
 }
-
-
-
 
 
 

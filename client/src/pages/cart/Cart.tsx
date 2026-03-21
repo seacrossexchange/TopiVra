@@ -281,7 +281,7 @@ export default function Cart() {
                     {selectedCoupon && (
                       <div className="flex justify-between mb-2">
                         <Text>{t('cart.couponDiscount', '优惠券')}</Text>
-                        <Text style={{ color: 'var(--color-success)' }}>-${calculateCouponDiscount().toFixed(2)}</Text>
+                        <Text style={{ color: '#52c41a' }}>-${calculateCouponDiscount().toFixed(2)}</Text>
                       </div>
                     )}
                     <div className="border-t border-[var(--color-border-secondary)] pt-3 mt-3 flex justify-between">

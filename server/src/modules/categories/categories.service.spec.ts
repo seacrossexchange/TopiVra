@@ -255,7 +255,7 @@ describe('CategoriesService', () => {
       prisma.category.findUnique.mockResolvedValue({
         ...mockCategory,
         children: [],
-        _count: { products: 0 },
+        productCount: 0,
       });
       prisma.category.delete.mockResolvedValue(mockCategory);
 

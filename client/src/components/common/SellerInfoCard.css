@@ -59,7 +59,7 @@
 }
 
 .seller-info-compact__star {
-  color: var(--color-warning);
+  color: #faad14;
 }
 
 .seller-info-compact__divider {
@@ -187,17 +187,17 @@
 
 .seller-info__contact-btn:hover {
   background: var(--color-primary);
-  color: white;
+  color: #fff;
 }
 
 /* Dark mode adjustments */
-:root:not([data-theme='light']) .seller-info-card {
+[data-theme='dark'] .seller-info-card {
   background: var(--color-bg-elevated);
 }
 
-:root:not([data-theme='light']) .seller-info__contact-btn:hover {
+[data-theme='dark'] .seller-info__contact-btn:hover {
   background: var(--color-primary);
-  color: white;
+  color: #fff;
 }
 
 /* Responsive */

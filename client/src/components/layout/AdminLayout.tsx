@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
   UserOutlined,
@@ -18,19 +18,18 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useI18nNavigate, useI18nHref } from '@/hooks/useI18nNavigate';
 import { useAuthStore } from '@/store/authStore';
-import { useTheme } from '@/hooks/useTheme';
-import { ThemeToggle } from '@/components/common/ThemeToggle';
 import './AdminLayout.css';
 
 const { Sider, Content, Header } = Layout;
 
 export default function AdminLayout() {
   const { t } = useTranslation();
-  const { isDark } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
+  const { navigate } = useI18nNavigate();
+  const { getHref } = useI18nHref();
   const { user, logout } = useAuthStore();
 
   const menuItems = [
@@ -42,7 +41,7 @@ export default function AdminLayout() {
     {
       key: '/admin/analytics',
       icon: <BarChartOutlined />,
-      label: '流量分析',
+      label: t('admin.analytics', '流量分析'),
     },
     {
       key: '/admin/users',
@@ -97,7 +96,7 @@ export default function AdminLayout() {
     {
       key: '/admin/payment-config',
       icon: <WalletOutlined />,
-      label: 'Payment Config',
+      label: t('admin.paymentConfig', '支付配置'),
     },
     {
       key: '/admin/payment-gateways',
@@ -107,22 +106,17 @@ export default function AdminLayout() {
     {
       key: '/admin/seo-config',
       icon: <FileTextOutlined />,
-      label: 'SEO Config',
+      label: t('admin.seoConfig', 'SEO 配置'),
     },
     {
       key: '/admin/oauth-config',
       icon: <UserOutlined />,
-      label: 'OAuth Config',
+      label: t('admin.oauthConfig', 'OAuth 配置'),
     },
     {
       key: '/admin/telegram-config',
       icon: <CustomerServiceOutlined />,
-      label: 'Telegram Config',
-    },
-    {
-      key: '/admin/blogs',
-      icon: <FileTextOutlined />,
-      label: t('admin.blogs', '博客管理'),
+      label: t('admin.telegramConfig', 'Telegram 配置'),
     },
   ];
 
@@ -138,7 +132,7 @@ export default function AdminLayout() {
   const userMenuItems = [
     {
       key: 'profile',
-      label: <Link to="/user/profile">{t('user.profile')}</Link>,
+      label: <Link to={getHref('/user/profile')}>{t('user.profile')}</Link>,
     },
     { type: 'divider' as const },
     {
@@ -159,12 +153,12 @@ export default function AdminLayout() {
         width={220}
       >
         <div className="admin-layout__logo">
-          <Link to="/admin">
+          <Link to={getHref('/admin')}>
             {collapsed ? 'T' : 'TopiVra Admin'}
           </Link>
         </div>
         <Menu
-          theme={isDark ? 'dark' : 'light'}
+          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
@@ -180,7 +174,6 @@ export default function AdminLayout() {
             className="admin-layout__trigger"
           />
           <div className="admin-layout__header-right">
-            <ThemeToggle />
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <div className="admin-layout__user">
                 <Avatar size="small" src={user?.avatar}>

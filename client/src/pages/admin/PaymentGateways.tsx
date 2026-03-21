@@ -23,8 +23,8 @@ import {
   ReloadOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import api from '../../services/apiClient';
-import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 interface GatewayConfigField {
   key: string;
@@ -55,6 +55,7 @@ interface Gateway {
 }
 
 const PaymentGateways: React.FC = () => {
+  const { t } = useTranslation();
   const [gateways, setGateways] = useState<Gateway[]>([]);
   const [loading, setLoading] = useState(false);
   const [configModal, setConfigModal] = useState(false);
@@ -70,8 +71,8 @@ const PaymentGateways: React.FC = () => {
     try {
       const res = await api.get('/payment-gateways');
       setGateways(res.data || []);
-    } catch (error: unknown) {
-      message.error(extractApiErrorMessage(error, '获取支付通道失败'));
+    } catch (error: any) {
+      message.error(error.response?.data?.message || t('admin.loadPaymentGatewaysFailed', '获取支付通道失败'));
     } finally {
       setLoading(false);
     }
@@ -80,10 +81,10 @@ const PaymentGateways: React.FC = () => {
   const handleToggle = async (code: string, enabled: boolean) => {
     try {
       await api.put(`/payment-gateways/${code}`, { enabled });
-      message.success(enabled ? '已启用' : '已禁用');
+      message.success(enabled ? t('common.enabled', '已启用') : t('common.disabled', '已禁用'));
       fetchGateways();
-    } catch (error: unknown) {
-      message.error(extractApiErrorMessage(error, '操作失败'));
+    } catch (error: any) {
+      message.error(error.response?.data?.message || t('common.operationFailed', '操作失败'));
     }
   };
 
@@ -99,28 +100,28 @@ const PaymentGateways: React.FC = () => {
       await api.put(`/payment-gateways/${currentGateway?.code}`, {
         config: values,
       });
-      message.success('配置已保存');
+      message.success(t('common.saveSuccess', '配置已保存'));
       setConfigModal(false);
       fetchGateways();
-    } catch (error: unknown) {
-      message.error(extractApiErrorMessage(error, '保存失败'));
+    } catch (error: any) {
+      message.error(error.response?.data?.message || t('common.saveFailed', '保存失败'));
     }
   };
 
   const handleTest = async (code: string) => {
     try {
-      message.loading({ content: '测试中...', key: 'test' });
+      message.loading({ content: t('common.testing', '测试中...'), key: 'test' });
       const res = await api.post(`/payment-gateways/${code}/test`, {
         amount: 0.01,
       });
       if (res.data.success) {
-        message.success({ content: '测试成功', key: 'test' });
+        message.success({ content: t('common.testSuccess', '测试成功'), key: 'test' });
       } else {
-        message.error({ content: extractApiErrorMessage({ response: { data: { message: res.data.message } } }, '测试失败'), key: 'test' });
+        message.error({ content: res.data.message || t('common.testFailed', '测试失败'), key: 'test' });
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       message.error({
-        content: extractApiErrorMessage(error, '测试失败'),
+        content: error.response?.data?.message || t('common.testFailed', '测试失败'),
         key: 'test',
       });
     }
@@ -129,10 +130,10 @@ const PaymentGateways: React.FC = () => {
   const handleInit = async () => {
     try {
       const res = await api.post('/payment-gateways/init');
-      message.success(res.data.message || '初始化成功');
+      message.success(res.data.message || t('common.initSuccess', '初始化成功'));
       fetchGateways();
-    } catch (error: unknown) {
-      message.error(extractApiErrorMessage(error, '初始化失败'));
+    } catch (error: any) {
+      message.error(error.response?.data?.message || t('common.initFailed', '初始化失败'));
     }
   };
 
@@ -140,7 +141,7 @@ const PaymentGateways: React.FC = () => {
     if (!currentGateway?.info?.configFields) {
       return (
         <Form form={form} layout="vertical">
-          <Form.Item label="配置 (JSON)">
+          <Form.Item label={t('admin.gatewayConfigJson', '配置 (JSON)')}>
             <Input.TextArea
               rows={6}
               placeholder='{"key": "value"}'
@@ -234,7 +235,7 @@ const PaymentGateways: React.FC = () => {
       render: (name: string, record: Gateway) => (
         <Space>
           <span>{name}</span>
-          {record.enabled && <Tag color="green">已启用</Tag>}
+          {record.enabled && <Tag color="green">{t('common.enabled', '已启用')}</Tag>}
         </Space>
       ),
     },
@@ -272,7 +273,7 @@ const PaymentGateways: React.FC = () => {
               onClick={() => handleConfig(record)}
             />
           </Tooltip>
-          <Tooltip title="测试连接">
+          <Tooltip title={t('admin.testConnection', '测试连接')}>
             <Button
               icon={<CheckCircleOutlined />}
               onClick={() => handleTest(record.code)}
@@ -286,14 +287,14 @@ const PaymentGateways: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Card
-        title="支付通道管理"
+        title={t('admin.paymentGatewayManagement', '支付通道管理')}
         extra={
           <Space>
             <Button icon={<ReloadOutlined />} onClick={fetchGateways}>
-              刷新
+              {t('common.refresh', '刷新')}
             </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleInit}>
-              初始化通道
+              {t('admin.initGateways', '初始化通道')}
             </Button>
           </Space>
         }
@@ -308,12 +309,12 @@ const PaymentGateways: React.FC = () => {
       </Card>
 
       <Modal
-        title={`配置 ${currentGateway?.name}`}
+        title={`${t('common.configure', '配置')} ${currentGateway?.name}`}
         open={configModal}
         onOk={handleSaveConfig}
         onCancel={() => setConfigModal(false)}
         width={600}
-        destroyOnClose
+        destroyOnHidden
       >
         {renderConfigForm()}
       </Modal>

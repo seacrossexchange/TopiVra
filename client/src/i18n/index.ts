@@ -6,10 +6,13 @@ import en from './locales/en.json';
 import id from './locales/id.json';
 import ptBR from './locales/pt-BR.json';
 import esMX from './locales/es-MX.json';
+import { DEFAULT_LANGUAGE, isSupportedLanguage } from './config';
 import { applyTextDirection } from '@/utils/rtl';
 
-// 从 localStorage 获取保存的语言
-const savedLanguage = localStorage.getItem('language') || 'zh-CN';
+const savedLanguage = localStorage.getItem('language') ?? undefined;
+const initialLanguage = isSupportedLanguage(savedLanguage)
+  ? savedLanguage
+  : undefined;
 
 i18n
   .use(LanguageDetector)
@@ -22,14 +25,15 @@ i18n
       'pt-BR': { translation: ptBR },
       'es-MX': { translation: esMX },
     },
-    lng: savedLanguage, // 使用保存的语言
-    fallbackLng: 'zh-CN',
+    lng: initialLanguage,
+    fallbackLng: DEFAULT_LANGUAGE,
     interpolation: {
       escapeValue: false,
     },
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
+      lookupLocalStorage: 'language',
     },
     // 复数规则支持
     pluralSeparator: '_',
@@ -43,6 +47,6 @@ i18n.on('languageChanged', (lng) => {
 });
 
 // 初始化时应用文本方向
-applyTextDirection(savedLanguage);
+applyTextDirection(initialLanguage || i18n.language || DEFAULT_LANGUAGE);
 
 export default i18n;

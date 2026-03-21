@@ -3,7 +3,6 @@ import { Modal, Form, Select, Upload, Button, message, Alert, Typography, Space,
 import { InboxOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';
-import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 const { Dragger } = Upload;
 const { Text, Link } = Typography;
@@ -84,7 +83,7 @@ export default function BatchImportModal({
         message.error(t('inventory.importFailed'));
       }
     } catch (error: any) {
-      message.error(extractApiErrorMessage(error, t('common.error')));
+      message.error(error.response?.data?.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -229,9 +228,6 @@ export default function BatchImportModal({
     </Modal>
   );
 }
-
-
-
 
 
 

@@ -79,7 +79,6 @@ model User {
   blogs                  Blog[]
   blogComments           BlogComment[]
   blogLikes              BlogLike[]
-  blogUnlocks            BlogUnlock[]
   refundRequestsAsBuyer  RefundRequest[]     @relation("RefundBuyer")
   refundRequestsAsSeller RefundRequest[]     @relation("RefundSeller")
 
@@ -241,36 +240,11 @@ model Product {
   region      String?
   tags        Json?
 
-  // 商品类型与交付方式
-  productType  ProductType  @default(ACCOUNT) @map("product_type")
-  deliveryType DeliveryType @default(AUTO_DELIVER) @map("delivery_type")
-
-  // 国家属性配置
-  countryMode CountryMode @default(NONE) @map("country_mode")
-  countries   Json?       // 国家列表 ["US", "CN", "JP"]
-
   // 账号属性
   attributes Json?
 
   // 商品凭证（账号信息）
   credentials Json?
-
-  // 软件商品专属字段
-  fileUrl      String?  @map("file_url")       // 文件下载链接
-  fileName     String?  @map("file_name")      // 文件名
-  fileSize     Int?     @map("file_size")      // 文件大小（字节）
-  fileHash     String?  @map("file_hash")      // 文件哈希（校验用）
-  version      String?                          // 软件版本号
-  systemReq    String?  @map("system_req")     // 系统要求描述
-  installGuide String?  @map("install_guide") @db.Text // 安装说明
-  
-  // 激活码/卡密相关
-  activationKeys Json? @map("activation_keys") // 激活码列表 [{key: "XXX", used: false, orderId: null}]
-  
-  // 外部链接交付
-  externalLink     String? @map("external_link")      // 外部下载链接
-  linkPassword     String? @map("link_password")      // 链接提取密码
-  linkInstructions String? @map("link_instructions") @db.Text // 链接使用说明
 
   // 价格
   price         Decimal  @db.Decimal(10, 2)
@@ -362,30 +336,6 @@ enum ProductStatus {
   ON_SALE
   OFF_SALE
   SOLD_OUT
-}
-
-// 商品类型
-enum ProductType {
-  ACCOUNT      // 账号类商品
-  SOFTWARE     // 软件类商品
-  DIGITAL      // 数字资源类商品
-  KEY          // 激活码/卡密类商品
-}
-
-// 交付方式
-enum DeliveryType {
-  AUTO_DELIVER  // 自动发货
-  MANUAL        // 手动发货
-  FILE_DOWNLOAD // 文件下载
-  LINK_DELIVERY // 外部链接交付
-  KEY_DELIVERY  // 激活码交付
-}
-
-// 国家属性模式
-enum CountryMode {
-  NONE        // 无国家属性
-  SINGLE      // 单国家
-  MULTI       // 多国家
 }
 
 // ==================== 订单 ====================
@@ -953,20 +903,6 @@ model Blog {
 
   // 状态
   status BlogStatus @default(DRAFT)
-  
-  // 审核信息
-  reviewedBy   String?  @map("reviewed_by")
-  reviewedAt   DateTime? @map("reviewed_at")
-  rejectReason String?  @map("reject_reason") @db.Text
-  reviewNotes  String?  @map("review_notes") @db.Text // 审核备注
-
-  // 阅读权限控制
-  accessType   BlogAccessType @default(PUBLIC) @map("access_type")
-  unlockPrice  Decimal?       @map("unlock_price") @db.Decimal(10, 2) // 打赏解锁价格
-  previewContent String?      @map("preview_content") @db.Text // 免费预览内容
-  
-  // 作者类型
-  authorType   AuthorType @default(SELLER) @map("author_type") // 卖家投稿 or 管理员编写
 
   // SEO
   metaTitle       String? @map("meta_title") @db.VarChar(200)
@@ -977,7 +913,6 @@ model Blog {
   likeCount    Int @default(0) @map("like_count")
   commentCount Int @default(0) @map("comment_count")
   readingTime  Int @default(0) @map("reading_time") // 阅读时间（分钟）
-  unlockCount  Int @default(0) @map("unlock_count") // 解锁次数
 
   // 内容格式
   contentType ContentType @default(MARKDOWN) @map("content_type")
@@ -993,14 +928,13 @@ model Blog {
   comments     BlogComment[]
   likes        BlogLike[]
   views        BlogView[]
-  unlocks      BlogUnlock[]
+  //   translations BlogTranslation[]
 
   @@index([authorId])
   @@index([categoryId])
   @@index([status])
   @@index([publishedAt])
   @@index([viewCount])
-  @@index([accessType])
   @@map("blogs")
 }
 
@@ -1026,9 +960,7 @@ model Blog {
 
 enum BlogStatus {
   DRAFT
-  PENDING_REVIEW  // 待审核
   PUBLISHED
-  REJECTED        // 已拒绝
   ARCHIVED
 }
 
@@ -1036,21 +968,6 @@ enum ContentType {
   MARKDOWN
   HTML
   RICH_TEXT
-}
-
-// 博客访问权限类型
-enum BlogAccessType {
-  PUBLIC        // 公开免费
-  LOGIN_REQUIRED // 需登录
-  MEMBER_ONLY   // 仅会员可读
-  PAID_UNLOCK   // 打赏解锁
-  MEMBER_OR_PAID // 会员或打赏均可
-}
-
-// 作者类型
-enum AuthorType {
-  SELLER  // 卖家投稿
-  ADMIN   // 管理员编写
 }
 
 // 标签系统
@@ -1126,40 +1043,6 @@ model BlogLike {
   @@index([blogId])
   @@index([userId])
   @@map("blog_likes")
-}
-
-// 博客解锁记录（付费/打赏解锁）
-model BlogUnlock {
-  id        String   @id @default(uuid())
-  blogId    String   @map("blog_id")
-  userId    String   @map("user_id")
-  
-  // 解锁方式
-  unlockType UnlockType @map("unlock_type") // PAID 支付解锁, MEMBER 会员解锁
-  
-  // 支付金额（如果是付费解锁）
-  amount    Decimal? @db.Decimal(10, 2)
-  currency  String?  @default("USD")
-  
-  // 关联订单（如果是付费解锁）
-  orderId   String?  @map("order_id")
-  
-  createdAt DateTime @default(now()) @map("created_at")
-
-  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([blogId, userId])
-  @@index([blogId])
-  @@index([userId])
-  @@index([unlockType])
-  @@map("blog_unlocks")
-}
-
-enum UnlockType {
-  PAID      // 支付打赏解锁
-  MEMBER    // 会员免费解锁
-  ADMIN     // 管理员解锁
 }
 
 // ==================== 会员系统 ====================
@@ -1570,251 +1453,6 @@ model CouponUsage {
   @@index([userId])
   @@index([orderId])
   @@map("coupon_usages")
-}
-
-// ==================== 文件上传系统 ====================
-
-model UploadFile {
-  id           String   @id @default(uuid())
-  filename     String   @map("file_name")
-  originalname String   @map("original_name")
-  mimetype     String   @map("mime_type")
-  size         Int
-  path         String
-  uploaderId   String   @map("uploader_id")
-  category     String   // product_file, product_image, banner, key_file
-  
-  // 关联
-  // uploader User @relation(fields: [uploaderId], references: [id])
-  
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@index([uploaderId])
-  @@index([category])
-  @@map("upload_files")
-}
-
-// ==================== 商品激活码系统 ====================
-
-model ProductKey {
-  id        String        @id @default(uuid())
-  productId String        @map("product_id")
-  key       String        // 激活码/卡密
-  extra     String?       // 额外信息（如备注）
-  status    KeyStatus     @default(AVAILABLE)
-  orderId   String?       @map("order_id")
-  buyerId   String?       @map("buyer_id")
-  soldAt    DateTime?     @map("sold_at")
-  
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  // order   Order?   @relation(fields: [orderId], references: [id])
-
-  @@unique([productId, key])
-  @@index([productId])
-  @@index([status])
-  @@index([orderId])
-  @@map("product_keys")
-}
-
-enum KeyStatus {
-  AVAILABLE   // 可用
-  RESERVED     // 预留
-  SOLD         // 已售
-  USED         // 已使用
-  EXPIRED      // 已过期
-  INVALID       // 无效
-}
-
-// ==================== 广告位系统 ====================
-
-model AdSlot {
-  id          String   @id @default(uuid())
-  name        String   // 广告位名称
-  code        String   @unique // 广告位代码 (home_banner, category_sidebar, product_detail)
-  description String?  @db.Text
-  
-  // 位置信息
-  position    String   // 位置标识 (home_top, category_left, product_bottom)
-  pageType    String   @map("page_type") // 首页, 分类页, 商品详情页
-  
-  // 尺寸要求
-  width       Int?
-  height      Int?
-  
-  // 状态
-  isActive    Boolean  @default(true) @map("is_active")
-  
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  
-  ads Advertisement[]
-
-  @@index([code])
-  @@index([position])
-  @@map("ad_slots")
-}
-
-model Advertisement {
-  id          String   @id @default(uuid())
-  slotId      String   @map("slot_id")
-  
-  // 广告内容
-  title       String
-  description String?  @db.Text
-  imageUrl    String   @map("image_url")
-  linkUrl     String   @map("link_url") // 跳转链接
-  linkType    String   @map("link_type") // product, shop, blog, external
-  
-  // 投放配置
-  startDate   DateTime @map("start_date")
-  endDate     DateTime @map("end_date")
-  
-  // 定向配置
-  targetCountries Json? @map("target_countries") // 目标国家
-  targetLanguages Json? @map("target_languages") // 目标语言
-  targetPlatforms Json? @map("target_platforms") // 目标平台
-  
-  // 统计
-  viewCount   Int      @default(0) @map("view_count")
-  clickCount  Int      @default(0) @map("click_count")
-  
-  // 状态
-  status      AdStatus @default(PENDING)
-  priority    Int      @default(0) // 显示优先级
-  
-  // 审核信息
-  reviewedBy   String?  @map("reviewed_by")
-  reviewedAt   DateTime? @map("reviewed_at")
-  rejectReason String?  @map("reject_reason") @db.Text
-  
-  // 创建者
-  creatorId   String   @map("creator_id") // 创建者ID (卖家或管理员)
-  creatorType String   @map("creator_type") // SELLER, ADMIN
-  
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  slot AdSlot @relation(fields: [slotId], references: [id])
-
-  @@index([slotId])
-  @@index([status])
-  @@index([startDate, endDate])
-  @@map("advertisements")
-}
-
-enum AdStatus {
-  DRAFT       // 草稿
-  PENDING     // 待审核
-  APPROVED    // 已通过
-  REJECTED    // 已拒绝
-  RUNNING     // 投放中
-  PAUSED      // 已暂停
-  ENDED       // 已结束
-}
-
-// ==================== 内容审核日志 ====================
-
-model ContentFilterLog {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  type      String   // PRODUCT, BLOG, MESSAGE, TICKET
-  content   String?  @db.Text
-  detectedItems Json? @map("detected_items")
-  riskLevel String   @map("risk_level") // LOW, MEDIUM, HIGH, CRITICAL
-  action    String?  // BLOCKED, FLAGGED, SANITIZED
-  
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([userId])
-  @@index([type])
-  @@index([riskLevel])
-  @@index([createdAt])
-  @@map("content_filter_logs")
-}
-
-// 敏感词库
-model SensitiveWord {
-  id        String   @id @default(uuid())
-  word      String   @unique
-  category  String   // CONTACT, FRAUD, ADULT, POLITICS, OTHER
-  severity  String   @default("MEDIUM") // LOW, MEDIUM, HIGH
-  isActive  Boolean  @default(true) @map("is_active")
-  createdBy String?  @map("created_by")
-  
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@index([word])
-  @@index([category])
-  @@index([isActive])
-  @@map("sensitive_words")
-}
-
-// 用户违规记录
-model UserViolation {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  
-  // 违规信息
-  type      String   // CONTACT_SHARING, FRAUD, SPAM, EXTERNAL_TRAFFIC
-  severity  String   // MINOR, MODERATE, SEVERE, CRITICAL
-  content   String?  @db.Text // 违规内容
-  evidence  Json?    // 证据截图/链接
-  
-  // 来源
-  sourceType String?  @map("source_type") // PRODUCT, BLOG, MESSAGE, TICKET
-  sourceId   String?  @map("source_id")
-  
-  // 处理
-  status     String   @default("PENDING") // PENDING, WARNED, PENALIZED, DISMISSED
-  penalty    String?  // WARNING, TEMP_BAN, PERM_BAN, FINE
-  penaltyEnd DateTime? @map("penalty_end")
-  handledBy  String?  @map("handled_by")
-  handledAt  DateTime? @map("handled_at")
-  notes      String?  @db.Text
-  
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@index([userId])
-  @@index([type])
-  @@index([status])
-  @@index([createdAt])
-  @@map("user_violations")
-}
-
-// 图片审核记录
-model ImageAuditLog {
-  id        String   @id @default(uuid())
-  uploadId  String?  @map("upload_id")
-  imageUrl  String   @map("image_url")
-  
-  // OCR结果
-  ocrText   String?  @map("ocr_text") @db.Text
-  detectedItems Json? @map("detected_items")
-  
-  // 二维码检测
-  qrCodes   Json?    // [{text: "xxx", position: {...}}]
-  
-  // 风险评估
-  riskLevel String?  @map("risk_level")
-  isClean   Boolean  @default(true) @map("is_clean")
-  
-  // 审核状态
-  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  reviewedBy String? @map("reviewed_by")
-  reviewedAt DateTime? @map("reviewed_at")
-  
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([uploadId])
-  @@index([status])
-  @@index([isClean])
-  @@map("image_audit_logs")
 }
 
 

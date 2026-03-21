@@ -1,13 +1,4 @@
-import {
-  IsString,
-  IsNumber,
-  IsEnum,
-  IsOptional,
-  IsDate,
-  Min,
-  Max,
-  IsArray,
-} from 'class-validator';
+import { IsString, IsNumber, IsEnum, IsOptional, IsDate, Min, Max, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum CouponType {
@@ -143,3 +134,6 @@ export class ValidateCouponDto {
   @IsString({ each: true })
   categories?: string[];
 }
+
+
+

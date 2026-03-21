@@ -35,7 +35,7 @@
 }
 
 .product-detail-price-box {
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-subtle);
   padding: 16px;
   border-radius: 8px;
 }
@@ -134,15 +134,15 @@
 }
 
 /* Dark theme adjustments */
-:root:not([data-theme='light']) .product-detail-container {
+[data-theme="dark"] .product-detail-container {
   background: var(--color-bg-base);
 }
 
-:root:not([data-theme='light']) .product-detail-price-box {
+[data-theme="dark"] .product-detail-price-box {
   background: var(--color-bg-elevated);
 }
 
-:root:not([data-theme='light']) .product-detail-guarantee {
+[data-theme="dark"] .product-detail-guarantee {
   background: rgba(var(--color-primary-rgb), 0.1);
 }
 

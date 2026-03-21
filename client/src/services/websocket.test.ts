@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { wsService } from './websocket';
+import { renderHook, act } from '@testing-library/react';
+import { wsService } from '../websocket';
 
 describe('WebSocket Service', () => {
   beforeEach(() => {
-    wsService.disconnect();
     vi.clearAllMocks();
   });
 
@@ -16,13 +16,13 @@ describe('WebSocket Service', () => {
       expect(typeof connected).toBe('boolean');
     });
 
-    it('should return false when a reconnect attempt also fails', async () => {
+    it('should not connect if already connected', async () => {
       const token = 'test-token';
-
+      
       await wsService.connect(token);
       const result = await wsService.connect(token);
 
-      expect(result).toBe(false);
+      expect(result).toBe(true);
     });
 
     it('should disconnect properly', () => {

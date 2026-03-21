@@ -42,7 +42,7 @@
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/websockets": "^11.0.0",
     "@paypal/checkout-server-sdk": "^1.0.3",
-    "@prisma/adapter-mariadb": "^7.4.2",
+    "@prisma/adapter-mariadb": "^7.5.0",
     "@prisma/client": "^5.22.0",
     "@types/compression": "^1.8.1",
     "@types/geoip-lite": "^1.4.4",

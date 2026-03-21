@@ -10,7 +10,10 @@ export class AnalyticsService {
   /**
    * 获取销售趋势数据（日/周/月）
    */
-  async getSalesTrend(period: 'day' | 'week' | 'month' = 'day', days: number = 30) {
+  async getSalesTrend(
+    period: 'day' | 'week' | 'month' = 'day',
+    days: number = 30,
+  ) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -40,7 +43,7 @@ export class AnalyticsService {
       ORDER BY date ASC
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       date: row.date,
       orderCount: Number(row.orderCount),
       totalAmount: Number(row.totalAmount),
@@ -66,7 +69,7 @@ export class AnalyticsService {
       },
     });
 
-    return products.map(p => ({
+    return products.map((p) => ({
       id: p.id,
       title: p.title,
       platform: p.platform,
@@ -102,7 +105,7 @@ export class AnalyticsService {
       LIMIT ${limit}
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       id: row.id,
       username: row.username,
       shopName: row.shop_name,
@@ -131,7 +134,7 @@ export class AnalyticsService {
       ORDER BY date ASC
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       date: row.date,
       newUsers: Number(row.newUsers),
       totalUsers: Number(row.totalUsers),
@@ -155,7 +158,7 @@ export class AnalyticsService {
       ORDER BY revenue DESC
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       category: row.category,
       productCount: Number(row.productCount || 0),
       totalSold: Number(row.totalSold || 0),
@@ -179,7 +182,7 @@ export class AnalyticsService {
       ORDER BY revenue DESC
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       platform: row.platform,
       productCount: Number(row.productCount),
       totalSold: Number(row.totalSold || 0),
@@ -202,7 +205,7 @@ export class AnalyticsService {
       LIMIT 20
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       country: row.country,
       userCount: Number(row.userCount),
     }));
@@ -227,7 +230,7 @@ export class AnalyticsService {
       ORDER BY date ASC
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       date: row.date,
       dailyGMV: Number(row.dailyGMV),
       cumulativeGMV: Number(row.cumulativeGMV),
@@ -266,7 +269,7 @@ export class AnalyticsService {
       ORDER BY date ASC
     `);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       date: row.date,
       newUsers: Number(row.newUsers),
       activeUsers: Number(row.activeUsers),
@@ -323,4 +326,3 @@ export class AnalyticsService {
     };
   }
 }
-

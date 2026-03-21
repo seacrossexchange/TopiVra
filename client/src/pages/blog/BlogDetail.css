@@ -27,7 +27,7 @@
 .blog-article-cover img {
   width: 100%;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-modal);
 }
 
 /* 文章内容卡片 */
@@ -96,7 +96,7 @@
 
 .blog-article-actions .like-btn:hover {
   background-color: var(--color-primary);
-  color: #fff;
+  color: white;
 }
 
 /* 相关文章 */
@@ -114,7 +114,7 @@
 
 .related-card:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-modal);
 }
 
 .related-card-cover {
@@ -151,20 +151,20 @@
 }
 
 /* 暗色主题适配 */
-[data-theme='dark'] .blog-article-content {
+:root:not([data-theme='light']) .blog-article-content {
   background-color: var(--color-bg-elevated);
 }
 
-[data-theme='dark'] .blog-article-cover img {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+:root:not([data-theme='light']) .blog-article-cover img {
+  box-shadow: var(--shadow-modal);
 }
 
-[data-theme='dark'] .related-card {
+:root:not([data-theme='light']) .related-card {
   background-color: var(--color-bg-elevated);
 }
 
-[data-theme='dark'] .related-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+:root:not([data-theme='light']) .related-card:hover {
+  box-shadow: var(--shadow-modal);
 }
 
 /* 响应式适配 */

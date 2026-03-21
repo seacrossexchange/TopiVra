@@ -29,7 +29,7 @@
 }
 
 .category-tabs .ant-tag.active {
-  color: #fff;
+  color: white;
 }
 
 /* 博客卡片样式 */
@@ -43,7 +43,7 @@
 
 .blog-card:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-modal);
   transform: translateY(-4px);
 }
 
@@ -99,16 +99,16 @@
 }
 
 /* 暗色主题适配 */
-[data-theme='dark'] .blog-card {
+:root:not([data-theme='light']) .blog-card {
   background-color: var(--color-bg-elevated);
   border-color: var(--color-border-secondary);
 }
 
-[data-theme='dark'] .blog-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+:root:not([data-theme='light']) .blog-card:hover {
+  box-shadow: var(--shadow-modal);
 }
 
-[data-theme='dark'] .blog-card-meta {
+:root:not([data-theme='light']) .blog-card-meta {
   border-top-color: var(--color-border-secondary);
 }
 

@@ -20,6 +20,13 @@ export interface BlogPost {
   createdAt: string;
   updatedAt: string;
   readingTime?: number;
+  // 阅读权限控制
+  accessType: 'PUBLIC' | 'LOGIN_REQUIRED' | 'MEMBER_ONLY' | 'PAID_UNLOCK' | 'MEMBER_OR_PAID';
+  unlockPrice?: number;
+  previewContent?: string;
+  isUnlocked?: boolean; // 当前用户是否已解锁
+  canAccess?: boolean; // 当前用户是否有访问权限
+  unlockCount?: number;
 }
 
 export interface BlogListResponse {
@@ -119,6 +126,18 @@ class BlogService {
   // 删除文章
   async deleteBlog(id: string): Promise<{ success: boolean; message: string }> {
     const response = await apiClient.delete(`${this.baseUrl}/${id}`);
+    return response.data;
+  }
+
+  // 解锁付费文章
+  async unlockBlog(id: string): Promise<{ success: boolean; message: string }> {
+    const response = await apiClient.post(`${this.baseUrl}/${id}/unlock`);
+    return response.data;
+  }
+
+  // 检查文章访问权限
+  async checkAccess(id: string): Promise<{ canAccess: boolean; isUnlocked: boolean }> {
+    const response = await apiClient.get(`${this.baseUrl}/${id}/access`);
     return response.data;
   }
 }

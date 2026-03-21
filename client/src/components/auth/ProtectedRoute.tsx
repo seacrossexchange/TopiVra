@@ -9,10 +9,10 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children, requiredRole }: Readonly<ProtectedRouteProps>) {
   const location = useLocation();
-  const { isAuthenticated, user, isLoading, accessToken } = useAuthStore();
+  const { isAuthenticated, user, isLoading, accessToken, hasHydrated, isBootstrapping } = useAuthStore();
 
-  // Show loading while checking auth state
-  if (isLoading) {
+  // Wait for persisted auth state and bootstrap before guarding routes
+  if (!hasHydrated || isLoading || isBootstrapping) {
     return <PageLoading />;
   }
 

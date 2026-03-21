@@ -6,7 +6,3 @@ import { DeliveryEventsService } from './delivery-events.service';
   exports: [DeliveryEventsService],
 })
 export class DeliveryEventsModule {}
-
-
-
-

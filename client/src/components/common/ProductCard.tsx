@@ -134,7 +134,7 @@ export function ProductCard({
           />
         ) : (
           <div className="product-card__image-placeholder">
-            <ShoppingCartOutlined style={{ fontSize: 48, color: '#ccc' }} />
+            <ShoppingCartOutlined style={{ fontSize: 48, color: 'var(--color-border)' }} />
           </div>
         )}
 
@@ -155,7 +155,7 @@ export function ProductCard({
             aria-pressed={isFavorite ? 'true' : 'false'}
           >
             {isFavorite ? (
-              <HeartFilled style={{ color: '#ff4d4f', fontSize: 20 }} />
+              <HeartFilled style={{ color: 'var(--color-error)', fontSize: 20 }} />
             ) : (
               <HeartOutlined style={{ fontSize: 20 }} />
             )}
@@ -178,7 +178,7 @@ export function ProductCard({
         {/* 评分 */}
         {showRating && rating > 0 && (
           <div className="product-card__rating" data-testid="product-rating">
-            <StarFilled style={{ color: '#faad14', fontSize: 14 }} />
+            <StarFilled style={{ color: 'var(--color-warning)', fontSize: 14 }} />
             <span className="product-card__rating-value">{rating.toFixed(1)}</span>
             <span className="product-card__review-count">({reviewCount})</span>
           </div>

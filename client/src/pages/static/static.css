@@ -325,15 +325,15 @@
 }
 
 /* Dark theme */
-[data-theme="dark"] .static-hero {
+:root:not([data-theme='light']) .static-hero {
   background: var(--color-bg-elevated);
 }
 
-[data-theme="dark"] .static-stats-card,
-[data-theme="dark"] .static-feature-card,
-[data-theme="dark"] .static-contact-card,
-[data-theme="dark"] .static-form-container,
-[data-theme="dark"] .static-blog-card {
+:root:not([data-theme='light']) .static-stats-card,
+:root:not([data-theme='light']) .static-feature-card,
+:root:not([data-theme='light']) .static-contact-card,
+:root:not([data-theme='light']) .static-form-container,
+:root:not([data-theme='light']) .static-blog-card {
   background: var(--color-bg-elevated);
   border-color: var(--color-border);
 }

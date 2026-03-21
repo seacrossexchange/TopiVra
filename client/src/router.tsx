@@ -41,7 +41,6 @@ const TwoFaGenerator = lazy(() => import('@/pages/tools/TwoFaGenerator'));
 const UserProfile = lazy(() => import('@/pages/user/Profile'));
 const UserOrders = lazy(() => import('@/pages/user/Orders'));
 const UserOrderDetail = lazy(() => import('@/pages/user/OrderDetail'));
-const UserTickets = lazy(() => import('@/pages/user/Tickets'));
 const UserMessages = lazy(() => import('@/pages/user/Messages'));
 const UserFavorites = lazy(() => import('@/pages/user/Favorites'));
 
@@ -59,6 +58,7 @@ const SellerMessages = lazy(() => import('@/pages/seller/Messages'));
 const SellerSettings = lazy(() => import('@/pages/seller/Settings'));
 const SellerTicketList = lazy(() => import('@/pages/seller/SellerTicketList'));
 const SellerTicketDetail = lazy(() => import('@/pages/seller/SellerTicketDetail'));
+const SellerBlog = lazy(() => import('@/pages/seller/Blog'));
 
 // Admin pages
 const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'));
@@ -79,6 +79,7 @@ const AdminOAuthConfig = lazy(() => import('@/pages/admin/OAuthConfig'));
 const AdminTelegramConfig = lazy(() => import('@/pages/admin/TelegramConfig'));
 const AdminTicketList = lazy(() => import('@/pages/admin/AdminTicketList'));
 const AdminTicketDetail = lazy(() => import('@/pages/admin/AdminTicketDetail'));
+const AdminBlogs = lazy(() => import('@/pages/admin/Blogs'));
 
 // Wrapper for lazy loaded components
 const LazyWrapper = ({ children }: { children: ReactNode }) => (
@@ -292,11 +293,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'tickets',
-            element: (
-              <LazyWrapper>
-                <UserTickets />
-              </LazyWrapper>
-            ),
+            element: <LazyRedirect to="/buyer/tickets" />,
           },
           {
             path: 'messages',
@@ -421,6 +418,14 @@ export const router = createBrowserRouter([
         element: (
           <LazyWrapper>
             <SellerTicketDetail />
+          </LazyWrapper>
+        ),
+      },
+      {
+        path: 'blog',
+        element: (
+          <LazyWrapper>
+            <SellerBlog />
           </LazyWrapper>
         ),
       },
@@ -580,6 +585,14 @@ export const router = createBrowserRouter([
           </LazyWrapper>
         ),
       },
+      {
+        path: 'blogs',
+        element: (
+          <LazyWrapper>
+            <AdminBlogs />
+          </LazyWrapper>
+        ),
+      },
     ],
   },
 
@@ -593,3 +606,6 @@ export const router = createBrowserRouter([
     ),
   },
 ]);
+
+
+

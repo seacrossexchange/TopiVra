@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsEnum, IsNumber, IsArray, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsArray,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum TicketType {
@@ -72,8 +79,8 @@ export class CreateDMTicketDto {
   orderId?: string;
 }
 
-// 发送消息
-export class SendMessageDto {
+// 发送工单消息
+export class SendTicketMessageDto {
   @IsString()
   content: string;
 

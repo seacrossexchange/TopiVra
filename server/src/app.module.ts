@@ -15,7 +15,6 @@ import {
   HeaderResolver,
 } from 'nestjs-i18n';
 import * as path from 'path';
-import * as fs from 'fs'; 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -67,20 +66,10 @@ import { MetricsModule } from './common/metrics/metrics.module';
     }),
 
     // 国际化配置
-    // Nest 在 --watch 模式下会运行 dist/src 下的编译产物，__dirname 会变成 dist/src。
-    // 但 i18n 资源通过 assets 复制到 dist/i18n，因此这里做一次路径自适应。
     I18nModule.forRoot({
       fallbackLanguage: 'zh-CN',
       loaderOptions: {
-        path: (() => {
-          const candidates = [
-            path.join(__dirname, 'i18n'),
-            path.join(__dirname, '..', 'i18n'),
-            path.join(process.cwd(), 'src', 'i18n'),
-            path.join(process.cwd(), 'dist', 'i18n'),
-          ];
-          return candidates.find((p) => fs.existsSync(p)) ?? path.join(__dirname, 'i18n');
-        })(),
+        path: path.join(__dirname, '../i18n/'),
         watch: true,
       },
       resolvers: [

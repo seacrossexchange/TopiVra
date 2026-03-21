@@ -7,15 +7,16 @@ export class AnalyticsService {
 
   // 平台总览数据
   async getPlatformOverview() {
-    const [totalUsers, totalOrders, totalRevenue, totalProducts] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.order.count({ where: { orderStatus: 'COMPLETED' } }),
-      this.prisma.order.aggregate({
-        where: { orderStatus: 'COMPLETED' },
-        _sum: { totalAmount: true },
-      }),
-      this.prisma.product.count({ where: { status: 'ON_SALE' } }),
-    ]);
+    const [totalUsers, totalOrders, totalRevenue, totalProducts] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.order.count({ where: { orderStatus: 'COMPLETED' } }),
+        this.prisma.order.aggregate({
+          where: { orderStatus: 'COMPLETED' },
+          _sum: { totalAmount: true },
+        }),
+        this.prisma.product.count({ where: { status: 'ON_SALE' } }),
+      ]);
 
     return {
       totalUsers,
@@ -38,8 +39,11 @@ export class AnalyticsService {
       select: { createdAt: true, totalAmount: true },
     });
 
-    const trend: Record<string, { date: string; revenue: number; count: number }> = {};
-    orders.forEach(order => {
+    const trend: Record<
+      string,
+      { date: string; revenue: number; count: number }
+    > = {};
+    orders.forEach((order) => {
       const date = order.createdAt.toISOString().split('T')[0];
       if (!trend[date]) {
         trend[date] = { date, revenue: 0, count: 0 };
@@ -82,10 +86,13 @@ export class AnalyticsService {
     });
 
     return sellers
-      .map(seller => ({
+      .map((seller) => ({
         id: seller.id,
         username: seller.username,
-        totalSales: seller.products.reduce((sum: number, p: any) => sum + (p.soldCount || 0), 0),
+        totalSales: seller.products.reduce(
+          (sum: number, p: any) => sum + (p.soldCount || 0),
+          0,
+        ),
       }))
       .sort((a, b) => b.totalSales - a.totalSales)
       .slice(0, limit);
@@ -102,7 +109,7 @@ export class AnalyticsService {
     });
 
     const growth: Record<string, number> = {};
-    users.forEach(user => {
+    users.forEach((user) => {
       const date = user.createdAt.toISOString().split('T')[0];
       growth[date] = (growth[date] || 0) + 1;
     });
@@ -123,10 +130,13 @@ export class AnalyticsService {
       },
     });
 
-    return categories.map(cat => ({
+    return categories.map((cat) => ({
       id: cat.id,
       name: cat.name,
-      totalSales: cat.products.reduce((sum: number, p: any) => sum + (p.soldCount || 0), 0),
+      totalSales: cat.products.reduce(
+        (sum: number, p: any) => sum + (p.soldCount || 0),
+        0,
+      ),
     }));
   }
 }

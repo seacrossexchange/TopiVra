@@ -4,6 +4,16 @@ import { message } from 'antd';
 import { useAuthStore } from '@/store/authStore';
 import { handleApiError } from '@/utils/errorHandler';
 
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    skipAuthRedirect?: boolean;
+  }
+
+  interface InternalAxiosRequestConfig {
+    skipAuthRedirect?: boolean;
+  }
+}
+
 // ─── 重试配置 ──────────────────────────────────────────────────────────────────
 const MAX_RETRY_COUNT = 3;
 const RETRY_DELAY_BASE = 500; // ms，指数退避基数
@@ -145,10 +155,11 @@ apiClient.interceptors.response.use(
       throw error;
     }
 
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
+    const originalRequest = error.config as (InternalAxiosRequestConfig & {
       _retry?: boolean;
       _retryCount?: number;
-    };
+    }) | undefined;
+    const skipAuthRedirect = originalRequest?.skipAuthRedirect === true;
 
     // ─── 429 限流：显示友好提示 ───────────────────────────────────────────────
     if (error.response?.status === 429) {
@@ -164,23 +175,26 @@ apiClient.interceptors.response.use(
     }
 
     // ─── GET + 5xx 指数退避重试 ──────────────────────────────────────────────
-    const retryCount = originalRequest._retryCount ?? 0;
-    if (shouldRetry(error, retryCount)) {
+    const retryCount = originalRequest?._retryCount ?? 0;
+    if (originalRequest && shouldRetry(error, retryCount)) {
       originalRequest._retryCount = retryCount + 1;
       await retryDelay(retryCount);
       return apiClient(originalRequest);
     }
 
     // ─── 401 Token 刷新 ──────────────────────────────────────────────────────
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
       handleApiError(error);
+      throw error;
+    }
+
+    if (skipAuthRedirect) {
       throw error;
     }
 
     // refresh 请求本身失败，直接登出
     if (originalRequest.url === '/auth/refresh') {
-      useAuthStore.getState().logout();
-      globalThis.location.href = '/login';
+      await useAuthStore.getState().logout();
       throw error;
     }
 
@@ -229,8 +243,7 @@ apiClient.interceptors.response.use(
       return apiClient(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError as AxiosError);
-      useAuthStore.getState().logout();
-      globalThis.location.href = '/login';
+      await useAuthStore.getState().logout();
       throw refreshError;
     } finally {
       isRefreshing = false;

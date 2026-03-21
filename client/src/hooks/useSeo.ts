@@ -106,8 +106,11 @@ export function useSeo(options: SeoOptions = {}) {
 
   const updateSeo = useCallback(() => {
     // Update title
-    const fullTitle = title 
-      ? `${title}${TITLE_SEPARATOR}${DEFAULT_TITLE}`
+    const normalizedTitle = title?.trim();
+    const fullTitle = normalizedTitle
+      ? normalizedTitle.endsWith(`${TITLE_SEPARATOR}${DEFAULT_TITLE}`)
+        ? normalizedTitle
+        : `${normalizedTitle}${TITLE_SEPARATOR}${DEFAULT_TITLE}`
       : DEFAULT_TITLE;
     document.title = fullTitle;
     
@@ -194,24 +197,23 @@ export function generateProductStructuredData(product: {
 /**
  * Hook to inject structured data
  */
-export function useStructuredData(data: object | null) {
+export function useStructuredData(data: object | null, scriptId = 'app-structured-data') {
   useEffect(() => {
-    if (!data) return;
-    
-    // Remove existing structured data
-    const existing = document.querySelector('script[type="application/ld+json"]');
+    const existing = document.getElementById(scriptId);
     existing?.remove();
-    
-    // Add new structured data
+
+    if (!data) return;
+
     const script = document.createElement('script');
+    script.id = scriptId;
     script.type = 'application/ld+json';
     script.textContent = JSON.stringify(data);
     document.head.appendChild(script);
-    
+
     return () => {
       script.remove();
     };
-  }, [data]);
+  }, [data, scriptId]);
 }
 
 export default useSeo;

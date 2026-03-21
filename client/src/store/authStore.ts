@@ -2,15 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '@/services/auth';
 import type { User, LoginResponse } from '@/services/auth';
-
-// Helper function to extract error message from unknown error
-function getErrorMessage(error: unknown, defaultMessage: string): string {
-  if (error && typeof error === 'object' && 'response' in error) {
-    const axiosError = error as { response?: { data?: { message?: string } } };
-    return axiosError.response?.data?.message || defaultMessage;
-  }
-  return defaultMessage;
-}
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 interface AuthState {
   user: User | null;
@@ -18,6 +10,8 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isBootstrapping: boolean;
+  hasHydrated: boolean;
   error: string | null;
   // Actions
   login: (email: string, password: string) => Promise<{ requiresTwoFactor?: boolean; tempToken?: string } | void>;
@@ -28,6 +22,8 @@ interface AuthState {
   setAccessToken: (accessToken: string) => void;
   setUser: (user: User | null) => void;
   fetchUser: () => Promise<void>;
+  bootstrapAuth: () => Promise<void>;
+  setHasHydrated: (value: boolean) => void;
   clearError: () => void;
 }
 
@@ -39,6 +35,8 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
+      isBootstrapping: false,
+      hasHydrated: false,
       error: null,
 
       login: async (email: string, password: string) => {
@@ -75,7 +73,7 @@ export const useAuthStore = create<AuthState>()(
           
           return {};
         } catch (error: unknown) {
-          const errorMessage = getErrorMessage(error, '登录失败，请重试');
+          const errorMessage = extractApiErrorMessage(error, '登录失败，请重试');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -93,7 +91,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
         } catch (error: unknown) {
-          const errorMessage = getErrorMessage(error, '两步验证失败');
+          const errorMessage = extractApiErrorMessage(error, '两步验证失败');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -120,7 +118,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
         } catch (error: unknown) {
-          const errorMessage = getErrorMessage(error, '注册失败，请重试');
+          const errorMessage = extractApiErrorMessage(error, '注册失败，请重试');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -128,7 +126,10 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          await authApi.logout();
+          const { accessToken } = get();
+          if (accessToken) {
+            await authApi.logout();
+          }
         } catch {
           // Ignore errors, clear local state anyway
         }
@@ -151,6 +152,33 @@ export const useAuthStore = create<AuthState>()(
       setAccessToken: (accessToken) => set({ accessToken }),
 
       setUser: (user) => set({ user }),
+
+      bootstrapAuth: async () => {
+        const { hasHydrated, isBootstrapping, accessToken, user, fetchUser } = get();
+
+        if (!hasHydrated || isBootstrapping) {
+          return;
+        }
+
+        if (!accessToken) {
+          set({ isBootstrapping: false, isAuthenticated: false, user: null });
+          return;
+        }
+
+        if (user?.id) {
+          set({ isAuthenticated: true, isBootstrapping: false });
+          return;
+        }
+
+        set({ isBootstrapping: true });
+        try {
+          await fetchUser();
+        } finally {
+          set({ isBootstrapping: false });
+        }
+      },
+
+      setHasHydrated: (value) => set({ hasHydrated: value }),
 
       fetchUser: async () => {
         const { accessToken } = get();
@@ -183,6 +211,9 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

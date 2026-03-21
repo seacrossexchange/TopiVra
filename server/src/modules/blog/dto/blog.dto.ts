@@ -14,7 +14,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum BlogStatus {
   DRAFT = 'DRAFT',
+  PENDING_REVIEW = 'PENDING_REVIEW', // 待审核
   PUBLISHED = 'PUBLISHED',
+  REJECTED = 'REJECTED',
   ARCHIVED = 'ARCHIVED',
 }
 
@@ -200,4 +202,28 @@ export class CreateCommentDto {
   @IsOptional()
   @IsString()
   parentId?: string;
+}
+
+// 审核相关 DTO
+export class ApproveBlogDto {
+  @ApiPropertyOptional({ description: '审核备注' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reviewNotes?: string;
+}
+
+export class RejectBlogDto {
+  @ApiProperty({ description: '驳回原因' })
+  @IsString()
+  @MinLength(2, { message: '驳回原因至少 2 个字符' })
+  @MaxLength(500)
+  reason!: string;
+}
+
+export class AuthorQueryDto extends BlogQueryDto {
+  @ApiPropertyOptional({ description: '作者 ID' })
+  @IsOptional()
+  @IsString()
+  authorId?: string;
 }

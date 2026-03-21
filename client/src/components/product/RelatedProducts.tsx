@@ -95,3 +95,6 @@ export default function RelatedProducts({ productId }: RelatedProductsProps) {
 
 
 
+
+
+

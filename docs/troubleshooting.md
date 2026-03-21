@@ -1,204 +1,162 @@
-# 故障排查手册
+# Troubleshooting
 
-> 版本: 1.0 | 更新时间: 2026-03-13
-
----
-
-## 1. 快速诊断
-
-```bash
-# 检查所有服务状态
-docker compose -f config/docker-compose.yml ps
-
-# 健康检查
-curl http://localhost:8000/health
-curl http://localhost:8000/health/ready
-
-# PowerShell 健康检查脚本
-.\scripts\health-check.ps1
-```
+**Document type**: incident reference
+**Use with**: [Operations Runbook](OPERATIONS-RUNBOOK.md)
 
 ---
 
-## 2. 常见问题
+## 1. How to use this document
 
-### 2.1 服务无法启动
+Use this file as the first reference when:
 
-**症状**: `docker compose up` 后服务立即退出
-
-**排查步骤**:
-```bash
-# 查看退出日志
-docker logs topivra-server --tail 50
-
-# 常见原因
-# 1. 环境变量缺失
-cat server/.env | grep JWT_SECRET
-# 2. 数据库连接失败
-docker exec topivra-db mysqladmin ping -h localhost
-# 3. Redis 连接失败
-docker exec topivra-redis redis-cli ping
-```
-
-### 2.2 支付回调失败
-
-**症状**: 用户支付后订单状态没有更新
-
-**排查步骤**:
-```bash
-# 1. 检查支付回调日志
-docker logs topivra-server | grep 'callback\|webhook\|notify'
-
-# 2. 查询支付记录状态
-# 在数据库中执行：
-SELECT paymentNo, status, method, createdAt, updatedAt
-FROM payments
-ORDER BY createdAt DESC LIMIT 10;
-
-# 3. 检查回调 URL 是否可达
-curl -X POST https://your-domain.com/api/v1/payments/notify/stripe
-```
-
-### 2.3 自动发货未触发
-
-**症状**: 支付成功但没有自动发货
-
-**排查步骤**:
-```bash
-# 1. 检查商品是否开启自动发货
-SELECT id, title, autoDeliver FROM products WHERE id = 'xxx';
-
-# 2. 检查库存是否充足
-SELECT COUNT(*) FROM product_inventory
-WHERE productId = 'xxx' AND status = 'AVAILABLE' AND isValid = true;
-
-# 3. 检查自动发货日志
-docker logs topivra-server | grep 'AutoDeliveryService'
-
-# 4. 检查 orderItem.deliveredCredentials
-SELECT id, deliveredCredentials, autoDelivered, deliveredAt
-FROM order_items WHERE orderId = 'xxx';
-```
-
-### 2.4 SSE 连接断开
-
-**症状**: 前端订单详情页发货进度条没有更新
-
-**排查步骤**:
-```bash
-# 1. 手动测试 SSE 端点
-curl -N -H 'Authorization: Bearer YOUR_TOKEN' \
-  http://localhost:8000/api/v1/orders/ORDER_ID/delivery-stream
-
-# 2. 检查 Nginx 配置（SSE 需要关闭缓冲）
-grep -A5 'proxy_buffering' config/nginx/nginx.conf
-
-# 3. 检查防火墙/CDN 是否拦截长连接
-```
-
-**Nginx SSE 配置**（需确保存在）:
-```nginx
-location /api/ {
-  proxy_pass http://server:8000;
-  proxy_buffering off;          # 关键：SSE 需要关闭缓冲
-  proxy_cache off;
-  proxy_read_timeout 86400s;    # 长连接超时
-  chunked_transfer_encoding on;
-}
-```
-
-### 2.5 WebSocket 连接失败
-
-**症状**: 实时通知不工作
-
-**排查步骤**:
-```bash
-# 1. 检查 Nginx WebSocket 升级配置
-grep -A3 'upgrade' config/nginx/nginx.conf
-
-# 2. 检查 CORS 配置
-grep 'FRONTEND_URL' server/.env
-
-# 3. 测试 WS 连接
-npx wscat -c ws://localhost:8000/socket.io/?transport=websocket
-```
-
-### 2.6 内存持续增长
-
-**症状**: 服务内存使用量持续上涨
-
-**排查步骤**:
-```bash
-# 1. 查看当前内存
-docker stats topivra-server --no-stream
-
-# 2. 查看 Prometheus 内存指标
-curl http://localhost:9090/api/v1/query?query=nodejs_heap_size_used_bytes
-
-# 3. 重启服务（临时解决）
-docker compose restart server
-```
+- the service is down
+- login/auth flows fail
+- payment callbacks do not update orders
+- auto-delivery does not complete
+- realtime updates stop working
+- infrastructure health appears degraded
 
 ---
 
-## 3. 数据库问题
+## 2. First-response checklist
 
-### 3.1 连接池耗尽
+Start with:
 
-```bash
-# 查看当前连接数
-SELECT COUNT(*) FROM information_schema.processlist;
+- [../scripts/deploy/health-check.sh](../scripts/deploy/health-check.sh)
+- [../scripts/deploy/diagnose.sh](../scripts/deploy/diagnose.sh)
 
-# 查看慢查询
-SHOW FULL PROCESSLIST;
+Then verify:
 
-# 终止慢查询
-KILL QUERY [pid];
-```
-
-### 3.2 Prisma 迁移失败
-
-```bash
-# 查看迁移状态
-cd server && npx prisma migrate status
-
-# 重置开发数据库（危险：会删除所有数据）
-npx prisma migrate reset
-
-# 仅推送 schema（不生成迁移记录）
-npx prisma db push
-```
+1. container status
+2. API health endpoints
+3. MySQL connectivity
+4. Redis connectivity
+5. Nginx reachability
+6. monitoring visibility
 
 ---
 
-## 4. 紧急回滚
+## 3. Common issue classes
 
-```bash
-# 回滚到上一个 Docker 镜像
-cd /opt/topivra
-docker compose -f config/docker-compose.prod.yml stop server
-docker tag topivra-server:previous topivra-server:latest
-docker compose -f config/docker-compose.prod.yml up -d server
+## 3.1 Services fail to start
 
-# 验证服务正常
-curl http://localhost:8000/health
-```
+Check for:
+
+- missing environment variables
+- failed database dependency
+- failed Redis dependency
+- invalid mount paths
+- Nginx SSL file problems
+- image/build mismatch
+
+Also confirm the deployment path you are using matches the environment assumptions in your compose/config files.
 
 ---
 
-## 5. 联系支持
+## 3.2 Payment callback does not update order state
 
-- 查看日志: `docker logs topivra-server -f`
-- 监控面板: `http://grafana:3001`
-- Sentry 错误: `https://sentry.io/topivra`
-- 运行诊断脚本: `bash scripts/deploy/diagnose.sh`
+Check:
 
+- server logs around payment webhook handling
+- callback URL reachability
+- payment record status in database
+- gateway credentials and callback secrets
+- whether the environment exposes the callback route publicly
 
+---
 
+## 3.3 Auto-delivery fails after payment
 
+Check:
 
+- product auto-delivery setting
+- available inventory count
+- order item delivery fields
+- server logs around delivery events
+- post-payment order state transitions
 
+This is a priority business incident because it directly affects revenue and support burden.
 
+---
 
+## 3.4 SSE or realtime delivery progress stops updating
 
+Check:
 
+- backend route health
+- proxy behavior for long-lived connections
+- Nginx buffering/timeouts
+- frontend auth/session continuity
+- network/proxy/CDN interruption of long connections
+
+### Important caution
+
+The current production Nginx config should be reviewed carefully for long-lived connection compatibility before strong production claims are made.
+
+---
+
+## 3.5 WebSocket notifications fail
+
+Check:
+
+- upgrade headers
+- proxy route alignment
+- frontend connection path
+- auth and token continuity
+- server gateway startup
+
+---
+
+## 3.6 Build fails in backend risk/OCR area
+
+Known dependency-sensitive area:
+
+- `server/src/common/risk/ocr.service.ts`
+
+This module imports:
+
+- `tesseract.js`
+- `jsqr`
+- `sharp`
+
+If build/runtime fails here, decide one of the following explicitly:
+
+- install and support the dependencies
+- feature-flag or disable the module
+- isolate it from the formal supported deployment path
+
+Do not leave this ambiguous in production delivery.
+
+---
+
+## 4. Escalation guidance
+
+Escalate immediately when any of the following occurs:
+
+- login unavailable for all users
+- order creation unavailable
+- payments accepted but orders not updated
+- paid orders not delivered
+- admin console unavailable during live support window
+- backup restore path uncertain during active incident
+
+---
+
+## 5. Evidence to capture during incidents
+
+Always capture:
+
+- time of incident
+- affected environment
+- affected route or service
+- logs/screenshots/query evidence
+- whether issue is reproducible
+- rollback decision and result
+
+---
+
+## 6. Related documents
+
+- [Operations Runbook](OPERATIONS-RUNBOOK.md)
+- [Deployment Guide](deployment-guide.md)
+- [Final Audit Report](FINAL-AUDIT-REPORT.md)

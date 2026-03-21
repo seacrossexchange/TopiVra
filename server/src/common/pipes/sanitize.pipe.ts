@@ -135,7 +135,10 @@ export class SanitizePipe implements PipeTransform {
 
     // 检测恶意模式（静默处理，由净化器自动清理）
     // 生产环境不输出日志，避免日志污染
-    if (detectMaliciousPatterns(value) && process.env.NODE_ENV === 'development') {
+    if (
+      detectMaliciousPatterns(value) &&
+      process.env.NODE_ENV === 'development'
+    ) {
       // 仅开发环境记录，生产环境静默处理
     }
 

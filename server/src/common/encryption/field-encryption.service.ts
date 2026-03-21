@@ -16,7 +16,7 @@ export class FieldEncryptionService {
 
   constructor() {
     const key = process.env.ENCRYPTION_KEY;
-    
+
     if (!key) {
       throw new Error('ENCRYPTION_KEY environment variable is required');
     }
@@ -90,7 +90,10 @@ export class FieldEncryptionService {
 
       // 提取 IV、AuthTag 和加密数据
       const iv = combined.slice(0, this.ivLength);
-      const authTag = combined.slice(this.ivLength, this.ivLength + this.authTagLength);
+      const authTag = combined.slice(
+        this.ivLength,
+        this.ivLength + this.authTagLength,
+      );
       const encryptedData = combined.slice(this.ivLength + this.authTagLength);
 
       // 创建解密器
@@ -122,10 +125,7 @@ export class FieldEncryptionService {
    * @param fields 需要加密的字段名数组
    * @returns 加密后的对象
    */
-  encryptFields<T extends Record<string, any>>(
-    obj: T,
-    fields: (keyof T)[],
-  ): T {
+  encryptFields<T extends Record<string, any>>(obj: T, fields: (keyof T)[]): T {
     const result = { ...obj };
 
     for (const field of fields) {
@@ -143,10 +143,7 @@ export class FieldEncryptionService {
    * @param fields 需要解密的字段名数组
    * @returns 解密后的对象
    */
-  decryptFields<T extends Record<string, any>>(
-    obj: T,
-    fields: (keyof T)[],
-  ): T {
+  decryptFields<T extends Record<string, any>>(obj: T, fields: (keyof T)[]): T {
     const result = { ...obj };
 
     for (const field of fields) {
@@ -250,11 +247,8 @@ export class FieldEncryptionService {
 
     const cleaned = cardNumber.replace(/\s/g, '');
     const masked = this.mask(cleaned, 4, 4);
-    
+
     // 每 4 位添加空格
     return masked.replace(/(.{4})/g, '$1 ').trim();
   }
 }
-
-
-

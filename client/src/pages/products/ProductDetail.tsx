@@ -34,7 +34,7 @@ import {
 import { ShareBar } from '@/components/common/ShareButton';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import { useTranslation } from 'react-i18next';
-import { productsService } from '@/services/products';
+import { productsService, ProductType, DeliveryType, CountryMode } from '@/services/products';
 import { cartService } from '@/services/cart';
 import { useCartStore } from '@/store/cartStore';
 import type { Product } from '@/services/products';
@@ -73,7 +73,7 @@ export default function ProductDetail() {
 
   // SEO - 动态根据商品数据生成
   useSeo({
-    title: product ? `${product.title} - $${product.price} | TopiVra` : undefined,
+    title: product ? `${product.title} - $${product.price}` : undefined,
     description: product
       ? `${product.title} - ${product.category?.name || ''} 账号，价格 $${product.price}，库存 ${product.stock}。${product.description?.slice(0, 80) || 'TopiVra 安全担保交易，自动发货。'}`
       : undefined,
@@ -97,23 +97,24 @@ export default function ProductDetail() {
     availability: product.stock > 0 ? 'in_stock' : 'out_of_stock',
   }) : null);
 
+  const fetchProduct = async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await productsService.getProductById(id);
+      setProduct(data);
+    } catch (err) {
+      console.error('Failed to fetch product:', err);
+      setError(err instanceof Error ? err.message : t('products.detail.loadError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch product detail
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (!id) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await productsService.getProductById(id);
-        setProduct(response.data);
-      } catch (err) {
-        console.error('Failed to fetch product:', err);
-        setError(err instanceof Error ? err.message : t('products.detail.loadError'));
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
+    void fetchProduct();
   }, [id, t]);
 
   // Fetch reviews
@@ -180,7 +181,9 @@ export default function ProductDetail() {
       <PageError
         title={t('common.error')}
         subTitle={error || t('products.detail.notFound')}
-        onRetry={() => window.location.reload()}
+        onRetry={() => {
+          void fetchProduct();
+        }}
       />
     );
   }
@@ -233,18 +236,18 @@ export default function ProductDetail() {
                   {/* 社交证明 */}
                   <div className="product-social-proof" style={{ display: 'flex', gap: 16, marginTop: 8, padding: '12px 0', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
                     <Space size={4}>
-                      <ShoppingCartOutlined style={{ color: '#52c41a' }} />
-                      <Text strong style={{ color: '#52c41a' }}>{product.sales || 0}</Text>
+                      <ShoppingCartOutlined style={{ color: 'var(--color-success)' }} />
+                      <Text strong style={{ color: 'var(--color-success)' }}>{product.sales || 0}</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.sold', '已售')}</Text>
                     </Space>
                     <Space size={4}>
-                      <EyeOutlined style={{ color: '#1890ff' }} />
-                      <Text strong style={{ color: '#1890ff' }}>0</Text>
+                      <EyeOutlined style={{ color: 'var(--color-primary)' }} />
+                      <Text strong style={{ color: 'var(--color-primary)' }}>0</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.views', '浏览')}</Text>
                     </Space>
                     <Space size={4}>
-                      <HeartOutlined style={{ color: '#ff4d4f' }} />
-                      <Text strong style={{ color: '#ff4d4f' }}>0</Text>
+                      <HeartOutlined style={{ color: 'var(--color-error)' }} />
+                      <Text strong style={{ color: 'var(--color-error)' }}>0</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.favorites', '收藏')}</Text>
                     </Space>
                   </div>
@@ -335,28 +338,28 @@ export default function ProductDetail() {
           <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
             <Col xs={24} sm={12} md={6}>
               <div style={{ textAlign: 'center', padding: 16 }}>
-                <CheckCircleOutlined style={{ fontSize: 32, color: '#52c41a', marginBottom: 8 }} />
+                <CheckCircleOutlined style={{ fontSize: 32, color: 'var(--color-success)', marginBottom: 8 }} />
                 <Text strong style={{ display: 'block', marginBottom: 4 }}>{t('products.detail.guarantees.refund', '7天退款')}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.guarantees.refundDesc', '7天内无理由退款')}</Text>
               </div>
             </Col>
             <Col xs={24} sm={12} md={6}>
               <div style={{ textAlign: 'center', padding: 16 }}>
-                <SafetyOutlined style={{ fontSize: 32, color: '#1890ff', marginBottom: 8 }} />
+                <SafetyOutlined style={{ fontSize: 32, color: 'var(--color-primary)', marginBottom: 8 }} />
                 <Text strong style={{ display: 'block', marginBottom: 4 }}>{t('products.detail.guarantees.escrow', '担保交易')}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.guarantees.escrowDesc', '平台担保资金安全')}</Text>
               </div>
             </Col>
             <Col xs={24} sm={12} md={6}>
               <div style={{ textAlign: 'center', padding: 16 }}>
-                <ThunderboltOutlined style={{ fontSize: 32, color: '#faad14', marginBottom: 8 }} />
+                <ThunderboltOutlined style={{ fontSize: 32, color: 'var(--color-warning)', marginBottom: 8 }} />
                 <Text strong style={{ display: 'block', marginBottom: 4 }}>{t('products.detail.guarantees.instant', '即时发货')}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.guarantees.instantDesc', '支付后立即发货')}</Text>
               </div>
             </Col>
             <Col xs={24} sm={12} md={6}>
               <div style={{ textAlign: 'center', padding: 16 }}>
-                <CustomerServiceOutlined style={{ fontSize: 32, color: '#722ed1', marginBottom: 8 }} />
+                <CustomerServiceOutlined style={{ fontSize: 32, color: 'var(--color-accent)', marginBottom: 8 }} />
                 <Text strong style={{ display: 'block', marginBottom: 4 }}>{t('products.detail.guarantees.support', '24H客服')}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{t('products.detail.guarantees.supportDesc', '全天候在线支持')}</Text>
               </div>
@@ -387,6 +390,104 @@ export default function ProductDetail() {
                       <Descriptions.Item label={t('products.detail.info.createdAt')}>
                         {new Date(product.createdAt).toLocaleDateString()}
                       </Descriptions.Item>
+                      
+                      {/* 商品类型信息 */}
+                      {product.productType && (
+                        <>
+                          <Descriptions.Item label={t('products.detail.info.productType', '商品类型')}>
+                            <Tag color={product.productType === ProductType.ACCOUNT ? 'blue' : product.productType === ProductType.SOFTWARE ? 'green' : 'orange'}>
+                              {product.productType === ProductType.ACCOUNT && t('products.types.account', '账号商品')}
+                              {product.productType === ProductType.SOFTWARE && t('products.types.software', '软件商品')}
+                              {product.productType === ProductType.DIGITAL && t('products.types.digital', '数字资源')}
+                            </Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label={t('products.detail.info.deliveryType', '交付方式')}>
+                            <Tag color="purple">
+                              {product.deliveryType === DeliveryType.FILE && t('products.delivery.file', '文件下载')}
+                              {product.deliveryType === DeliveryType.LINK && t('products.delivery.link', '链接交付')}
+                              {product.deliveryType === DeliveryType.KEY && t('products.delivery.key', '激活码')}
+                              {product.deliveryType === DeliveryType.HYBRID && t('products.delivery.hybrid', '混合交付')}
+                            </Tag>
+                          </Descriptions.Item>
+                        </>
+                      )}
+                      
+                      {/* 国家属性（仅账号类或有国家属性的商品） */}
+                      {product.countryMode && product.countryMode !== CountryMode.NONE && product.countries && product.countries.length > 0 && (
+                        <Descriptions.Item label={t('products.detail.info.countries', '国家/地区')} span={2}>
+                          <Space size={4} wrap>
+                            {product.countries.map(code => (
+                              <Tag key={code} color="geekblue">{code}</Tag>
+                            ))}
+                          </Space>
+                        </Descriptions.Item>
+                      )}
+                      
+                      {/* 软件商品专属字段 */}
+                      {product.productType === ProductType.SOFTWARE && (
+                        <>
+                          {product.supportedSystems && product.supportedSystems.length > 0 && (
+                            <Descriptions.Item label={t('products.detail.info.supportedSystems', '适用系统')} span={2}>
+                              <Space size={4} wrap>
+                                {product.supportedSystems.map(sys => (
+                                  <Tag key={sys} color="cyan">{sys}</Tag>
+                                ))}
+                              </Space>
+                            </Descriptions.Item>
+                          )}
+                          {product.fileType && (
+                            <Descriptions.Item label={t('products.detail.info.fileType', '文件类型')}>
+                              {product.fileType.toUpperCase()}
+                            </Descriptions.Item>
+                          )}
+                          {product.version && (
+                            <Descriptions.Item label={t('products.detail.info.version', '版本')}>
+                              v{product.version}
+                            </Descriptions.Item>
+                          )}
+                          {product.fileSize && (
+                            <Descriptions.Item label={t('products.detail.info.fileSize', '文件大小')}>
+                              {(product.fileSize / 1024 / 1024).toFixed(2)} MB
+                            </Descriptions.Item>
+                          )}
+                          {product.installGuide && (
+                            <Descriptions.Item label={t('products.detail.info.installGuide', '安装说明')} span={2}>
+                              <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>{product.installGuide}</Paragraph>
+                            </Descriptions.Item>
+                          )}
+                          {product.updateNote && (
+                            <Descriptions.Item label={t('products.detail.info.updateNote', '更新说明')} span={2}>
+                              <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>{product.updateNote}</Paragraph>
+                            </Descriptions.Item>
+                          )}
+                        </>
+                      )}
+                      
+                      {/* 账号商品专属字段 */}
+                      {product.productType === ProductType.ACCOUNT && (
+                        <>
+                          {product.platform && (
+                            <Descriptions.Item label={t('products.detail.info.platform', '平台')}>
+                              <Tag color="blue">{product.platform}</Tag>
+                            </Descriptions.Item>
+                          )}
+                          {product.followerRange && (
+                            <Descriptions.Item label={t('products.detail.info.followers', '粉丝量')}>
+                              {product.followerRange}
+                            </Descriptions.Item>
+                          )}
+                          {product.loginMethod && (
+                            <Descriptions.Item label={t('products.detail.info.loginMethod', '登录方式')} span={2}>
+                              {product.loginMethod}
+                            </Descriptions.Item>
+                          )}
+                          {product.warrantyInfo && (
+                            <Descriptions.Item label={t('products.detail.info.warranty', '质保说明')} span={2}>
+                              <Paragraph style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>{product.warrantyInfo}</Paragraph>
+                            </Descriptions.Item>
+                          )}
+                        </>
+                      )}
                     </Descriptions>
                   </div>
                 ),
@@ -442,12 +543,12 @@ export default function ProductDetail() {
                           {[5, 4, 3, 2, 1].map((star) => (
                             <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                               <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', width: 16 }}>{star}</span>
-                              <StarFilled style={{ fontSize: 12, color: '#fadb14' }} />
+                              <StarFilled style={{ fontSize: 12, color: 'var(--color-warning)' }} />
                               <Progress
                                 percent={reviewTotal > 0 ? Math.round(((reviewStats.ratingDistribution?.[star] || 0) / reviewTotal) * 100) : 0}
                                 size="small"
                                 showInfo={false}
-                                strokeColor={star >= 4 ? '#52c41a' : star === 3 ? '#faad14' : '#ff4d4f'}
+                                strokeColor={star >= 4 ? 'var(--color-success)' : star === 3 ? 'var(--color-warning)' : 'var(--color-error)'}
                                 style={{ flex: 1, margin: 0 }}
                               />
                               <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', width: 24 }}>

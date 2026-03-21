@@ -108,7 +108,3 @@ export class MetricsService implements OnModuleInit {
     return this.registry.contentType;
   }
 }
-
-
-
-

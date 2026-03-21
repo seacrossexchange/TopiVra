@@ -27,8 +27,27 @@
   "RATE_LIMIT_EXCEEDED": "请求过于频繁，请稍后再试",
   "TOKEN_EXPIRED": "登录已过期，请重新登录",
   "INVALID_TOKEN": "无效的令牌",
-  "WEAK_PASSWORD": "密码强度不足"
+  "WEAK_PASSWORD": "密码强度不足",
+  "BLOG_NOT_FOUND": "文章不存在",
+  "BLOG_SLUG_EXISTS": "文章 Slug 已存在",
+  "BLOG_TAG_SLUG_EXISTS": "标签 Slug 已存在",
+  "BLOG_PARENT_COMMENT_NOT_FOUND": "父评论不存在",
+  "BLOG_SUBMIT_OWN_ONLY": "只能提交自己的文章",
+  "BLOG_STATUS_INVALID_FOR_SUBMISSION": "当前文章状态不允许提交审核",
+  "BLOG_STATUS_INVALID_FOR_REVIEW": "只能审核待审核状态的文章",
+  "COUPON_NOT_FOUND": "优惠券不存在",
+  "COUPON_CODE_EXISTS": "优惠券码已存在",
+  "COUPON_INACTIVE": "优惠券已失效",
+  "COUPON_NOT_STARTED": "优惠券尚未生效",
+  "COUPON_EXPIRED": "优惠券已过期",
+  "COUPON_MIN_PURCHASE_NOT_MET": "订单金额未达到最低使用门槛",
+  "COUPON_USAGE_LIMIT_REACHED": "优惠券使用次数已达上限",
+  "COUPON_USER_USAGE_LIMIT_REACHED": "您已达到该优惠券使用次数上限",
+  "COUPON_NOT_APPLICABLE": "优惠券不适用于当前商品"
 }
+
+
+
 
 
 

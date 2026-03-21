@@ -10,6 +10,3 @@ import { PrismaModule } from '../../prisma/prisma.module';
   exports: [CouponsService],
 })
 export class CouponsModule {}
-
-
-

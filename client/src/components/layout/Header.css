@@ -147,8 +147,8 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 4px 8px;
+  gap: 8px;
+  padding: 4px 12px;
   border-radius: var(--radius-lg);
   transition: background 0.15s;
   color: var(--color-text-primary);
@@ -158,8 +158,108 @@
   background: var(--color-bg-hover);
 }
 
+/* ===== 头像包装器（含角色徽章） ===== */
+.header-avatar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .header-avatar {
   background-color: var(--color-primary) !important;
+  transition: transform 0.2s ease;
+}
+
+.header-user:hover .header-avatar {
+  transform: scale(1.05);
+}
+
+/* ===== 角色徽章（头像右下角小圆点） ===== */
+.header-role-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--color-bg-secondary);
+  transition: transform 0.2s ease;
+}
+
+.header-user:hover .header-role-badge {
+  transform: scale(1.1);
+}
+
+/* ===== 用户信息区 ===== */
+.header-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  line-height: 1.2;
+}
+
+.header-username {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-role-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.header-role-tag .anticon {
+  font-size: 10px;
+}
+
+/* ===== 下拉菜单角色切换组 ===== */
+.header-menu-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
+  padding: 4px 0;
+}
+
+/* ===== 响应式：用户信息区 ===== */
+@media (max-width: 992px) {
+  .header-user-info {
+    display: none;
+  }
+  
+  .header-user {
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-user {
+    padding: 4px;
+  }
+  
+  .header-role-badge {
+    width: 12px;
+    height: 12px;
+    bottom: -1px;
+    right: -1px;
+  }
 }
 
 /* ===== 图标按钮适配 ===== */

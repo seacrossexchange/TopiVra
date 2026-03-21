@@ -156,7 +156,7 @@ export default function TranslationManager({ entityType, entityId }: Translation
             status={completeness.complete ? 'success' : 'active'}
           />
           {completeness.missingLanguages.length > 0 && (
-            <div style={{ marginTop: 8, color: '#faad14' }}>
+            <div style={{ marginTop: 8, color: 'var(--color-warning)' }}>
               <WarningOutlined /> {t('admin.missingLanguages')}: {completeness.missingLanguages.join(', ')}
             </div>
           )}
@@ -213,6 +213,9 @@ export default function TranslationManager({ entityType, entityId }: Translation
     </Card>
   );
 }
+
+
+
 
 
 

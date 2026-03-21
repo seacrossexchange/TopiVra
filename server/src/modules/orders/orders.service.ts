@@ -457,14 +457,16 @@ export class OrdersService {
       throw new BadRequestException('订单状态不允许确认');
     }
 
-    // 更新订单状态并结算卖家余额
+    // 更新订单状态并只结算未结算的订单项
     await this.prisma.$transaction(async (tx) => {
+      const now = new Date();
+
       // 更新订单项确认状态
       await tx.orderItem.updateMany({
         where: { orderId },
         data: {
           deliveryConfirmed: true,
-          confirmedAt: new Date(),
+          confirmedAt: now,
         },
       });
 
@@ -473,30 +475,59 @@ export class OrdersService {
         where: { id: orderId },
         data: {
           orderStatus: OrderStatus.COMPLETED,
-          completedAt: new Date(),
+          completedAt: now,
         },
       });
 
       // 结算卖家余额
       for (const item of order.orderItems) {
+        if (item.settled) {
+          continue;
+        }
+
+        const sellerProfile = await tx.sellerProfile.findUnique({
+          where: { userId: item.sellerId },
+          select: {
+            balance: true,
+            totalSales: true,
+            totalEarnings: true,
+          },
+        });
+
+        if (!sellerProfile) {
+          throw new NotFoundException('卖家资料不存在');
+        }
+
+        const balanceAfter =
+          Number(sellerProfile.balance) + Number(item.sellerAmount);
+
         await tx.sellerProfile.update({
           where: { userId: item.sellerId },
           data: {
             balance: { increment: item.sellerAmount },
             totalSales: { increment: item.subtotal },
+            totalEarnings: { increment: item.sellerAmount },
           },
         });
 
-        // 记录交易流水
         await tx.sellerTransaction.create({
           data: {
             sellerId: item.sellerId,
             type: 'INCOME',
             amount: item.sellerAmount,
-            balanceAfter: item.sellerAmount, // 需要重新计算
+            balanceAfter,
+            currency: order.currency,
             orderId,
             orderItemId: item.id,
             description: `订单收入 - ${item.productTitle}`,
+          },
+        });
+
+        await tx.orderItem.update({
+          where: { id: item.id },
+          data: {
+            settled: true,
+            settledAt: now,
           },
         });
       }
@@ -939,14 +970,17 @@ export class OrdersService {
           },
         });
 
-        // 恢复库存
+        // 恢复库存并扣减已结算卖家余额
         for (const item of refund.order.orderItems) {
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { increment: item.quantity } },
           });
 
-          // 扣减卖家余额（如果已结算）
+          if (!item.settled) {
+            continue;
+          }
+
           const sellerProfile = await tx.sellerProfile.findUnique({
             where: { userId: item.sellerId },
           });
@@ -960,6 +994,7 @@ export class OrdersService {
               where: { userId: item.sellerId },
               data: {
                 balance: newBalance,
+                totalEarnings: { decrement: item.sellerAmount },
               },
             });
 
@@ -970,6 +1005,7 @@ export class OrdersService {
                 type: 'REFUND',
                 amount: -Number(item.sellerAmount),
                 balanceAfter: newBalance,
+                currency: refund.order.currency || 'USD',
                 orderId: refund.orderId,
                 orderItemId: item.id,
                 description: `订单退款 - ${item.productTitle}`,
@@ -987,7 +1023,8 @@ export class OrdersService {
           throw new NotFoundException('买家不存在');
         }
 
-        const newBalance = Number(buyer.balance || 0) + Number(refund.refundAmount);
+        const newBalance =
+          Number(buyer.balance || 0) + Number(refund.refundAmount);
 
         await tx.user.update({
           where: { id: refund.userId },
@@ -1030,8 +1067,8 @@ export class OrdersService {
     await this.notificationService.notifyUser(refund.userId, {
       type: 'REFUND_RESULT' as any,
       title: '退款处理完成',
-      content: isApproved 
-        ? `您的退款申请已通过，$${Number(refund.refundAmount).toFixed(2)} 已退回至账户余额` 
+      content: isApproved
+        ? `您的退款申请已通过，$${Number(refund.refundAmount).toFixed(2)} 已退回至账户余额`
         : '您的退款申请已被拒绝',
       orderId: refund.orderId,
     });

@@ -10,34 +10,20 @@ export function useI18nNavigate() {
   const navigate = useNavigate();
   const { lang } = useParams<{ lang?: string }>();
   const { i18n } = useTranslation();
-  
+
   const currentLang = lang || i18n.language;
 
-  /**
-   * 导航到指定路径（自动添加语言前缀）
-   */
   const i18nNavigate = (to: string, options?: { replace?: boolean }) => {
-    // 如果路径已经包含语言前缀，直接导航
-    if (to.match(/^\/(zh-CN|en|id|pt-BR|es-MX)\//)) {
-      navigate(to, options);
-      return;
-    }
-
-    // 添加当前语言前缀
-    const pathWithLang = addLanguagePrefix(to, currentLang);
-    navigate(pathWithLang, options);
+    navigate(addLanguagePrefix(to, currentLang), options);
   };
 
-  /**
-   * 切换语言（保持当前路径）
-   */
   const switchLanguage = (newLang: string) => {
-    const currentPath = window.location.pathname;
+    const currentPath = globalThis.location.pathname;
     const cleanPath = removeLanguagePrefix(currentPath);
     const newPath = addLanguagePrefix(cleanPath, newLang);
-    
+
     i18n.changeLanguage(newLang);
-    navigate(newPath, { replace: true });
+    navigate(`${newPath}${globalThis.location.search}${globalThis.location.hash}`, { replace: true });
   };
 
   return {
@@ -53,24 +39,16 @@ export function useI18nNavigate() {
 export function useI18nHref() {
   const { lang } = useParams<{ lang?: string }>();
   const { i18n } = useTranslation();
-  
+
   const currentLang = lang || i18n.language;
 
-  /**
-   * 生成带语言前缀的链接
-   */
-  const getHref = (path: string): string => {
-    // 如果路径已经包含语言前缀，直接返回
-    if (path.match(/^\/(zh-CN|en|id|pt-BR|es-MX)\//)) {
-      return path;
-    }
-
-    // 添加当前语言前缀
-    return addLanguagePrefix(path, currentLang);
-  };
+  const getHref = (path: string): string => addLanguagePrefix(path, currentLang);
 
   return { getHref, currentLang };
 }
+
+
+
 
 
 

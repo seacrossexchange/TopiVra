@@ -120,7 +120,7 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
               return (
                 <div key={star} style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
                   <Text style={{ width: 20 }}>{star}</Text>
-                  <StarFilled style={{ color: '#faad14', marginRight: 8 }} />
+                  <StarFilled style={{ color: 'var(--color-warning)', marginRight: 8 }} />
                   <Progress percent={percent} showInfo={false} style={{ width: 120, marginRight: 8 }} />
                   <Text type="secondary">{count}</Text>
                 </div>
@@ -153,7 +153,7 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
             <Paragraph>{item.content}</Paragraph>
             <Text type="secondary">{dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}</Text>
             {item.sellerReply && (
-              <Card size="small" style={{ marginTop: 8, background: '#f5f5f5' }}>
+              <Card size="small" style={{ marginTop: 8, background: 'var(--color-bg-secondary)' }}>
                 <Text type="secondary">{t('review.sellerReply')}:</Text>
                 <br />
                 <Text>{item.sellerReply}</Text>

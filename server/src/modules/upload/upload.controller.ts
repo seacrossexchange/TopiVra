@@ -1,145 +1,229 @@
 import {
   Controller,
   Post,
+  Get,
   Delete,
   Param,
-  UseGuards,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
   BadRequestException,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
   ApiBearerAuth,
+  ApiResponse,
   ApiConsumes,
-  ApiBody,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UploadService } from './upload.service';
-import * as path from 'path';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
-@ApiTags('upload')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+// 文件类型定义
+interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination?: string;
+  filename?: string;
+  path?: string;
+  buffer: Buffer;
+}
+
+@ApiTags('文件上传')
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
-  @Post('image')
-  @ApiOperation({ summary: '上传图片' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: { file: { type: 'string', format: 'binary' } },
-    },
-  })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
-      },
-      fileFilter: (_req, file, callback) => {
-        // 1. 检查 MIME 类型
-        const allowedMimes = [
-          'image/jpeg',
-          'image/jpg',
-          'image/png',
-          'image/gif',
-          'image/webp',
-        ];
+  // ==================== 公开接口 ====================
 
-        if (!allowedMimes.includes(file.mimetype)) {
-          return callback(
-            new BadRequestException(
-              '不支持的图片格式，仅支持 JPG、PNG、GIF、WEBP',
-            ),
-            false,
-          );
-        }
-
-        // 2. 检查文件扩展名
-        const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-        const ext = path.extname(file.originalname).toLowerCase();
-
-        if (!allowedExts.includes(ext)) {
-          return callback(new BadRequestException('不支持的文件扩展名'), false);
-        }
-
-        callback(null, true);
-      },
-    }),
-  )
-  async uploadImage(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('请选择要上传的图片');
-    }
-    return this.uploadService.saveImage(file);
+  @Public()
+  @Get('health')
+  @ApiOperation({ summary: '上传服务健康检查' })
+  @ApiResponse({ status: 200, description: '服务正常' })
+  healthCheck() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
   }
 
-  @Post('file')
-  @ApiOperation({ summary: '上传文件' })
+  // ==================== 卖家接口 ====================
+
+  @Post('product/file')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SELLER')
+  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: { file: { type: 'string', format: 'binary' } },
-    },
-  })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB
-      },
-      fileFilter: (_req, file, callback) => {
-        // 允许的文件类型（文档类）
-        const allowedMimes = [
-          'application/pdf',
-          'application/msword',
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'application/vnd.ms-excel',
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'text/plain',
-          'application/zip',
-        ];
-
-        if (!allowedMimes.includes(file.mimetype)) {
-          return callback(new BadRequestException('不支持的文件类型'), false);
-        }
-
-        // 检查文件扩展名
-        const allowedExts = [
-          '.pdf',
-          '.doc',
-          '.docx',
-          '.xls',
-          '.xlsx',
-          '.txt',
-          '.zip',
-        ];
-        const ext = path.extname(file.originalname).toLowerCase();
-
-        if (!allowedExts.includes(ext)) {
-          return callback(new BadRequestException('不支持的文件扩展名'), false);
-        }
-
-        callback(null, true);
-      },
-    }),
-  )
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  @ApiOperation({ summary: '上传商品文件（卖家）' })
+  @ApiResponse({ status: 200, description: '文件上传成功' })
+  @ApiResponse({ status: 400, description: '文件类型不支持或文件过大' })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProductFile(
+    @CurrentUser('id') userId: string,
+    @UploadedFile() file: MulterFile,
+    @Query('category') category?: string,
+  ) {
     if (!file) {
       throw new BadRequestException('请选择要上传的文件');
     }
-    return this.uploadService.saveFile(file);
+
+    const allowedExtensions = [
+      '.zip',
+      '.rar',
+      '.7z',
+      '.exe',
+      '.dmg',
+      '.apk',
+      '.pdf',
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+    ];
+
+    const fileExt = file.originalname
+      .toLowerCase()
+      .substring(file.originalname.lastIndexOf('.'));
+
+    if (!allowedExtensions.includes(fileExt)) {
+      throw new BadRequestException(`不支持的文件类型: ${fileExt}`);
+    }
+
+    // 文件大小限制: 100MB
+    const maxSize = 100 * 1024 * 1024;
+    if (file.size > maxSize) {
+      throw new BadRequestException('文件大小不能超过100MB');
+    }
+
+    return this.uploadService.uploadProductFile(userId, file as any, category);
   }
 
-  @Delete(':url')
+  @Post('product/images')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SELLER')
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: '上传商品图片（卖家）' })
+  @ApiResponse({ status: 200, description: '图片上传成功' })
+  @ApiResponse({ status: 400, description: '图片类型不支持或过大' })
+  @UseInterceptors(FilesInterceptor('files', 10))
+  async uploadProductImages(
+    @CurrentUser('id') userId: string,
+    @UploadedFiles() files: MulterFile[],
+  ) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('请选择要上传的图片');
+    }
+
+    // 验证图片类型
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+    ];
+
+    for (const file of files) {
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new BadRequestException(`不支持的图片类型: ${file.mimetype}`);
+      }
+
+      // 图片大小限制: 5MB
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        throw new BadRequestException('图片大小不能超过5MB');
+      }
+    }
+
+    return this.uploadService.uploadProductImages(userId, files as any);
+  }
+
+  @Post('keys/batch')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SELLER')
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: '批量导入激活码（卖家）' })
+  @ApiResponse({ status: 200, description: '激活码导入成功' })
+  @ApiResponse({ status: 400, description: '文件格式错误' })
+  @UseInterceptors(FileInterceptor('file'))
+  async importKeys(
+    @CurrentUser('id') userId: string,
+    @UploadedFile() file: MulterFile,
+    @Query('productId') productId: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('请选择要上传的文件');
+    }
+
+    if (!productId) {
+      throw new BadRequestException('请指定商品ID');
+    }
+
+    const fileExt = file.originalname
+      .toLowerCase()
+      .substring(file.originalname.lastIndexOf('.'));
+
+    if (!['.txt', '.csv'].includes(fileExt)) {
+      throw new BadRequestException('只支持 .txt 或 .csv 格式的文件');
+    }
+
+    return this.uploadService.importKeys(userId, productId, file as any);
+  }
+
+  // ==================== 管理员接口 ====================
+
+  @Post('admin/banner')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: '上传广告图片（管理员）' })
+  @ApiResponse({ status: 200, description: '图片上传成功' })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadBanner(
+    @CurrentUser('id') adminId: string,
+    @UploadedFile() file: MulterFile,
+  ) {
+    if (!file) {
+      throw new BadRequestException('请选择要上传的图片');
+    }
+
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+    ];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException('只支持 JPG, PNG, GIF, WEBP 格式的图片');
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      throw new BadRequestException('图片大小不能超过5MB');
+    }
+
+    return this.uploadService.uploadBanner(adminId, file as any);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SELLER', 'ADMIN')
+  @ApiBearerAuth()
   @ApiOperation({ summary: '删除文件' })
-  async deleteFile(@Param('url') url: string) {
-    const result = await this.uploadService.deleteFile(decodeURIComponent(url));
-    return { success: result };
+  @ApiResponse({ status: 200, description: '文件删除成功' })
+  async deleteFile(
+    @Param('id') fileId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.uploadService.deleteFile(fileId, userId);
   }
 }

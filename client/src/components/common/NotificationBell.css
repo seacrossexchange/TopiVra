@@ -41,10 +41,10 @@
   font-weight: 600;
   line-height: 18px;
   text-align: center;
-  color: #fff;
+  color: white;
   background: var(--color-error);
   border-radius: 9px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
 /* 下拉面板 */
@@ -57,14 +57,14 @@
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-modal);
   overflow: hidden;
   z-index: 1000;
 }
 
 /* 暗色主题适配 */
-[data-theme='dark'] .notification-panel {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+:root:not([data-theme='light']) .notification-panel {
+  box-shadow: var(--shadow-modal);
 }
 
 /* 面板头部 */
@@ -254,7 +254,7 @@
 
 .notification-item-delete:hover {
   background: var(--color-error);
-  color: #fff;
+  color: white;
 }
 
 /* 面板底部 */

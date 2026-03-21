@@ -132,11 +132,6 @@ describe('PaymentsService - auto delivery integration', () => {
       orderStatus: 'PAID',
       paymentStatus: 'PAID',
     });
-    prisma.sellerProfile.findUnique.mockResolvedValue({
-      userId: 'seller-1',
-      balance: 0,
-      totalEarnings: 0,
-    });
 
     ordersService.handlePaymentSuccess.mockResolvedValue({
       orderId: mockOrder.id,

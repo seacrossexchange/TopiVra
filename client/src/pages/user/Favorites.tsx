@@ -118,7 +118,7 @@ export default function FavoritesPage() {
       key: 'price',
       render: (price: number, record) => (
         <Space direction="vertical" size={0}>
-          <Text strong style={{ color: '#f5222d' }}>
+          <Text strong style={{ color: 'var(--color-error)' }}>
             ${price.toFixed(2)}
           </Text>
           {record.product.originalPrice && record.product.originalPrice > price && (

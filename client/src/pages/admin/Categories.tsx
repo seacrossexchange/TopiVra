@@ -16,6 +16,7 @@ import {
   deleteCategory, toggleCategoryActive,
   type Category, type CreateCategoryPayload
 } from '@/services/admin';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 const { Title, Text } = Typography;
 
@@ -57,7 +58,7 @@ export default function AdminCategoriesPage() {
       form.resetFields();
     },
     onError: (e: any) => {
-      message.error(e?.response?.data?.message || t('common.error', '操作失败'));
+      message.error(extractApiErrorMessage(e, t('common.error', '操作失败')));
     },
   });
 
@@ -73,7 +74,7 @@ export default function AdminCategoriesPage() {
       form.resetFields();
     },
     onError: (e: any) => {
-      message.error(e?.response?.data?.message || t('common.error', '操作失败'));
+      message.error(extractApiErrorMessage(e, t('common.error', '操作失败')));
     },
   });
 
@@ -85,7 +86,7 @@ export default function AdminCategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
     },
     onError: (e: any) => {
-      message.error(e?.response?.data?.message || t('common.error', '操作失败'));
+      message.error(extractApiErrorMessage(e, t('common.error', '操作失败')));
     },
   });
 

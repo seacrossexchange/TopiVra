@@ -1,6 +1,16 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateCouponDto, UpdateCouponDto, ValidateCouponDto, CouponType, CouponStatus } from './dto/coupon.dto';
+import {
+  CreateCouponDto,
+  UpdateCouponDto,
+  ValidateCouponDto,
+  CouponType,
+  CouponStatus,
+} from './dto/coupon.dto';
 
 @Injectable()
 export class CouponsService {
@@ -14,7 +24,11 @@ export class CouponsService {
     });
 
     if (existing) {
-      throw new BadRequestException('优惠券码已存在');
+      throw new BadRequestException({
+        code: 'COUPON_CODE_EXISTS',
+        translationKey: 'errors.COUPON_CODE_EXISTS',
+        message: 'Coupon code already exists',
+      });
     }
 
     return this.prisma.coupon.create({
@@ -30,7 +44,11 @@ export class CouponsService {
   async update(id: string, dto: UpdateCouponDto) {
     const coupon = await this.prisma.coupon.findUnique({ where: { id } });
     if (!coupon) {
-      throw new NotFoundException('优惠券不存在');
+      throw new NotFoundException({
+        code: 'COUPON_NOT_FOUND',
+        translationKey: 'errors.COUPON_NOT_FOUND',
+        message: 'Coupon not found',
+      });
     }
 
     return this.prisma.coupon.update({
@@ -57,26 +75,17 @@ export class CouponsService {
   // 查询用户可用优惠券
   async findAvailableForUser(userId: string, orderAmount: number) {
     const now = new Date();
-    
+
     const coupons = await this.prisma.coupon.findMany({
       where: {
         status: CouponStatus.ACTIVE,
-        OR: [
-          { startDate: null },
-          { startDate: { lte: now } },
-        ],
+        OR: [{ startDate: null }, { startDate: { lte: now } }],
         AND: [
           {
-            OR: [
-              { endDate: null },
-              { endDate: { gte: now } },
-            ],
+            OR: [{ endDate: null }, { endDate: { gte: now } }],
           },
           {
-            OR: [
-              { minPurchase: null },
-              { minPurchase: { lte: orderAmount } },
-            ],
+            OR: [{ minPurchase: null }, { minPurchase: { lte: orderAmount } }],
           },
         ],
       },
@@ -113,28 +122,53 @@ export class CouponsService {
     });
 
     if (!coupon) {
-      throw new NotFoundException('优惠券不存在');
+      throw new NotFoundException({
+        code: 'COUPON_NOT_FOUND',
+        translationKey: 'errors.COUPON_NOT_FOUND',
+        message: 'Coupon not found',
+      });
     }
 
     if (coupon.status !== CouponStatus.ACTIVE) {
-      throw new BadRequestException('优惠券已失效');
+      throw new BadRequestException({
+        code: 'COUPON_INACTIVE',
+        translationKey: 'errors.COUPON_INACTIVE',
+        message: 'Coupon is inactive',
+      });
     }
 
     const now = new Date();
     if (coupon.startDate && coupon.startDate > now) {
-      throw new BadRequestException('优惠券尚未生效');
+      throw new BadRequestException({
+        code: 'COUPON_NOT_STARTED',
+        translationKey: 'errors.COUPON_NOT_STARTED',
+        message: 'Coupon is not active yet',
+      });
     }
 
     if (coupon.endDate && coupon.endDate < now) {
-      throw new BadRequestException('优惠券已过期');
+      throw new BadRequestException({
+        code: 'COUPON_EXPIRED',
+        translationKey: 'errors.COUPON_EXPIRED',
+        message: 'Coupon has expired',
+      });
     }
 
     if (coupon.minPurchase && dto.orderAmount < Number(coupon.minPurchase)) {
-      throw new BadRequestException(`订单金额需满 $${coupon.minPurchase}`);
+      throw new BadRequestException({
+        code: 'COUPON_MIN_PURCHASE_NOT_MET',
+        translationKey: 'errors.COUPON_MIN_PURCHASE_NOT_MET',
+        message: 'Order amount does not meet the minimum purchase requirement',
+        details: { minPurchase: Number(coupon.minPurchase) },
+      });
     }
 
     if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
-      throw new BadRequestException('优惠券已被领完');
+      throw new BadRequestException({
+        code: 'COUPON_USAGE_LIMIT_REACHED',
+        translationKey: 'errors.COUPON_USAGE_LIMIT_REACHED',
+        message: 'Coupon usage limit reached',
+      });
     }
 
     if (coupon.userUsageLimit) {
@@ -142,23 +176,49 @@ export class CouponsService {
         where: { couponId: coupon.id, userId },
       });
       if (userUsageCount >= coupon.userUsageLimit) {
-        throw new BadRequestException('您已达到该优惠券使用次数上限');
+        throw new BadRequestException({
+          code: 'COUPON_USER_USAGE_LIMIT_REACHED',
+          translationKey: 'errors.COUPON_USER_USAGE_LIMIT_REACHED',
+          message: 'You have reached the usage limit for this coupon',
+        });
       }
     }
 
     // 检查适用平台
-    if (coupon.applicablePlatforms && Array.isArray(coupon.applicablePlatforms) && coupon.applicablePlatforms.length > 0 && dto.platforms) {
-      const hasApplicable = dto.platforms.some(p => (coupon.applicablePlatforms as string[]).includes(p));
+    if (
+      coupon.applicablePlatforms &&
+      Array.isArray(coupon.applicablePlatforms) &&
+      coupon.applicablePlatforms.length > 0 &&
+      dto.platforms
+    ) {
+      const hasApplicable = dto.platforms.some((p) =>
+        (coupon.applicablePlatforms as string[]).includes(p),
+      );
       if (!hasApplicable) {
-        throw new BadRequestException('优惠券不适用于当前商品');
+        throw new BadRequestException({
+          code: 'COUPON_NOT_APPLICABLE',
+          translationKey: 'errors.COUPON_NOT_APPLICABLE',
+          message: 'Coupon is not applicable to the current product',
+        });
       }
     }
 
     // 检查适用分类
-    if (coupon.applicableCategories && Array.isArray(coupon.applicableCategories) && coupon.applicableCategories.length > 0 && dto.categories) {
-      const hasApplicable = dto.categories.some(c => (coupon.applicableCategories as string[]).includes(c));
+    if (
+      coupon.applicableCategories &&
+      Array.isArray(coupon.applicableCategories) &&
+      coupon.applicableCategories.length > 0 &&
+      dto.categories
+    ) {
+      const hasApplicable = dto.categories.some((c) =>
+        (coupon.applicableCategories as string[]).includes(c),
+      );
       if (!hasApplicable) {
-        throw new BadRequestException('优惠券不适用于当前商品');
+        throw new BadRequestException({
+          code: 'COUPON_NOT_APPLICABLE',
+          translationKey: 'errors.COUPON_NOT_APPLICABLE',
+          message: 'Coupon is not applicable to the current product',
+        });
       }
     }
 
@@ -183,9 +243,15 @@ export class CouponsService {
 
   // 使用优惠券（订单创建时调用）
   async useCoupon(userId: string, couponId: string, orderId: string) {
-    const coupon = await this.prisma.coupon.findUnique({ where: { id: couponId } });
+    const coupon = await this.prisma.coupon.findUnique({
+      where: { id: couponId },
+    });
     if (!coupon) {
-      throw new NotFoundException('优惠券不存在');
+      throw new NotFoundException({
+        code: 'COUPON_NOT_FOUND',
+        translationKey: 'errors.COUPON_NOT_FOUND',
+        message: 'Coupon not found',
+      });
     }
 
     // 创建使用记录
@@ -210,11 +276,18 @@ export class CouponsService {
   async remove(id: string) {
     const coupon = await this.prisma.coupon.findUnique({ where: { id } });
     if (!coupon) {
-      throw new NotFoundException('优惠券不存在');
+      throw new NotFoundException({
+        code: 'COUPON_NOT_FOUND',
+        translationKey: 'errors.COUPON_NOT_FOUND',
+        message: 'Coupon not found',
+      });
     }
 
     await this.prisma.coupon.delete({ where: { id } });
-    return { success: true, message: '优惠券已删除' };
+    return {
+      success: true,
+      message: 'Coupon deleted successfully',
+      translationKey: 'coupon.deleteSuccess',
+    };
   }
 }
-

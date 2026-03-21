@@ -45,24 +45,25 @@ export class ReferralService {
 
   // 获取推荐统计
   async getReferralStats(userId: string) {
-    const [totalReferrals, successfulReferrals, totalRewards] = await Promise.all([
-      this.prisma.user.count({
-        where: { referredBy: userId },
-      }),
-      this.prisma.user.count({
-        where: {
-          referredBy: userId,
-          referralRewarded: true,
-        },
-      }),
-      this.prisma.transaction.aggregate({
-        where: {
-          userId,
-          type: 'REFERRAL_REWARD',
-        },
-        _sum: { amount: true },
-      }),
-    ]);
+    const [totalReferrals, successfulReferrals, totalRewards] =
+      await Promise.all([
+        this.prisma.user.count({
+          where: { referredBy: userId },
+        }),
+        this.prisma.user.count({
+          where: {
+            referredBy: userId,
+            referralRewarded: true,
+          },
+        }),
+        this.prisma.transaction.aggregate({
+          where: {
+            userId,
+            type: 'REFERRAL_REWARD',
+          },
+          _sum: { amount: true },
+        }),
+      ]);
 
     return {
       totalReferrals,
@@ -87,13 +88,17 @@ export class ReferralService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return referrals.map(r => ({
+    return referrals.map((r) => ({
       id: r.id,
       username: r.username,
       joinedAt: r.createdAt,
       rewarded: r.referralRewarded,
       totalSpent: r.totalSpent || 0,
-      status: r.referralRewarded ? 'completed' : Number(r.totalSpent) >= REFERRAL_CONFIG.MIN_ORDER_AMOUNT ? 'pending' : 'waiting',
+      status: r.referralRewarded
+        ? 'completed'
+        : Number(r.totalSpent) >= REFERRAL_CONFIG.MIN_ORDER_AMOUNT
+          ? 'pending'
+          : 'waiting',
     }));
   }
 
@@ -176,4 +181,3 @@ export class ReferralService {
     return { success: true, message: '会员等级已调整' };
   }
 }
-

@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { WsException } from '@nestjs/websockets';
@@ -19,13 +24,14 @@ export class WsAuthGuard implements CanActivate {
     private configService: ConfigService,
     private redisService: RedisService,
   ) {
-    this.jwtSecret = this.configService.get<string>('JWT_SECRET') || 'default-secret-key';
+    this.jwtSecret =
+      this.configService.get<string>('JWT_SECRET') || 'default-secret-key';
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const client: Socket = context.switchToWs().getClient();
-      
+
       // 从握手或消息中提取 token
       const token = this.extractToken(client);
 
@@ -35,7 +41,9 @@ export class WsAuthGuard implements CanActivate {
       }
 
       // 检查 token 是否在黑名单中（已登出）
-      const isBlacklisted = await this.redisService.get(`token:blacklist:${token}`);
+      const isBlacklisted = await this.redisService.get(
+        `token:blacklist:${token}`,
+      );
       if (isBlacklisted) {
         this.logger.warn('WebSocket 连接使用已失效的 token');
         throw new WsException('未授权：令牌已失效');
@@ -83,6 +91,3 @@ export class WsAuthGuard implements CanActivate {
     return null;
   }
 }
-
-
-

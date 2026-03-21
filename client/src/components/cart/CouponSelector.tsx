@@ -3,6 +3,7 @@ import { Card, Typography, Input, Button, Tag, Space, message, Divider, Empty } 
 import { GiftOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 const { Text } = Typography;
 
@@ -50,7 +51,7 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
 
   const handleApplyCoupon = async () => {
     if (!inputCode.trim()) {
-      message.warning(t('coupon.enterCode', '请输入优惠券码'));
+      message.warning(t('coupon.enterCode'));
       return;
     }
 
@@ -63,11 +64,11 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
 
       if (response.data?.valid) {
         onSelect(response.data.coupon);
-        message.success(t('coupon.applied', '优惠券已应用'));
+        message.success(t('coupon.applied'));
         setInputCode('');
       }
     } catch (error: any) {
-      message.error(error.response?.data?.message || t('coupon.invalid', '优惠券无效'));
+      message.error(extractApiErrorMessage(error, t('coupon.invalid')));
     } finally {
       setValidating(false);
     }
@@ -94,18 +95,18 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
   };
 
   return (
-    <Card title={<Space><GiftOutlined />{t('coupon.title', '优惠券')}</Space>}>
+    <Card title={<Space><GiftOutlined />{t('coupon.title')}</Space>}>
       {/* 输入优惠券码 */}
       <div style={{ marginBottom: 16 }}>
         <Space.Compact style={{ width: '100%' }}>
           <Input
-            placeholder={t('coupon.enterCode', '输入优惠券码')}
+            placeholder={t('coupon.enterCode')}
             value={inputCode}
             onChange={(e) => setInputCode(e.target.value.toUpperCase())}
             onPressEnter={handleApplyCoupon}
           />
           <Button type="primary" onClick={handleApplyCoupon} loading={validating}>
-            {t('coupon.apply', '使用')}
+            {t('coupon.apply')}
           </Button>
         </Space.Compact>
       </div>
@@ -115,15 +116,15 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
       {/* 可用优惠券列表 */}
       <div>
         <Text strong style={{ display: 'block', marginBottom: 12 }}>
-          {t('coupon.available', '可用优惠券')} ({coupons.length})
+          {t('coupon.available')} ({coupons.length})
         </Text>
         
         {loading ? (
           <div style={{ textAlign: 'center', padding: 20 }}>
-            <Text type="secondary">{t('common.loading', '加载中...')}</Text>
+            <Text type="secondary">{t('common.loading')}</Text>
           </div>
         ) : coupons.length === 0 ? (
-          <Empty description={t('coupon.noAvailable', '暂无可用优惠券')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty description={t('coupon.noAvailable')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
           <Space direction="vertical" size="small" style={{ width: '100%' }}>
             {coupons.map((coupon) => {
@@ -164,12 +165,12 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
                       )}
                       {coupon.minPurchase && (
                         <Text type="secondary" style={{ display: 'block', fontSize: 11, marginTop: 4 }}>
-                          {t('coupon.minPurchase', '满')} ${coupon.minPurchase} {t('coupon.available', '可用')}
+                          {t('coupon.minPurchase')} ${coupon.minPurchase} {t('coupon.available')}
                         </Text>
                       )}
                       {coupon.endDate && (
                         <Text type="secondary" style={{ display: 'block', fontSize: 11, marginTop: 2 }}>
-                          {t('coupon.validUntil', '有效期至')} {new Date(coupon.endDate).toLocaleDateString()}
+                          {t('coupon.validUntil')} {new Date(coupon.endDate).toLocaleDateString()}
                         </Text>
                       )}
                     </div>
@@ -178,7 +179,7 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
                         <CheckCircleOutlined style={{ fontSize: 24, color: 'var(--color-primary)' }} />
                       ) : (
                         <div>
-                          <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>
+                          <Text strong style={{ fontSize: 16, color: 'var(--color-error)' }}>
                             -${discount.toFixed(2)}
                           </Text>
                         </div>
@@ -198,17 +199,20 @@ export default function CouponSelector({ orderAmount, onSelect, selectedCoupon }
           <Space>
             <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
             <Text strong style={{ color: 'var(--color-success)' }}>
-              {t('coupon.applied', '已使用优惠券')} {selectedCoupon.code}
+              {t('coupon.applied')} {selectedCoupon.code}
             </Text>
           </Space>
           <Text style={{ display: 'block', marginTop: 4, fontSize: 12 }}>
-            {t('coupon.saved', '已优惠')} ${calculateDiscount(selectedCoupon).toFixed(2)}
+            {t('coupon.saved')} ${calculateDiscount(selectedCoupon).toFixed(2)}
           </Text>
         </div>
       )}
     </Card>
   );
 }
+
+
+
 
 
 

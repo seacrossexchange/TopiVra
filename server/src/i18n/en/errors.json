@@ -27,8 +27,27 @@
   "RATE_LIMIT_EXCEEDED": "Too many requests, please try again later",
   "TOKEN_EXPIRED": "Token expired, please login again",
   "INVALID_TOKEN": "Invalid token",
-  "WEAK_PASSWORD": "Password is too weak"
+  "WEAK_PASSWORD": "Password is too weak",
+  "BLOG_NOT_FOUND": "Blog not found",
+  "BLOG_SLUG_EXISTS": "Blog slug already exists",
+  "BLOG_TAG_SLUG_EXISTS": "Blog tag slug already exists",
+  "BLOG_PARENT_COMMENT_NOT_FOUND": "Parent comment not found",
+  "BLOG_SUBMIT_OWN_ONLY": "You can only submit your own blog",
+  "BLOG_STATUS_INVALID_FOR_SUBMISSION": "Blog status does not allow submission",
+  "BLOG_STATUS_INVALID_FOR_REVIEW": "Only blogs pending review can be reviewed",
+  "COUPON_NOT_FOUND": "Coupon not found",
+  "COUPON_CODE_EXISTS": "Coupon code already exists",
+  "COUPON_INACTIVE": "Coupon is inactive",
+  "COUPON_NOT_STARTED": "Coupon is not active yet",
+  "COUPON_EXPIRED": "Coupon has expired",
+  "COUPON_MIN_PURCHASE_NOT_MET": "Order amount does not meet the minimum purchase requirement",
+  "COUPON_USAGE_LIMIT_REACHED": "Coupon usage limit reached",
+  "COUPON_USER_USAGE_LIMIT_REACHED": "You have reached the usage limit for this coupon",
+  "COUPON_NOT_APPLICABLE": "Coupon is not applicable to the current product"
 }
+
+
+
 
 
 

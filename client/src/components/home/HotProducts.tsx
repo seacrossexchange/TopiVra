@@ -56,13 +56,13 @@ export default function HotProducts() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
           <Space>
-            <FireOutlined style={{ fontSize: 28, color: '#ff4d4f' }} />
+            <FireOutlined style={{ fontSize: 28, color: 'var(--color-error)' }} />
             <Title level={2} style={{ margin: 0 }}>
-              {t('home.hotProducts.title', '🔥 热门商品')}
+              {t('home.hotProducts.title')}
             </Title>
           </Space>
           <Button type="link" onClick={() => navigate('/products?sortBy=soldCount')}>
-            {t('home.hotProducts.viewAll', '查看全部')} →
+            {t('home.hotProducts.viewAll')} →
           </Button>
         </div>
 
@@ -95,15 +95,15 @@ export default function HotProducts() {
                     ${product.price}
                   </Text>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    {t('home.hotProducts.stock', '库存')} {product.stock}
+                    {t('home.hotProducts.stock')} {product.stock}
                   </Text>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-text-secondary)' }}>
                   <span>
-                    <ShoppingOutlined /> {product.soldCount} {t('home.hotProducts.sold', '已售')}
+                    <ShoppingOutlined /> {product.soldCount} {t('home.hotProducts.sold')}
                   </span>
                   <span>
-                    <EyeOutlined /> {product.viewCount} {t('home.hotProducts.views', '浏览')}
+                    <EyeOutlined /> {product.viewCount} {t('home.hotProducts.views')}
                   </span>
                 </div>
               </Card>
@@ -114,6 +114,9 @@ export default function HotProducts() {
     </section>
   );
 }
+
+
+
 
 
 

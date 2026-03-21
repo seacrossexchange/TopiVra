@@ -8,7 +8,3 @@ import { PrismaModule } from '../../prisma/prisma.module';
   exports: [MetricsService],
 })
 export class MonitoringModule {}
-
-
-
-

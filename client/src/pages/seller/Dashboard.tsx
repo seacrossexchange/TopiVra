@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import PageLoading from '@/components/common/PageLoading';
 import PageError from '@/components/common/PageError';
 import apiClient from '@/services/apiClient';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 const { Title, Text } = Typography;
 
@@ -70,11 +71,8 @@ const SellerDashboard: React.FC = () => {
       setError(null);
       const response = await apiClient.get('/sellers/dashboard/stats');
       setStats(response.data);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error 
-        ? err.message 
-        : (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load dashboard data';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      setError(extractApiErrorMessage(error, 'Failed to load dashboard data'));
     } finally {
       setLoading(false);
     }

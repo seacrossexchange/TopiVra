@@ -36,11 +36,11 @@ export default function PasswordStrengthIndicator({ password }: PasswordStrength
   }, [password]);
 
   const getStrengthInfo = () => {
-    if (score === 0) return { percent: 0, status: 'normal' as const, color: '#d9d9d9', label: t('auth.passwordStrength.enter') };
-    if (score <= 2) return { percent: 20 * score, status: 'exception' as const, color: '#ff4d4f', label: t('auth.passwordStrength.weak') };
-    if (score <= 3) return { percent: 20 * score, status: 'normal' as const, color: '#faad14', label: t('auth.passwordStrength.fair') };
-    if (score <= 4) return { percent: 20 * score, status: 'active' as const, color: '#52c41a', label: t('auth.passwordStrength.good') };
-    return { percent: 100, status: 'success' as const, color: '#1890ff', label: t('auth.passwordStrength.strong') };
+    if (score === 0) return { percent: 0, status: 'normal' as const, color: 'var(--color-border)', label: t('auth.passwordStrength.enter') };
+    if (score <= 2) return { percent: 20 * score, status: 'exception' as const, color: 'var(--color-error)', label: t('auth.passwordStrength.weak') };
+    if (score <= 3) return { percent: 20 * score, status: 'normal' as const, color: 'var(--color-warning)', label: t('auth.passwordStrength.fair') };
+    if (score <= 4) return { percent: 20 * score, status: 'active' as const, color: 'var(--color-success)', label: t('auth.passwordStrength.good') };
+    return { percent: 100, status: 'success' as const, color: 'var(--color-primary)', label: t('auth.passwordStrength.strong') };
   };
 
   const strengthInfo = getStrengthInfo();
@@ -70,14 +70,14 @@ export default function PasswordStrengthIndicator({ password }: PasswordStrength
           return (
             <div key={req.key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {isMet ? (
-                <CheckCircleFilled style={{ color: '#52c41a', fontSize: 12 }} />
+                <CheckCircleFilled style={{ color: 'var(--color-success)', fontSize: 12 }} />
               ) : (
-                <CloseCircleFilled style={{ color: '#d9d9d9', fontSize: 12 }} />
+                <CloseCircleFilled style={{ color: 'var(--color-border)', fontSize: 12 }} />
               )}
               <Text
                 style={{
                   fontSize: 12,
-                  color: isMet ? '#52c41a' : '#8c8c8c',
+                  color: isMet ? 'var(--color-success)' : 'var(--color-text-secondary)',
                   textDecoration: isMet ? 'none' : 'none',
                 }}
               >

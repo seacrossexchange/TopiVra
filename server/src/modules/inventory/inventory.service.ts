@@ -33,7 +33,8 @@ export class InventoryService {
     // In test/dev it may be missing; in that case we fall back to a deterministic zero key
     // so the service remains functional (prod should always set a strong key).
     const rawKey = process.env.ENCRYPTION_KEY;
-    const keyHex = rawKey && /^[0-9a-fA-F]{64}$/.test(rawKey) ? rawKey : '0'.repeat(64);
+    const keyHex =
+      rawKey && /^[0-9a-fA-F]{64}$/.test(rawKey) ? rawKey : '0'.repeat(64);
     const key = Buffer.from(keyHex, 'hex');
 
     const iv = crypto.randomBytes(16);
@@ -53,7 +54,8 @@ export class InventoryService {
       const algorithm = 'aes-256-cbc';
 
       const rawKey = process.env.ENCRYPTION_KEY;
-      const keyHex = rawKey && /^[0-9a-fA-F]{64}$/.test(rawKey) ? rawKey : '0'.repeat(64);
+      const keyHex =
+        rawKey && /^[0-9a-fA-F]{64}$/.test(rawKey) ? rawKey : '0'.repeat(64);
       const key = Buffer.from(keyHex, 'hex');
 
       const parts = encryptedData.split(':');

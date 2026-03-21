@@ -7,6 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import apiClient from '@/services/apiClient';
 import { AxiosError } from 'axios';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 import type { InputRef } from 'antd';
 
 const { Title, Text, Paragraph } = Typography;
@@ -66,7 +67,7 @@ export default function TwoFactorAuthPage() {
       }
     },
     onError: (error: AxiosError<{ message: string }>) => {
-      message.error(error?.response?.data?.message || t('auth.2faInvalid'));
+      message.error(extractApiErrorMessage(error, t('auth.2faInvalid')));
       setCode('');
       inputRefs.current[0]?.focus();
     },
@@ -85,7 +86,7 @@ export default function TwoFactorAuthPage() {
       }
     },
     onError: (error: AxiosError<{ message: string }>) => {
-      message.error(error?.response?.data?.message || t('auth.2faInvalid'));
+      message.error(extractApiErrorMessage(error, t('auth.2faInvalid')));
       setCode('');
     },
   });
@@ -103,7 +104,7 @@ export default function TwoFactorAuthPage() {
       }
     },
     onError: (error: AxiosError<{ message: string }>) => {
-      message.error(error?.response?.data?.message || t('auth.2faRecoveryInvalid'));
+      message.error(extractApiErrorMessage(error, t('auth.2faRecoveryInvalid')));
       setRecoveryCode('');
     },
   });
@@ -158,7 +159,7 @@ export default function TwoFactorAuthPage() {
   const renderVerifyMode = () => (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div style={{ textAlign: 'center' }}>
-        <SafetyOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+        <SafetyOutlined style={{ fontSize: 48, color: 'var(--color-primary)' }} />
         <Title level={4} style={{ marginTop: 16 }}>{t('auth.2faTitle')}</Title>
         <Text type="secondary">{t('auth.2faDesc')}</Text>
       </div>
@@ -211,7 +212,7 @@ export default function TwoFactorAuthPage() {
   const renderSetupMode = () => (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div style={{ textAlign: 'center' }}>
-        <SafetyOutlined style={{ fontSize: 48, color: '#52c41a' }} />
+        <SafetyOutlined style={{ fontSize: 48, color: 'var(--color-success)' }} />
         <Title level={4} style={{ marginTop: 16 }}>{t('auth.2faSetup')}</Title>
         <Text type="secondary">{t('auth.2faSetupDesc')}</Text>
       </div>
@@ -297,7 +298,7 @@ export default function TwoFactorAuthPage() {
   const renderRecoveryMode = () => (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       <div style={{ textAlign: 'center' }}>
-        <SafetyOutlined style={{ fontSize: 48, color: '#faad14' }} />
+        <SafetyOutlined style={{ fontSize: 48, color: 'var(--color-warning)' }} />
         <Title level={4} style={{ marginTop: 16 }}>{t('auth.2faRecovery')}</Title>
         <Text type="secondary">{t('auth.2faRecoveryInputDesc')}</Text>
       </div>
@@ -334,14 +335,16 @@ export default function TwoFactorAuthPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: '#f7f8fa',
+      background: 'var(--color-bg-primary)',
       padding: 24,
     }}>
       <Card style={{
         width: '100%',
         maxWidth: 400,
         borderRadius: 8,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+        background: 'var(--color-bg-elevated)',
+        borderColor: 'var(--color-border)',
+        boxShadow: 'var(--shadow-md)',
       }}>
         {mode === 'verify' && renderVerifyMode()}
         {mode === 'setup' && renderSetupMode()}

@@ -17,7 +17,7 @@
 
 .upgrade-progress .remaining {
   text-align: right;
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 12px;
 }
 
@@ -40,5 +40,8 @@
   content: "✓";
   position: absolute;
   left: 0;
-  color: #52c41a;
+  color: var(--color-success);
 }
+
+
+

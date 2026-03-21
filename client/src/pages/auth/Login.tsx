@@ -3,64 +3,37 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, Form, Input, Button, Typography, Space, Checkbox, message, Divider } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { AxiosError } from 'axios';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 import { useAuthStore } from '@/store/authStore';
-import apiClient from '@/services/apiClient';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import './Login.css';
 
 const { Title, Text, Link } = Typography;
-
-interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    avatar?: string;
-    roles?: string[];
-    isSeller?: boolean;
-  };
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  timestamp: string;
-}
 
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const { setTokens, setUser } = useAuthStore();
+  const login = useAuthStore((state) => state.login);
 
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
-    
+
     try {
-      // 调用真实 API
-      const response = await apiClient.post<ApiResponse<LoginResponse> | LoginResponse>('/auth/login', {
-        email: values.email,
-        password: values.password,
-      });
-      
-      // 兼容两种响应格式
-      const responseData = 'data' in response.data ? response.data.data : response.data;
-      const { accessToken, refreshToken, user } = responseData;
-      
-      // 存储 tokens 和用户信息
-      setTokens({ accessToken, refreshToken });
-      setUser({
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        avatar: user.avatar,
-        roles: user.roles || [],
-      });
-      
+      const result = await login(values.email, values.password);
+
+      if (result && 'requiresTwoFactor' in result && result.requiresTwoFactor && result.tempToken) {
+        navigate('/2fa', {
+          replace: true,
+          state: {
+            tempToken: result.tempToken,
+            from: (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | undefined)?.from,
+          },
+        });
+        return;
+      }
+
       message.success(t('auth.loginSuccess'));
 
       const state = location.state as
@@ -78,16 +51,15 @@ export default function Login() {
         ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
         : null;
 
-      // 优先回跳到用户原本想访问的受保护页面
       if (fromPath && from?.pathname && !['/login', '/register', '/auth/login', '/auth/register'].includes(from.pathname)) {
         navigate(fromPath, { replace: true });
         return;
       }
 
-      // 回跳信息缺失时，根据用户角色跳转
-      const roles = (user.roles || []).map((r) => r.toUpperCase());
-      const isAdmin = user.email === 'admin@topivra.com' || (user as any).isAdmin || roles.includes('ADMIN');
-      const isSeller = user.isSeller || roles.includes('SELLER');
+      const currentUser = useAuthStore.getState().user;
+      const roles = (currentUser?.roles || []).map((r) => r.toUpperCase());
+      const isAdmin = currentUser?.email === 'admin@topivra.com' || roles.includes('ADMIN');
+      const isSeller = currentUser?.isSeller || roles.includes('SELLER');
 
       if (isAdmin) {
         navigate('/admin', { replace: true });
@@ -97,9 +69,7 @@ export default function Login() {
         navigate('/user/profile', { replace: true });
       }
     } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>;
-      const errorMsg = axiosError.response?.data?.message || t('auth.loginFailed');
-      message.error(errorMsg);
+      message.error(extractApiErrorMessage(error, t('auth.loginFailed')));
     } finally {
       setLoading(false);
     }

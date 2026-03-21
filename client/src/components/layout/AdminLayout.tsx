@@ -19,12 +19,15 @@ import {
 import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
+import { useTheme } from '@/hooks/useTheme';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 import './AdminLayout.css';
 
 const { Sider, Content, Header } = Layout;
 
 export default function AdminLayout() {
   const { t } = useTranslation();
+  const { isDark } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -116,6 +119,11 @@ export default function AdminLayout() {
       icon: <CustomerServiceOutlined />,
       label: 'Telegram Config',
     },
+    {
+      key: '/admin/blogs',
+      icon: <FileTextOutlined />,
+      label: t('admin.blogs', '博客管理'),
+    },
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -156,7 +164,7 @@ export default function AdminLayout() {
           </Link>
         </div>
         <Menu
-          theme="dark"
+          theme={isDark ? 'dark' : 'light'}
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
@@ -172,6 +180,7 @@ export default function AdminLayout() {
             className="admin-layout__trigger"
           />
           <div className="admin-layout__header-right">
+            <ThemeToggle />
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <div className="admin-layout__user">
                 <Avatar size="small" src={user?.avatar}>

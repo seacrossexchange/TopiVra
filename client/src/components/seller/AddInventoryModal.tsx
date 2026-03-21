@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, Form, Select, Input, Button, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import apiClient from '@/services/apiClient';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 const { TextArea } = Input;
 
@@ -41,7 +42,7 @@ export default function AddInventoryModal({
       onSuccess();
       onClose();
     } catch (error: any) {
-      message.error(error.response?.data?.message || t('common.error'));
+      message.error(extractApiErrorMessage(error, t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -112,6 +113,9 @@ export default function AddInventoryModal({
     </Modal>
   );
 }
+
+
+
 
 
 

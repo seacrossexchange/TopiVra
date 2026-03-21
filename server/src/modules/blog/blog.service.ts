@@ -3,16 +3,39 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   CreateBlogDto,
   UpdateBlogDto,
   BlogQueryDto,
-  BlogStatus,
   CreateTagDto,
   CreateCommentDto,
+  AuthorQueryDto,
 } from './dto/blog.dto';
+import { BlogStatus } from '@prisma/client';
+
+// 阅读权限检查结果
+export interface AccessCheckResult {
+  canRead: boolean;
+  reason?: string;
+  requiredAction?: 'LOGIN' | 'UPGRADE_MEMBER' | 'PAY';
+  requiredLevel?: number;
+  unlockPrice?: number;
+  previewContent?: string;
+  isUnlocked?: boolean;
+  unlockType?: 'PAID' | 'MEMBER' | 'ADMIN';
+}
+
+// 博客访问权限类型（与Prisma schema保持一致）
+export enum BlogAccessType {
+  PUBLIC = 'PUBLIC', // 公开免费
+  LOGIN_REQUIRED = 'LOGIN_REQUIRED', // 需登录
+  MEMBER_ONLY = 'MEMBER_ONLY', // 仅会员可读
+  PAID_UNLOCK = 'PAID_UNLOCK', // 打赏解锁
+  MEMBER_OR_PAID = 'MEMBER_OR_PAID', // 会员或打赏均可
+}
 
 @Injectable()
 export class BlogService {
@@ -62,7 +85,11 @@ export class BlogService {
     });
 
     if (existing) {
-      throw new ConflictException('该 Slug 已存在');
+      throw new ConflictException({
+        code: 'BLOG_SLUG_EXISTS',
+        translationKey: 'errors.BLOG_SLUG_EXISTS',
+        message: 'Blog slug already exists',
+      });
     }
 
     // 计算阅读时间
@@ -272,7 +299,11 @@ export class BlogService {
     });
 
     if (!blog) {
-      throw new NotFoundException('文章不存在');
+      throw new NotFoundException({
+        code: 'BLOG_NOT_FOUND',
+        translationKey: 'errors.BLOG_NOT_FOUND',
+        message: 'Blog not found',
+      });
     }
 
     return {
@@ -312,7 +343,11 @@ export class BlogService {
     });
 
     if (!blog || blog.status !== BlogStatus.PUBLISHED) {
-      throw new NotFoundException('文章不存在');
+      throw new NotFoundException({
+        code: 'BLOG_NOT_FOUND',
+        translationKey: 'errors.BLOG_NOT_FOUND',
+        message: 'Blog not found',
+      });
     }
 
     // 防刷机制：检查是否需要增加浏览量
@@ -359,7 +394,11 @@ export class BlogService {
       });
 
       if (existing) {
-        throw new ConflictException('该 Slug 已存在');
+        throw new ConflictException({
+          code: 'BLOG_SLUG_EXISTS',
+          translationKey: 'errors.BLOG_SLUG_EXISTS',
+          message: 'Blog slug already exists',
+        });
       }
     }
 
@@ -463,7 +502,11 @@ export class BlogService {
       });
     }
 
-    return { success: true, message: '文章已删除' };
+    return {
+      success: true,
+      message: 'Blog deleted successfully',
+      translationKey: 'blog.deleteSuccess',
+    };
   }
 
   // ==================== 获取热门文章 ====================
@@ -583,7 +626,11 @@ export class BlogService {
     });
 
     if (existing) {
-      throw new ConflictException('该标签 Slug 已存在');
+      throw new ConflictException({
+        code: 'BLOG_TAG_SLUG_EXISTS',
+        translationKey: 'errors.BLOG_TAG_SLUG_EXISTS',
+        message: 'Blog tag slug already exists',
+      });
     }
 
     return this.prisma.tag.create({
@@ -613,7 +660,11 @@ export class BlogService {
     });
 
     if (!blog) {
-      throw new NotFoundException('文章不存在');
+      throw new NotFoundException({
+        code: 'BLOG_NOT_FOUND',
+        translationKey: 'errors.BLOG_NOT_FOUND',
+        message: 'Blog not found',
+      });
     }
 
     // 如果是回复，检查父评论是否存在
@@ -623,7 +674,11 @@ export class BlogService {
       });
 
       if (!parentComment || parentComment.blogId !== blogId) {
-        throw new BadRequestException('父评论不存在');
+        throw new BadRequestException({
+          code: 'BLOG_PARENT_COMMENT_NOT_FOUND',
+          translationKey: 'errors.BLOG_PARENT_COMMENT_NOT_FOUND',
+          message: 'Parent comment not found',
+        });
       }
     }
 
@@ -698,7 +753,11 @@ export class BlogService {
     });
 
     if (!blog) {
-      throw new NotFoundException('文章不存在');
+      throw new NotFoundException({
+        code: 'BLOG_NOT_FOUND',
+        translationKey: 'errors.BLOG_NOT_FOUND',
+        message: 'Blog not found',
+      });
     }
 
     const existingLike = await this.prisma.blogLike.findUnique({
@@ -718,7 +777,11 @@ export class BlogService {
         data: { likeCount: { decrement: 1 } },
       });
 
-      return { liked: false, message: '已取消点赞' };
+      return {
+        liked: false,
+        message: 'Blog like removed',
+        translationKey: 'blog.likeRemoved',
+      };
     } else {
       // 点赞
       await this.prisma.blogLike.create({
@@ -730,7 +793,11 @@ export class BlogService {
         data: { likeCount: { increment: 1 } },
       });
 
-      return { liked: true, message: '点赞成功' };
+      return {
+        liked: true,
+        message: 'Blog liked successfully',
+        translationKey: 'blog.likeSuccess',
+      };
     }
   }
 
@@ -742,5 +809,243 @@ export class BlogService {
     });
 
     return { liked: !!like };
+  }
+
+  // ==================== 审核功能 ====================
+
+  /**
+   * 提交文章审核
+   */
+  async submitForReview(id: string, userId: string) {
+    const blog = await this.prisma.blog.findUnique({
+      where: { id },
+    });
+
+    if (!blog) {
+      throw new NotFoundException({
+        code: 'BLOG_NOT_FOUND',
+        translationKey: 'errors.BLOG_NOT_FOUND',
+        message: 'Blog not found',
+      });
+    }
+
+    // 验证作者权限
+    if (blog.authorId !== userId) {
+      throw new BadRequestException({
+        code: 'BLOG_SUBMIT_OWN_ONLY',
+        translationKey: 'errors.BLOG_SUBMIT_OWN_ONLY',
+        message: 'You can only submit your own blog',
+      });
+    }
+
+    // 只有草稿和已驳回状态可以提交
+    if (
+      blog.status !== BlogStatus.DRAFT &&
+      blog.status !== BlogStatus.REJECTED
+    ) {
+      throw new BadRequestException({
+        code: 'BLOG_STATUS_INVALID_FOR_SUBMISSION',
+        translationKey: 'errors.BLOG_STATUS_INVALID_FOR_SUBMISSION',
+        message: 'Blog status does not allow submission',
+      });
+    }
+
+    const updated = await this.prisma.blog.update({
+      where: { id },
+      data: {
+        status: BlogStatus.PENDING_REVIEW,
+      },
+      include: {
+        author: { select: { id: true, username: true } },
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Blog submitted for review',
+      translationKey: 'blog.submittedForReview',
+      blog: updated,
+    };
+  }
+
+  /**
+   * 审核通过（管理员）
+   */
+  async approveBlog(id: string, adminId: string, reviewNotes?: string) {
+    const blog = await this.prisma.blog.findUnique({
+      where: { id },
+    });
+
+    if (!blog) {
+      throw new NotFoundException({
+        code: 'BLOG_NOT_FOUND',
+        translationKey: 'errors.BLOG_NOT_FOUND',
+        message: 'Blog not found',
+      });
+    }
+
+    if (blog.status !== BlogStatus.PENDING_REVIEW) {
+      throw new BadRequestException({
+        code: 'BLOG_STATUS_INVALID_FOR_REVIEW',
+        translationKey: 'errors.BLOG_STATUS_INVALID_FOR_REVIEW',
+        message: 'Only blogs pending review can be reviewed',
+      });
+    }
+
+    const updated = await this.prisma.blog.update({
+      where: { id },
+      data: {
+        status: BlogStatus.PUBLISHED,
+        reviewedBy: adminId,
+        reviewNotes,
+        publishedAt: blog.publishedAt || new Date(),
+      },
+      include: {
+        author: { select: { id: true, username: true } },
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Blog approved successfully',
+      translationKey: 'blog.approveSuccess',
+      blog: updated,
+    };
+  }
+
+  /**
+   * 审核驳回（管理员）
+   */
+  async rejectBlog(id: string, adminId: string, reason: string) {
+    const blog = await this.prisma.blog.findUnique({
+      where: { id },
+    });
+
+    if (!blog) {
+      throw new NotFoundException({
+        code: 'BLOG_NOT_FOUND',
+        translationKey: 'errors.BLOG_NOT_FOUND',
+        message: 'Blog not found',
+      });
+    }
+
+    if (blog.status !== BlogStatus.PENDING_REVIEW) {
+      throw new BadRequestException({
+        code: 'BLOG_STATUS_INVALID_FOR_REVIEW',
+        translationKey: 'errors.BLOG_STATUS_INVALID_FOR_REVIEW',
+        message: 'Only blogs pending review can be reviewed',
+      });
+    }
+
+    const updated = await this.prisma.blog.update({
+      where: { id },
+      data: {
+        status: BlogStatus.REJECTED,
+        reviewedBy: adminId,
+        reviewNotes: reason,
+      },
+      include: {
+        author: { select: { id: true, username: true } },
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Blog rejected successfully',
+      translationKey: 'blog.rejectSuccess',
+      blog: updated,
+    };
+  }
+
+  /**
+   * 获取待审核文章列表（管理员）
+   */
+  async findPending(query: AuthorQueryDto) {
+    const { search, page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {
+      status: BlogStatus.PENDING_REVIEW,
+    };
+
+    if (search) {
+      where.OR = [{ title: { contains: search, mode: 'insensitive' } }];
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.blog.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'asc' }, // 先提交先审核
+        include: {
+          author: {
+            select: { id: true, username: true, avatar: true, roles: true },
+          },
+          category: true,
+          tags: { include: { tag: true } },
+        },
+      }),
+      this.prisma.blog.count({ where }),
+    ]);
+
+    return {
+      items: items.map((item: any) => ({
+        ...item,
+        tags: item.tags?.map((bt: any) => bt.tag) || [],
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  /**
+   * 获取作者的文章列表
+   */
+  async findByAuthor(authorId: string, query: BlogQueryDto) {
+    const { search, status, page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = { authorId };
+
+    if (search) {
+      where.OR = [{ title: { contains: search, mode: 'insensitive' } }];
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.blog.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          category: true,
+          tags: { include: { tag: true } },
+          _count: {
+            select: { comments: true, likes: true },
+          },
+        },
+      }),
+      this.prisma.blog.count({ where }),
+    ]);
+
+    return {
+      items: items.map((item) => ({
+        ...item,
+        tags: item.tags.map((bt) => bt.tag),
+        commentCount: item._count.comments,
+        likeCount: item._count.likes,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

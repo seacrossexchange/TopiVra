@@ -75,7 +75,7 @@ export default function CartRecommendations({ cartItems }: CartRecommendationsPr
   return (
     <Card style={{ marginTop: 24 }}>
       <Title level={4} style={{ marginBottom: 16 }}>
-        💡 {t('cart.recommendations.title', '买过的人还买了')}
+        💡 {t('cart.recommendations.title')}
       </Title>
       <Row gutter={[12, 12]}>
         {products.map((product) => (
@@ -102,7 +102,7 @@ export default function CartRecommendations({ cartItems }: CartRecommendationsPr
                     ${product.price}
                   </Text>
                   <Text type="secondary" style={{ fontSize: 11 }}>
-                    {product.soldCount} {t('cart.recommendations.sold', '已售')}
+                    {product.soldCount} {t('cart.recommendations.sold')}
                   </Text>
                 </div>
               </div>
@@ -114,7 +114,7 @@ export default function CartRecommendations({ cartItems }: CartRecommendationsPr
                 onClick={() => handleAddToCart(product.id)}
                 loading={addingToCart[product.id]}
               >
-                {t('cart.recommendations.add', '加入购物车')}
+                {t('cart.recommendations.add')}
               </Button>
             </Card>
           </Col>
@@ -123,6 +123,9 @@ export default function CartRecommendations({ cartItems }: CartRecommendationsPr
     </Card>
   );
 }
+
+
+
 
 
 

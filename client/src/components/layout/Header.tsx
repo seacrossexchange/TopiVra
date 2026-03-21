@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-import { Layout, Button, Dropdown, Space, Badge, Avatar } from 'antd';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+
+import { useEffect, useMemo } from 'react';
+import { Layout, Button, Dropdown, Space, Badge, Avatar, Tag, Tooltip } from 'antd';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ShoppingCartOutlined,
@@ -8,21 +9,24 @@ import {
   LoginOutlined,
   ShopOutlined,
   MessageOutlined,
+  CrownOutlined,
+  UserSwitchOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import NotificationBell from '@/components/common/NotificationBell';
+import { useI18nHref, useI18nNavigate } from '@/hooks/useI18nNavigate';
 import './Header.css';
 
 const { Header: AntHeader } = Layout;
 
 export default function Header() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const location = useLocation();
-  
+  const { navigate: i18nNavigate, switchLanguage } = useI18nNavigate();
+  const { getHref } = useI18nHref();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { itemCount, fetchCart } = useCartStore();
   const isLoggedIn = isAuthenticated;
@@ -55,48 +59,138 @@ export default function Header() {
           <span>{lang.label}</span>
         </span>
       ),
-      onClick: () => { i18n.changeLanguage(lang.key); },
+      onClick: () => { switchLanguage(lang.key); },
     })),
     selectedKeys: [i18n.language],
   };
 
-  // 用户菜单（已登录状态）
+  const roles = (user?.roles || []).map((r) => r.toUpperCase());
+  const isSeller = roles.includes('SELLER') || user?.isSeller === true;
+  const isAdmin = roles.includes('ADMIN');
+
+  // 检测当前所在的角色后台
+  const currentRole = useMemo(() => {
+    const path = location.pathname;
+    if (path.startsWith('/admin')) return 'admin';
+    if (path.startsWith('/seller')) return 'seller';
+    return 'buyer';
+  }, [location.pathname]);
+
+  // 角色配置
+  const roleConfig = useMemo(() => ({
+    buyer: {
+      icon: <UserSwitchOutlined />,
+      color: '#1890ff',
+      bgColor: '#e6f4ff',
+      label: t('header.roleBuyer', '买家'),
+    },
+    seller: {
+      icon: <ShopOutlined />,
+      color: '#52c41a',
+      bgColor: '#f6ffed',
+      label: t('header.roleSeller', '卖家'),
+    },
+    admin: {
+      icon: <CrownOutlined />,
+      color: '#722ed1',
+      bgColor: '#f9f0ff',
+      label: t('header.roleAdmin', '管理员'),
+    },
+  }), [t]);
+
+  // 角色后台入口菜单 - 先定义
+  const roleMenuItems: MenuProps['items'] = [];
+  
+  // 买家中心入口（所有登录用户都有）
+  roleMenuItems.push({
+    key: 'buyer-center',
+    label: (
+      <Space>
+        <UserSwitchOutlined />
+        <span>{t('header.buyerCenter', '买家中心')}</span>
+      </Space>
+    ),
+    onClick: () => i18nNavigate('/user/orders'),
+  });
+
+  // 卖家后台入口
+  if (isSeller) {
+    roleMenuItems.push({
+      key: 'seller-center',
+      label: (
+        <Space>
+          <ShopOutlined />
+          <span>{t('header.sellerCenter', '卖家后台')}</span>
+        </Space>
+      ),
+      onClick: () => i18nNavigate('/seller/products'),
+    });
+  }
+
+  // 管理后台入口
+  if (isAdmin) {
+    roleMenuItems.push({
+      key: 'admin-center',
+      label: (
+        <Space>
+          <CrownOutlined />
+          <span>{t('header.adminCenter', '管理后台')}</span>
+        </Space>
+      ),
+      onClick: () => i18nNavigate('/admin/dashboard'),
+    });
+  }
+
+  // 用户菜单（已登录状态） - 在 roleMenuItems 之后定义
   const userMenu: MenuProps['items'] = [
+    // 角色后台直达入口区域
+    ...(roleMenuItems.length > 0 ? [
+      {
+        type: 'group' as const,
+        key: 'role-switch',
+        label: <span className="header-menu-group-label">{t('header.roleSwitch', '角色切换')}</span>,
+        children: roleMenuItems,
+      },
+      { type: 'divider' as const, key: 'role-divider' },
+    ] : []),
+    // 个人中心功能
     {
       key: 'profile',
+      icon: <UserOutlined />,
       label: t('user.profile'),
-      onClick: () => navigate('/user/profile'),
+      onClick: () => i18nNavigate('/user/profile'),
     },
     {
       key: 'orders',
+      icon: <ShoppingCartOutlined />,
       label: t('user.myOrders'),
-      onClick: () => navigate('/user/orders'),
+      onClick: () => i18nNavigate('/user/orders'),
     },
     {
       key: 'tickets',
+      icon: <MessageOutlined />,
       label: t('user.myTickets'),
-      onClick: () => navigate('/user/tickets'),
+      onClick: () => i18nNavigate('/buyer/tickets'),
     },
     {
       type: 'divider',
     },
     {
       key: 'logout',
+      icon: <LoginOutlined />,
       label: t('user.logout'),
+      danger: true,
       onClick: () => {
         logout();
-        navigate('/login');
+        i18nNavigate('/login');
       },
     },
   ];
 
-  const roles = (user?.roles || []).map((r) => r.toUpperCase());
-  const isSeller = roles.includes('SELLER') || user?.isSeller === true;
-
   return (
     <AntHeader className="header">
       {/* Logo */}
-      <Link to="/" className="header-logo">
+      <Link to={getHref('/')} className="header-logo">
         <div className="header-logo-mark">
           <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
@@ -138,10 +232,10 @@ export default function Header() {
 
       {/* 导航菜单 */}
       <nav className="header-nav">
-        <Link to="/" className={`header-nav-item${location.pathname === '/' ? ' header-nav-item--active' : ''}`}>{t('header.home', '首页')}</Link>
-        <Link to="/products" className={`header-nav-item${location.pathname.startsWith('/products') ? ' header-nav-item--active' : ''}`}>{t('header.products', '商品')}</Link>
-        <Link to="/blog" className={`header-nav-item${location.pathname.startsWith('/blog') ? ' header-nav-item--active' : ''}`}>{t('nav.tutorials', '使用教程')}</Link>
-        <Link to="/contact" className={`header-nav-item${location.pathname === '/contact' ? ' header-nav-item--active' : ''}`}>{t('header.contact', '联系')}</Link>
+        <Link to={getHref('/')} className={`header-nav-item${location.pathname === '/' ? ' header-nav-item--active' : ''}`}>{t('header.home', '首页')}</Link>
+        <Link to={getHref('/products')} className={`header-nav-item${location.pathname.startsWith('/products') ? ' header-nav-item--active' : ''}`}>{t('header.products', '商品')}</Link>
+        <Link to={getHref('/blog')} className={`header-nav-item${location.pathname.startsWith('/blog') ? ' header-nav-item--active' : ''}`}>{t('nav.tutorials', '使用教程')}</Link>
+        <Link to={getHref('/contact')} className={`header-nav-item${location.pathname === '/contact' ? ' header-nav-item--active' : ''}`}>{t('header.contact', '联系')}</Link>
       </nav>
 
       {/* 右侧操作区 */}
@@ -151,7 +245,7 @@ export default function Header() {
           <Button
             type="link"
             icon={<ShopOutlined />}
-            onClick={() => navigate('/seller/products')}
+            onClick={() => i18nNavigate('/seller/products')}
           >
             {t('header.sellerCenter', '卖家中心')}
           </Button>
@@ -160,7 +254,7 @@ export default function Header() {
             type="primary"
             ghost
             icon={<ShopOutlined />}
-            onClick={() => navigate('/apply-seller')}
+            onClick={() => i18nNavigate('/apply-seller')}
           >
             {t('header.applySeller', '申请成为卖家')}
           </Button>
@@ -171,7 +265,7 @@ export default function Header() {
           <Button
             type="text"
             icon={<ShoppingCartOutlined style={{ fontSize: 20 }} />}
-            onClick={() => navigate('/cart')}
+            onClick={() => i18nNavigate('/cart')}
           />
         </Badge>
 
@@ -180,7 +274,7 @@ export default function Header() {
           <Button
             type="text"
             icon={<MessageOutlined style={{ fontSize: 20 }} />}
-            onClick={() => navigate(isSeller ? '/seller/messages' : '/user/messages')}
+            onClick={() => i18nNavigate(isSeller ? '/seller/messages' : '/user/messages')}
             data-testid="messages-button"
           />
         )}
@@ -200,21 +294,52 @@ export default function Header() {
 
         {/* 用户菜单 */}
         {isLoggedIn ? (
-          <Dropdown menu={{ items: userMenu }} placement="bottomRight">
+          <Dropdown menu={{ items: userMenu }} placement="bottomRight" trigger={['click']}>
             <Space className="header-user">
-              <Avatar
-                src={user?.avatar}
-                icon={<UserOutlined />}
-                className="header-avatar"
-              />
-              <span>{user?.username || '用户'}</span>
+              <div className="header-avatar-wrapper">
+                <Avatar
+                  src={user?.avatar}
+                  icon={<UserOutlined />}
+                  className="header-avatar"
+                />
+                {/* 当前角色徽章 */}
+                <Tooltip title={t('header.currentRole', '当前身份') + ': ' + roleConfig[currentRole].label}>
+                  <span 
+                    className="header-role-badge"
+                    style={{ 
+                      backgroundColor: roleConfig[currentRole].color,
+                    }}
+                  >
+                    {currentRole === 'admin' && <CrownOutlined style={{ fontSize: 10 }} />}
+                    {currentRole === 'seller' && <ShopOutlined style={{ fontSize: 10 }} />}
+                    {currentRole === 'buyer' && <UserSwitchOutlined style={{ fontSize: 10 }} />}
+                  </span>
+                </Tooltip>
+              </div>
+              <div className="header-user-info">
+                <span className="header-username">{user?.username || '用户'}</span>
+                <Tag 
+                  className="header-role-tag"
+                  style={{ 
+                    color: roleConfig[currentRole].color,
+                    backgroundColor: roleConfig[currentRole].bgColor,
+                    border: 'none',
+                    fontSize: 11,
+                    lineHeight: '16px',
+                    padding: '0 4px',
+                    margin: 0,
+                  }}
+                >
+                  {roleConfig[currentRole].icon} {roleConfig[currentRole].label}
+                </Tag>
+              </div>
             </Space>
           </Dropdown>
         ) : (
           <Button
             type="primary"
             icon={<LoginOutlined />}
-            onClick={() => navigate('/login')}
+            onClick={() => i18nNavigate('/login')}
           >
             {t('header.login', '登录')}
           </Button>

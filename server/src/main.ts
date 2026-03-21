@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger, RequestMethod } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { I18nService } from 'nestjs-i18n';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import { AppModule } from './app.module';
@@ -32,6 +33,7 @@ async function bootstrap() {
 
   // 使用 ConfigService 获取配置
   const configService = app.get(ConfigService);
+  const i18nService = app.get(I18nService) as I18nService<Record<string, unknown>>;
 
   // ==================== 安全检查 ====================
 
@@ -117,7 +119,9 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: allowedOrigins.filter((url, index, self) => self.indexOf(url) === index),
+    origin: allowedOrigins.filter(
+      (url, index, self) => self.indexOf(url) === index,
+    ),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -146,7 +150,7 @@ async function bootstrap() {
   });
 
   // 全局异常过滤器
-  app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalFilters(new GlobalExceptionFilter(i18nService));
 
   // 全局响应转换拦截器（统一响应格式）
   app.useGlobalInterceptors(new TransformInterceptor());

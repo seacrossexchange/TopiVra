@@ -37,13 +37,14 @@ describe('AuthModule (e2e)', () => {
     };
 
     const response = await request(app.getHttpServer())
-      .post('/api/auth/register') // Assuming /api prefix
+      .post('/auth/register')
       .send(registrationData)
       .expect(201);
 
-    expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty('success', true);
     expect(response.body).toHaveProperty('email', registrationData.email);
-    expect(response.body).not.toHaveProperty('password'); // Password should be hashed and not returned
+    expect(response.body).toHaveProperty('requiresVerification', true);
+    expect(response.body).toHaveProperty('verificationCode');
   });
 
   it('/auth/login (POST) - should log in an existing user', async () => {
@@ -53,7 +54,7 @@ describe('AuthModule (e2e)', () => {
     };
 
     const response = await request(app.getHttpServer())
-      .post('/api/auth/login') // Assuming /api prefix
+      .post('/auth/login')
       .send(loginData)
       .expect(200);
 
@@ -68,7 +69,7 @@ describe('AuthModule (e2e)', () => {
     };
 
     await request(app.getHttpServer())
-      .post('/api/auth/login')
+      .post('/auth/login')
       .send(loginData)
       .expect(401); // Unauthorized
   });
@@ -81,24 +82,19 @@ describe('AuthModule (e2e)', () => {
     };
 
     const loginResponse = await request(app.getHttpServer())
-      .post('/api/auth/login')
+      .post('/auth/login')
       .send(loginData)
       .expect(200);
 
     const { accessToken } = loginResponse.body;
 
-    // Now try to access a protected endpoint (assuming one exists, e.g., /api/users/profile)
-    // For demonstration, let's assume a health check or a generic protected endpoint
-    // In a real app, you would test an actual protected user endpoint
     await request(app.getHttpServer())
-      .get('/api/auth/me')
+      .get('/auth/me')
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
   });
 
   it('/protected (GET) - should not access protected resource without token', async () => {
-    await request(app.getHttpServer())
-      .get('/api/auth/me')
-      .expect(401); // Unauthorized
+    await request(app.getHttpServer()).get('/auth/me').expect(401); // Unauthorized
   });
 });

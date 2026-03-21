@@ -1,14 +1,15 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { HomeOutlined, AppstoreOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useI18nNavigate } from '@/hooks/useI18nNavigate';
 import './MobileTabBar.css';
 
 export function MobileTabBar() {
   const { t } = useTranslation();
   const { isMobile } = useResponsive();
-  const navigate = useNavigate();
   const location = useLocation();
+  const { navigate: i18nNavigate } = useI18nNavigate();
 
   if (!isMobile) return null;
 
@@ -25,7 +26,7 @@ export function MobileTabBar() {
         <div
           key={tab.key}
           className={`tab-item ${location.pathname === tab.key ? 'active' : ''}`}
-          onClick={() => navigate(tab.key)}
+          onClick={() => i18nNavigate(tab.key)}
         >
           {tab.icon}
           <span>{tab.title}</span>

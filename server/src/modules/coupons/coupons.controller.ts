@@ -1,6 +1,21 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { CouponsService } from './coupons.service';
-import { CreateCouponDto, UpdateCouponDto, ValidateCouponDto } from './dto/coupon.dto';
+import {
+  CreateCouponDto,
+  UpdateCouponDto,
+  ValidateCouponDto,
+} from './dto/coupon.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -61,4 +76,3 @@ export class CouponsController {
     return this.couponsService.remove(id);
   }
 }
-

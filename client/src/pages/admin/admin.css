@@ -170,6 +170,6 @@
 }
 
 /* Dark theme */
-[data-theme="dark"] .admin-card {
+:root:not([data-theme='light']) .admin-card {
   background: var(--color-bg-card);
 }

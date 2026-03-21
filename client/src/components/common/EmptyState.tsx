@@ -39,42 +39,42 @@ export const EmptyState = ({
     action?: { text: string; path?: string; onClick?: () => void };
   }> = {
     cart: {
-      icon: <ShoppingCartOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <ShoppingCartOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '购物车是空的',
       action: { text: actionText || '去逛逛', path: actionPath || '/products' },
     },
     order: {
-      icon: <FileTextOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <FileTextOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '还没有订单',
       action: { text: actionText || '去购物', path: actionPath || '/products' },
     },
     product: {
-      icon: <AppstoreOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <AppstoreOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '暂无商品',
       action: actionText && actionPath ? { text: actionText, path: actionPath } : undefined,
     },
     ticket: {
-      icon: <CustomerServiceOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <CustomerServiceOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '暂无工单',
-      action: { text: actionText || '创建工单', path: actionPath || '/user/tickets' },
+      action: { text: actionText || '创建工单', path: actionPath || '/buyer/tickets' },
     },
     favorite: {
-      icon: <HeartOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <HeartOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '还没有收藏',
       action: { text: actionText || '去逛逛', path: actionPath || '/products' },
     },
     message: {
-      icon: <InboxOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <InboxOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '暂无消息',
       action: undefined,
     },
     search: {
-      icon: <InboxOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <InboxOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '没有找到相关内容',
       action: { text: actionText || '查看全部', path: actionPath || '/products' },
     },
     generic: {
-      icon: <InboxOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />,
+      icon: <InboxOutlined style={{ fontSize: 64, color: 'var(--color-border)' }} />,
       description: description || '暂无数据',
       action: actionText ? { text: actionText, path: actionPath, onClick: onAction } : undefined,
     },
@@ -118,6 +118,9 @@ export const EmptyState = ({
 };
 
 export default EmptyState;
+
+
+
 
 
 

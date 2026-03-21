@@ -10,7 +10,6 @@ import {
   ClockCircleOutlined, RightOutlined,
 } from '@ant-design/icons';
 import { useSeo } from '@/hooks/useSeo';
-import { SEO } from '@/components/SEO';
 import apiClient from '@/services/apiClient';
 import { useAuthStore } from '@/store/authStore';
 import HotDeals from '@/components/home/HotDeals';
@@ -23,9 +22,7 @@ const { Title, Text } = Typography;
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuthStore();
-  const roles = (user?.roles || []).map((r) => String(r).toUpperCase());
-  const isAdmin = roles.includes('ADMIN');
+  const { isAuthenticated } = useAuthStore();
   const [siteStats, setSiteStats] = useState({ userCount: 0, orderCount: 0 });
   const [showGuide, setShowGuide] = useState(false);
   const [adSlots, setAdSlots] = useState([
@@ -37,36 +34,22 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    // 首页对匿名用户应保持可浏览：不要在未登录状态下请求 admin 接口（会触发 401 并被全局拦截器跳转到 /login）
-    if (isAdmin) {
-      apiClient
-        .get('/admin/dashboard/stats')
-        .then(({ data }) => {
-          if (data)
-            setSiteStats({
-              userCount: data.userCount || 0,
-              orderCount: data.orderCount || 0,
-            });
-        })
-        .catch(() => {});
-
-      // 读取广告位配置
-      apiClient
-        .get('/admin/config/ad-slots')
-        .then(({ data }) => {
-          if (Array.isArray(data) && data.length > 0) {
-            setAdSlots(data);
-          }
-        })
-        .catch(() => {});
-    }
+    apiClient.get('/admin/dashboard/stats', { skipAuthRedirect: true }).then(({ data }) => {
+      if (data) setSiteStats({ userCount: data.userCount || 0, orderCount: data.orderCount || 0 });
+    }).catch(() => {});
+    // 读取广告位配置
+    apiClient.get('/admin/config/ad-slots', { skipAuthRedirect: true }).then(({ data }) => {
+      if (Array.isArray(data) && data.length > 0) {
+        setAdSlots(data);
+      }
+    }).catch(() => {});
 
     // 检查是否需要显示新用户引导
     const hasSeenGuide = localStorage.getItem('hasSeenGuide');
     if (isAuthenticated && !hasSeenGuide) {
       setTimeout(() => setShowGuide(true), 1000);
     }
-  }, [isAuthenticated, isAdmin]);
+  }, [isAuthenticated]);
 
   useSeo({
     description: t('home.seoDesc', 'TopiVra 全球社交账号交易平台'),
@@ -104,12 +87,6 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      <SEO 
-        title={t('home.seoDesc')}
-        description={t('home.seoDesc')}
-        keywords="TopiVra, TikTok, Instagram, Facebook, social accounts, digital accounts"
-      />
-
       {/* Hero */}
       <section className="hero-section">
         <div className="hero-inner">

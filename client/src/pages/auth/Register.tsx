@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, Form, Input, Button, Typography, Space, Checkbox, message, Divider } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { AxiosError } from 'axios';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 import apiClient from '@/services/apiClient';
 import PasswordStrengthIndicator from '@/components/auth/PasswordStrengthIndicator';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
@@ -43,9 +43,7 @@ export default function Register() {
       message.success(t('auth.registerSuccess'));
       navigate('/login');
     } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>;
-      const errorMsg = axiosError.response?.data?.message || t('auth.registerFailed');
-      message.error(errorMsg);
+      message.error(extractApiErrorMessage(error, t('auth.registerFailed')));
     } finally {
       setLoading(false);
     }

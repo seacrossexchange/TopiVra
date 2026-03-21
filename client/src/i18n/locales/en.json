@@ -93,6 +93,13 @@
       "title": "Have Quality Account Supply?",
       "desc": "Join our seller community, start your online business, enjoy low commission + fast settlement",
       "apply": "Apply to Become a Seller"
+    },
+    "hotProducts": {
+      "title": "Hot products",
+      "viewAll": "View all",
+      "stock": "Stock",
+      "sold": "Sold",
+      "views": "Views"
     }
   },
   "theme": {
@@ -108,12 +115,19 @@
     "login": "Login",
     "register": "Register",
     "sellerCenter": "Seller Center",
+    "buyerCenter": "Buyer Center",
+    "adminCenter": "Admin Panel",
     "applySeller": "Become a Seller",
     "cart": "Cart",
     "language": "Language",
-    "communityStats": "Serving",
-    "communityUnit": "K+",
-    "communityUsers": "Global Users"
+    "communityStats": "Served",
+    "communityUnit": "M+",
+    "communityUsers": "Global Users",
+    "roleSwitch": "Switch Role",
+    "currentRole": "Current Role",
+    "roleBuyer": "Buyer",
+    "roleSeller": "Seller",
+    "roleAdmin": "Admin"
   },
   "auth": {
     "loginTitle": "Login to Your Account",
@@ -165,7 +179,13 @@
       "fair": "Fair",
       "good": "Good",
       "strong": "Strong"
-    }
+    },
+    "qrExpired": "QR code expired",
+    "generatingQr": "Generating QR code...",
+    "telegramScanLogin": "Log in by scanning with Telegram",
+    "telegramScanDesc": "Open Telegram to scan the QR code for a secure sign-in.",
+    "telegramSteps": "Open Telegram, scan the QR code, and confirm on your phone.",
+    "refreshQr": "Refresh QR code"
   },
   "user": {
     "profile": "Profile",
@@ -296,6 +316,35 @@
         "not_as_described": "Not As Described",
         "quality_issue": "Quality Issue",
         "other": "Other"
+      },
+      "modal": {
+        "orderNo": "Order No.",
+        "orderAmount": "Order Amount",
+        "reasonType": "Refund Reason",
+        "reasonTypeRequired": "Please select a refund reason",
+        "selectReason": "Please select a refund reason",
+        "detailReason": "Details",
+        "reasonMaxLength": "Maximum 500 characters",
+        "evidence": "Evidence Screenshots (Optional)",
+        "upload": "Upload",
+        "uploadTip": "Upload up to 3 images, each under 5MB",
+        "onlyImage": "Only image files can be uploaded",
+        "imageSizeLimit": "Image size cannot exceed 5MB",
+        "reasons": {
+          "PRODUCT_NOT_MATCH": "Product does not match the description",
+          "ACCOUNT_ABNORMAL": "Account cannot be logged into / abnormal",
+          "NOT_DELIVERED": "Did not receive the account credentials",
+          "ACCOUNT_BANNED": "Account has been banned",
+          "WRONG_INFO": "Incorrect login information",
+          "OTHER": "Other reason"
+        },
+        "tips": {
+          "title": "Refund Notes",
+          "tip1": "Review time: processed within 24 hours",
+          "tip2": "Refund method: returned to your account balance",
+          "tip3": "Questions? Contact online support",
+          "tip4": "C2C transactions: seller approval is required, and the platform will coordinate"
+        }
       }
     }
   },
@@ -327,7 +376,14 @@
     "checkout": "Checkout",
     "itemsCount": "{{count}} items",
     "continueShopping": "Continue Shopping",
-    "checkoutEmpty": "Cart is empty"
+    "checkoutEmpty": "Cart is empty",
+    "couponDiscount": "Coupon discount",
+    "addSuccess": "Added to cart",
+    "recommendations": {
+      "title": "Customers also bought",
+      "sold": "sold",
+      "add": "Add to cart"
+    }
   },
   "faq": {
     "title": "FAQ",
@@ -501,7 +557,29 @@
       "EU": "European Union",
       "JP": "Japan",
       "GB": "United Kingdom",
-      "IN": "India"
+      "IN": "India",
+      "TH": "Thailand",
+      "PH": "Philippines",
+      "MY": "Malaysia",
+      "SG": "Singapore",
+      "KR": "South Korea",
+      "BR": "Brazil",
+      "MX": "Mexico",
+      "AR": "Argentina",
+      "DE": "Germany",
+      "FR": "France",
+      "IT": "Italy",
+      "ES": "Spain",
+      "RU": "Russia",
+      "TR": "Turkey",
+      "SA": "Saudi Arabia",
+      "AE": "UAE",
+      "EG": "Egypt",
+      "ZA": "South Africa",
+      "AU": "Australia",
+      "NZ": "New Zealand",
+      "CA": "Canada",
+      "OTHER": "Other"
     },
     "defaultDesc": "High quality account, safe and stable",
     "seoTitle": "Buy Social Accounts - TikTok, Instagram, Facebook",
@@ -553,7 +631,8 @@
       "sellerDefault": "Seller",
       "tabs": {
         "description": "Product Details",
-        "reviews": "Reviews"
+        "reviews": "Reviews",
+        "faq": "FAQ"
       },
       "info": {
         "id": "Product ID",
@@ -569,7 +648,18 @@
         "sold": "Sold",
         "category": "Category",
         "rating": "Rating",
-        "createdAt": "Created At"
+        "createdAt": "Created At",
+        "productType": "Product Type",
+        "deliveryType": "Delivery Method",
+        "countries": "Countries/Regions",
+        "supportedSystems": "Supported Systems",
+        "fileType": "File Type",
+        "version": "Version",
+        "fileSize": "File Size",
+        "installGuide": "Installation Guide",
+        "updateNote": "Update Notes",
+        "loginMethod": "Login Method",
+        "warranty": "Warranty"
       },
       "noReviews": "No reviews yet",
       "buyModal": {
@@ -590,7 +680,62 @@
         "confirm": "Confirm Payment",
         "cancel": "Cancel",
         "success": "Order created successfully, redirecting to payment..."
+      },
+      "views": "Views",
+      "favorites": "Favorites",
+      "reviews": "Reviews",
+      "anonymous": "Anonymous User",
+      "guarantees": {
+        "title": "Purchase Protection",
+        "refund": "Refund Support",
+        "refundDesc": "You can request support if there is a valid issue with the product.",
+        "escrow": "Escrow Protection",
+        "escrowDesc": "Your payment remains protected throughout the order process.",
+        "instant": "Fast Delivery",
+        "instantDesc": "Most orders are delivered automatically after payment.",
+        "support": "Human Support",
+        "supportDesc": "Contact customer support if you have any order issues."
+      },
+      "faq": {
+        "q1": "Is delivery fast?",
+        "a1": "Most products are delivered automatically after payment.",
+        "q2": "What if the account cannot be logged into?",
+        "a2": "Please contact online support or submit a refund request with evidence.",
+        "q3": "Is there a warranty period?",
+        "a3": "Warranty coverage depends on the product description and platform rules.",
+        "q4": "Can I change the password after purchase?",
+        "a4": "If supported by the product, we recommend changing the credentials as soon as possible after delivery.",
+        "q5": "Which payment methods are supported?",
+        "a5": "The checkout page will show the payment methods currently available."
       }
+    },
+    "platforms": {
+      "FACEBOOK": "Facebook",
+      "INSTAGRAM": "Instagram",
+      "TIKTOK": "TikTok",
+      "TWITTER": "Twitter",
+      "YOUTUBE": "YouTube",
+      "TELEGRAM": "Telegram",
+      "GMAIL": "Gmail",
+      "LINKEDIN": "LinkedIn",
+      "SNAPCHAT": "Snapchat",
+      "REDDIT": "Reddit",
+      "DISCORD": "Discord",
+      "TWITCH": "Twitch",
+      "PINTEREST": "Pinterest",
+      "WHATSAPP": "WhatsApp",
+      "OTHER": "其他"
+    },
+    "types": {
+      "account": "账号",
+      "software": "软件",
+      "digital": "数字商品"
+    },
+    "delivery": {
+      "file": "文件",
+      "link": "链接",
+      "key": "密钥",
+      "hybrid": "混合交付"
     }
   },
   "about": {
@@ -612,7 +757,25 @@
     "secureTransaction": "Secure Guaranteed Trading",
     "secureTransactionDesc": "Platform guarantee, safer transactions",
     "professionalSupport": "Professional Support Team",
-    "professionalSupportDesc": "7x24 online customer service support"
+    "professionalSupportDesc": "7x24 online customer service support",
+    "subtitle": "Get to know TopiVra",
+    "mission": "Our Mission",
+    "missionDesc": "Help everyone access high-quality social media accounts more easily and support the digital growth of individuals and businesses.",
+    "vision": "Our Vision",
+    "visionDesc": "To become the world's most trusted digital account trading platform.",
+    "values": "Core Values",
+    "value1": "Integrity",
+    "value1Desc": "Be honest and trustworthy in every transaction",
+    "value2": "Security",
+    "value2Desc": "Strict review to ensure account quality",
+    "value3": "Efficiency",
+    "value3Desc": "Automatic delivery with instant fulfillment",
+    "value4": "Service",
+    "value4Desc": "24/7 customer support",
+    "team": "Our Team",
+    "teamDesc": "Built by experienced internet professionals committed to delivering the best possible service.",
+    "contact": "Contact Us",
+    "contactDesc": "If you have any questions or suggestions, feel free to reach out anytime."
   },
   "contact": {
     "title": "Contact Us",
@@ -633,7 +796,22 @@
     "contentPlaceholder": "Please enter your message",
     "contentRequired": "Please enter your message",
     "submitMessage": "Submit Message",
-    "messageSuccess": "Message submitted, we will contact you soon!"
+    "messageSuccess": "Message submitted, we will contact you soon!",
+    "telegram": "Telegram",
+    "email": "Email",
+    "emailAddress": "support@topivra.com",
+    "workingHours": "Working Hours",
+    "available247": "Online 24/7",
+    "responseTime": "Response Time",
+    "responseTimeDesc": "Usually replies within 2 hours",
+    "formTitle": "Send a Message",
+    "subject": "Subject",
+    "subjectPlaceholder": "Please enter a subject",
+    "message": "Message",
+    "messagePlaceholder": "Please enter your message...",
+    "send": "Send",
+    "sendSuccess": "Message sent successfully",
+    "sendFailed": "Failed to send message, please try again"
   },
   "common": {
     "home": "Home",
@@ -656,7 +834,38 @@
     "loadError": "Load failed",
     "totalItems": "{{count}} items total",
     "minutes": "min",
-    "hours": "hr"
+    "hours": "hr",
+    "add": "Add",
+    "filter": "Filter",
+    "reset": "Reset",
+    "next": "Next",
+    "previous": "Previous",
+    "noData": "No data",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "close": "Close",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "copy": "Copy",
+    "copySuccess": "Copied successfully",
+    "more": "More",
+    "less": "Less",
+    "all": "All",
+    "select": "Select",
+    "selected": "Selected",
+    "clear": "Clear",
+    "refresh": "Refresh",
+    "export": "Export",
+    "import": "Import",
+    "print": "Print",
+    "share": "Share",
+    "help": "Help",
+    "loadMore": "Load more"
   },
   "footer": {
     "slogan": "Global Digital Social Account Trading Platform",
@@ -682,7 +891,19 @@
     "weekendLabel": "Sat – Sun",
     "onlineLabel": "Online",
     "offlineLabel": "Closed",
-    "weekendNote": "For urgent issues, please submit a ticket"
+    "weekendNote": "For urgent issues, please submit a ticket",
+    "company": "Company",
+    "aboutUs": "About Us",
+    "careers": "Careers",
+    "blog": "Blog",
+    "press": "Press",
+    "helpCenter": "Help Center",
+    "contactUs": "Contact Us",
+    "faq": "FAQ",
+    "legal": "Legal",
+    "follow": "Follow Us",
+    "copyright": "© 2024 TopiVra. All rights reserved.",
+    "allRightsReserved": "All rights reserved"
   },
   "admin": {
     "dashboard": "Dashboard",
@@ -903,7 +1124,39 @@
       "HUPIJIAO": "Hupijiao",
       "PAYPAL": "PayPal",
       "STRIPE": "Stripe"
-    }
+    },
+    "statistics": "统计数据",
+    "reports": "报告",
+    "activeUsers": "活跃用户",
+    "newUsers": "新用户",
+    "pendingOrders": "待处理订单",
+    "completedOrders": "已完成订单",
+    "revenue": "收入",
+    "growth": "增长",
+    "userManagement": "用户管理",
+    "userDetails": "用户详情",
+    "banUser": "封禁用户",
+    "unbanUser": "解封用户",
+    "deleteUser": "删除用户",
+    "productManagement": "产品管理",
+    "addProduct": "添加产品",
+    "editProduct": "编辑产品",
+    "deleteProduct": "删除产品",
+    "approveProduct": "批准产品",
+    "orderManagement": "订单管理",
+    "orderDetails": "订单详情",
+    "processOrder": "处理订单",
+    "cancelOrder": "取消订单",
+    "refundOrder": "退款订单",
+    "ticketManagement": "工单管理",
+    "ticketDetails": "工单详情",
+    "assignTicket": "分配工单",
+    "closeTicket": "关闭工单",
+    "generalSettings": "常规设置",
+    "paymentSettings": "支付设置",
+    "emailSettings": "邮件设置",
+    "notificationSettings": "通知设置",
+    "securitySettings": "安全设置"
   },
   "seller": {
     "creditScore": "Credit Score",
@@ -981,7 +1234,29 @@
     "shopName": "Shop Name",
     "shopDescription": "Shop Description",
     "contactInfo": "Contact Info",
-    "saveSettings": "Save Settings"
+    "saveSettings": "Save Settings",
+    "myProducts": "我的产品",
+    "myOrders": "我的订单",
+    "myRevenue": "我的收入",
+    "statistics": "统计数据",
+    "activeProducts": "上架产品",
+    "soldProducts": "已售产品",
+    "completedOrders": "已完成订单",
+    "revenue": "收入",
+    "commission": "佣金",
+    "balance": "余额",
+    "productManagement": "产品管理",
+    "addNewProduct": "添加新产品",
+    "deleteProduct": "删除产品",
+    "stockManagement": "库存管理",
+    "priceManagement": "价格管理",
+    "orderManagement": "订单管理",
+    "processOrder": "处理订单",
+    "shipOrder": "发货",
+    "revenueManagement": "收入管理",
+    "viewRevenue": "查看收入",
+    "requestWithdraw": "申请提现",
+    "withdrawalSettings": "提现设置"
   },
   "inventory": {
     "title": "Inventory Management",
@@ -1028,7 +1303,20 @@
     "startImport": "Start Import",
     "uploadFileRequired": "Please upload a file",
     "onlyCSV": "Only CSV format files are supported",
-    "exportSuccess": "Export successful"
+    "exportSuccess": "Export successful",
+    "addStock": "添加库存",
+    "stockList": "库存列表",
+    "stockDetails": "库存详情",
+    "lowStock": "库存不足",
+    "outOfStock": "缺货",
+    "inStock": "有货",
+    "stockAlert": "库存预警",
+    "restock": "补货",
+    "stockHistory": "库存历史",
+    "importStock": "导入库存",
+    "exportStock": "导出库存",
+    "batchUpload": "批量上传",
+    "template": "模板"
   },
   "notifications": {
     "title": "Notifications",
@@ -1053,10 +1341,35 @@
       "low": "Low",
       "medium": "Medium",
       "high": "High"
-    }
+    },
+    "all": "全部通知",
+    "unread": "未读",
+    "read": "已读",
+    "markAsRead": "标记为已读",
+    "markAllAsRead": "全部标记为已读",
+    "deleteAll": "删除全部",
+    "noNotifications": "暂无通知",
+    "orderNotification": "订单通知",
+    "systemNotification": "系统通知",
+    "messageNotification": "消息通知",
+    "settings": "通知设置",
+    "emailNotifications": "邮件通知",
+    "pushNotifications": "推送通知",
+    "smsNotifications": "短信通知"
   },
   "mobile": {
-    "me": "Me"
+    "me": "Me",
+    "menu": "菜单",
+    "home": "首页",
+    "products": "产品",
+    "orders": "订单",
+    "profile": "我的",
+    "more": "更多",
+    "backToTop": "返回顶部",
+    "pullToRefresh": "下拉刷新",
+    "releaseToRefresh": "释放刷新",
+    "loading": "加载中...",
+    "noMore": "没有更多了"
   },
   "blog": {
     "title": "Tutorials",
@@ -1088,10 +1401,21 @@
       "tips": "Tips & Tricks"
     },
     "loadError": "Failed to load article",
-    "notFound": "Article not found"
+    "notFound": "Article not found",
+    "allPosts": "所有文章",
+    "publishedOn": "发布于",
+    "updatedOn": "更新于",
+    "comment": "评论",
+    "noComments": "暂无评论",
+    "leaveComment": "发表评论",
+    "minRead": "分钟阅读"
   },
   "notFound": {
-    "message": "Sorry, the page you are looking for does not exist"
+    "message": "Sorry, the page you are looking for does not exist",
+    "title": "页面未找到",
+    "goHome": "返回首页",
+    "error404": "404 错误",
+    "pageNotFound": "页面未找到"
   },
   "tools": {
     "title": "Useful Tools",
@@ -1141,7 +1465,13 @@
         "desc": "Hotmail account management tools",
         "tag": "Coming Soon"
       }
-    }
+    },
+    "cookieConverter": "Cookie 转换器",
+    "tokenGenerator": "Token 生成器",
+    "accountChecker": "账号检测器",
+    "bulkUpload": "批量上传",
+    "dataExport": "数据导出",
+    "apiDocs": "API 文档"
   },
   "terms": {
     "title": "Terms of Service",
@@ -1161,7 +1491,18 @@
     "section7Content": "The platform strictly protects user privacy and will not disclose user information to third parties unless required by law.",
     "section8Title": "8. Terms Modification",
     "section8Content": "The platform reserves the right to modify these terms at any time. Modified terms will be published on the website, and continued use of the platform indicates acceptance of the modified terms.",
-    "lastUpdate": "Last Updated: February 28, 2026"
+    "lastUpdate": "Last Updated: February 28, 2026",
+    "lastUpdated": "最后更新",
+    "acceptance": "接受条款",
+    "services": "服务说明",
+    "userObligations": "用户义务",
+    "prohibitedActivities": "禁止行为",
+    "intellectualProperty": "知识产权",
+    "disclaimer": "免责声明",
+    "limitation": "责任限制",
+    "termination": "终止",
+    "changes": "条款变更",
+    "contact": "联系方式"
   },
   "privacy": {
     "title": "Privacy Policy",
@@ -1181,7 +1522,18 @@
     "section7Content": "You have the right to access, correct, and delete your personal information. If you have any needs, please contact our customer service team.",
     "section8Title": "8. Policy Updates",
     "section8Content": "We may update this privacy policy from time to time. Significant changes will be notified to you through website announcements.",
-    "lastUpdate": "Last Updated: February 28, 2026"
+    "lastUpdate": "Last Updated: February 28, 2026",
+    "lastUpdated": "最后更新",
+    "introduction": "简介",
+    "informationCollection": "信息收集",
+    "informationUse": "信息使用",
+    "informationSharing": "信息共享",
+    "dataSecurity": "数据安全",
+    "cookies": "Cookie",
+    "thirdParty": "第三方服务",
+    "userRights": "用户权利",
+    "changes": "政策变更",
+    "contact": "联系方式"
   },
   "refund": {
     "title": "Refund Policy",
@@ -1197,7 +1549,13 @@
     "section5Content": "If there is a dispute between buyer and seller regarding refund, the platform will make a determination based on evidence provided by both parties. Platform determination is final.",
     "section6Title": "6. Customer Service Contact",
     "section6Content": "For refund-related questions, please contact customer service: support@topivra.com or via Telegram customer service.",
-    "lastUpdate": "Last Updated: February 28, 2026"
+    "lastUpdate": "Last Updated: February 28, 2026",
+    "eligibility": "退款资格",
+    "process": "退款流程",
+    "timeframe": "退款时间",
+    "method": "退款方式",
+    "exceptions": "例外情况",
+    "contact": "联系客服"
   },
   "applySeller": {
     "title": "Apply to Become a Seller",
@@ -1219,7 +1577,26 @@
     "description": "Additional Information",
     "descriptionPlaceholder": "Describe your supply situation, daily shipment volume, etc.",
     "submit": "Submit Application",
-    "submitSuccess": "Application submitted, we will review it soon!"
+    "submitSuccess": "Application submitted, we will review it soon!",
+    "benefits": "卖家权益",
+    "benefit1": "低佣金",
+    "benefit2": "快速结算",
+    "benefit3": "流量支持",
+    "benefit4": "专属客服",
+    "benefit4Desc": "一对一客服支持",
+    "requirements": "申请要求",
+    "requirement1": "拥有稳定的账号货源",
+    "requirement2": "保证账号质量和真实性",
+    "requirement3": "及时处理订单和售后",
+    "requirement4": "遵守平台规则和政策",
+    "form": "申请表单",
+    "contactPerson": "联系人",
+    "contactPersonPlaceholder": "请输入联系人姓名",
+    "contactEmail": "联系邮箱",
+    "contactEmailPlaceholder": "请输入联系邮箱",
+    "contactPhone": "联系电话",
+    "contactPhonePlaceholder": "请输入联系电话",
+    "submitFailed": "提交失败，请重试"
   },
   "settings": {
     "adminTitle": "System Settings",
@@ -1250,7 +1627,16 @@
     "socialGithub": "GitHub URL",
     "socialTwitter": "Twitter / X URL",
     "workingHours": "Support Working Hours",
-    "workingHoursDesc": "e.g. Mon–Fri 09:00–18:00 (UTC+8)"
+    "workingHoursDesc": "e.g. Mon–Fri 09:00–18:00 (UTC+8)",
+    "title": "设置",
+    "account": "账户设置",
+    "security": "安全设置",
+    "notifications": "通知设置",
+    "privacy": "隐私设置",
+    "language": "语言设置",
+    "theme": "主题设置",
+    "general": "常规设置",
+    "advanced": "高级设置"
   },
   "checkout": {
     "title": "Checkout",
@@ -1288,7 +1674,14 @@
     "createOrderFailed": "Failed to create order",
     "addressCopied": "Address copied",
     "paymentSuccess": "Payment successful",
-    "paymentFailed": "Payment failed"
+    "paymentFailed": "Payment failed",
+    "shippingInfo": "收货信息",
+    "paymentInfo": "支付信息",
+    "placeOrder": "提交订单",
+    "processing": "处理中...",
+    "success": "支付成功",
+    "failed": "支付失败",
+    "retry": "重试"
   },
   "logs": {
     "title": "System Logs",
@@ -1308,6 +1701,69 @@
     "target": "Target",
     "ip": "IP Address",
     "details": "Details",
-    "total": "Total {{count}} records"
+    "total": "Total {{count}} records",
+    "systemLogs": "系统日志",
+    "userLogs": "用户日志",
+    "orderLogs": "订单日志",
+    "paymentLogs": "支付日志",
+    "errorLogs": "错误日志",
+    "viewDetails": "查看详情",
+    "export": "导出日志",
+    "clear": "清空日志"
+  },
+  "error": {
+    "unknown": "Unknown error"
+  },
+  "guide": {
+    "welcome": {
+      "title": "Welcome to TopiVra",
+      "desc": "Get started in just a few minutes.",
+      "detail": "Browse accounts, pay securely, and receive delivery automatically.",
+      "feature1": "Escrow protection",
+      "feature2": "Automatic delivery",
+      "feature3": "Support when you need it"
+    },
+    "security": {
+      "title": "Security by default",
+      "desc": "Every order is protected by the platform.",
+      "escrow": "Escrow protection",
+      "escrowDesc": "Funds stay protected until delivery is confirmed.",
+      "auto": "Automatic delivery",
+      "autoDesc": "Get account details right after payment.",
+      "refund": "Refund support",
+      "refundDesc": "Submit a refund request if there is a valid issue with the order."
+    },
+    "gift": {
+      "title": "New user perks",
+      "desc": "Exclusive welcome benefits for your first order.",
+      "discount": "New user discount",
+      "couponTitle": "Welcome coupon",
+      "couponDesc": "Eligible orders automatically use the welcome coupon.",
+      "autoApplied": "Applied automatically when available",
+      "note": "Specific rules are subject to the promotion details."
+    },
+    "complete": "Done",
+    "prev": "Previous",
+    "next": "Next",
+    "start": "Get started",
+    "skip": "Skip"
+  },
+  "membership": {
+    "totalSpent": "Total Spent",
+    "discount": "Discount",
+    "nextLevel": "Next Level",
+    "benefits": "Membership Benefits"
+  },
+  "coupon": {
+    "title": "Coupons",
+    "enterCode": "Enter coupon code",
+    "applied": "Coupon applied",
+    "invalid": "Invalid coupon",
+    "apply": "Apply",
+    "available": "Available coupons",
+    "noAvailable": "No coupons available",
+    "minPurchase": "Min. purchase",
+    "validUntil": "Valid until",
+    "saved": "You saved"
   }
 }

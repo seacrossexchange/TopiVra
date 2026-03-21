@@ -140,12 +140,39 @@ export class ProductsService {
       }
     }
 
+    // 构建更新数据，显式处理每个字段以避免Prisma类型推断问题
+    const updateData: any = {
+      status: ProductStatus.DRAFT, // 修改后重新变为草稿
+    };
+
+    // 只更新提供的字段
+    if (dto.title !== undefined) updateData.title = dto.title;
+    if (dto.description !== undefined) updateData.description = dto.description;
+    if (dto.platform !== undefined) updateData.platform = dto.platform;
+    if (dto.accountType !== undefined) updateData.accountType = dto.accountType;
+    if (dto.region !== undefined) updateData.region = dto.region;
+    if (dto.price !== undefined) updateData.price = dto.price;
+    if (dto.originalPrice !== undefined)
+      updateData.originalPrice = dto.originalPrice;
+    if (dto.currency !== undefined) updateData.currency = dto.currency;
+    if (dto.stock !== undefined) updateData.stock = dto.stock;
+    if (dto.tags !== undefined) updateData.tags = dto.tags;
+    if (dto.attributes !== undefined) updateData.attributes = dto.attributes;
+    if (dto.images !== undefined) updateData.images = dto.images;
+    if (dto.thumbnailUrl !== undefined)
+      updateData.thumbnailUrl = dto.thumbnailUrl;
+    if (dto.metaTitle !== undefined) updateData.metaTitle = dto.metaTitle;
+    if (dto.metaDescription !== undefined)
+      updateData.metaDescription = dto.metaDescription;
+
+    // 如果提供了categoryId，需要特殊处理
+    if (dto.categoryId !== undefined) {
+      updateData.category = { connect: { id: dto.categoryId } };
+    }
+
     const updated = await this.prisma.product.update({
       where: { id },
-      data: {
-        ...dto,
-        status: ProductStatus.DRAFT, // 修改后重新变为草稿
-      },
+      data: updateData,
       include: {
         category: true,
       },

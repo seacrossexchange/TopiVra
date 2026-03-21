@@ -11,5 +11,10 @@
   ],
   "moduleNameMapper": {
     "^(\\.{1,2}/.*)\\.js$": "$1"
-  }
+  },
+  "globalSetup": "<rootDir>/testcontainers/e2e.global-setup.ts",
+  "globalTeardown": "<rootDir>/testcontainers/e2e.global-teardown.ts",
+  "setupFiles": ["<rootDir>/testcontainers/e2e.env-setup.ts"],
+  "maxWorkers": 1,
+  "testTimeout": 60000
 }

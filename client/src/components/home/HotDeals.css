@@ -20,7 +20,7 @@
 
 .hot-deals-icon {
   font-size: 28px;
-  color: #ff4d4f;
+  color: var(--color-error);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -41,7 +41,7 @@
 
 .countdown-text {
   font-size: 18px;
-  color: #ff4d4f;
+  color: var(--color-error);
   font-family: 'Courier New', monospace;
 }
 
@@ -54,7 +54,7 @@
 
 .hot-deal-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-modal);
 }
 
 .hot-deal-cover {
@@ -122,6 +122,9 @@
     justify-content: center;
   }
 }
+
+
+
 
 
 

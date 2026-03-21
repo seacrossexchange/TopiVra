@@ -5,7 +5,8 @@
  */
 
 /* ========== 深色主题（默认） ========== */
-:root {
+:root,
+[data-theme='dark'] {
   /* 品牌色 */
   --color-primary: #5b9cf5;
   --color-primary-hover: #7eb3f7;
@@ -192,9 +193,9 @@
   --shadow-modal: 0 8px 40px rgba(0, 0, 0, 0.18);
 }
 
-/* ========== 系统跟随深色 ========== */
+/* ========== 系统跟随深色（首屏兜底） ========== */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-theme]) {
     --color-primary: #5b9cf5;
     --color-primary-hover: #7eb3f7;
     --color-primary-active: #3d84f0;

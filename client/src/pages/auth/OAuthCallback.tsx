@@ -3,10 +3,27 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Spin, message } from 'antd';
 import { useAuthStore } from '../../store/authStore';
 
+function getRedirectPath() {
+  const currentUser = useAuthStore.getState().user;
+  const roles = (currentUser?.roles || []).map((role) => role.toUpperCase());
+  const isAdmin = currentUser?.email === 'admin@topivra.com' || roles.includes('ADMIN');
+  const isSeller = currentUser?.isSeller || roles.includes('SELLER');
+
+  if (isAdmin) {
+    return '/admin';
+  }
+
+  if (isSeller) {
+    return '/seller';
+  }
+
+  return '/user/profile';
+}
+
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { setTokens, setUser } = useAuthStore();
+  const { setTokens, fetchUser, logout } = useAuthStore();
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -15,50 +32,40 @@ export default function OAuthCallback() {
 
     if (error) {
       message.error('登录失败: ' + error);
-      navigate('/login');
+      navigate('/login', { replace: true });
       return;
     }
 
-    if (token && refreshToken) {
-      // 保存 token
-      setTokens({ accessToken: token, refreshToken });
-      
-      // 获取用户信息
-      fetch(`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.id) {
-            setUser(data);
-            message.success('登录成功');
-            navigate('/');
-          } else {
-            throw new Error('获取用户信息失败');
-          }
-        })
-        .catch(err => {
-          if (import.meta.env.DEV) {
-            console.error('获取用户信息失败:', err);
-          }
-          message.error('登录失败，请重试');
-          navigate('/login');
-        });
-    } else {
+    if (!token || !refreshToken) {
       message.error('登录失败，缺少必要参数');
-      navigate('/login');
+      navigate('/login', { replace: true });
+      return;
     }
-  }, [searchParams, navigate, setTokens, setUser]);
+
+    setTokens({ accessToken: token, refreshToken });
+
+    void fetchUser()
+      .then(() => {
+        const currentUser = useAuthStore.getState().user;
+        if (!currentUser?.id) {
+          throw new Error('获取用户信息失败');
+        }
+
+        message.success('登录成功');
+        navigate(getRedirectPath(), { replace: true });
+      })
+      .catch((err) => {
+        if (import.meta.env.DEV) {
+          console.error('获取用户信息失败:', err);
+        }
+        void logout();
+        message.error('登录失败，请重试');
+        navigate('/login', { replace: true });
+      });
+  }, [searchParams, navigate, setTokens, fetchUser, logout]);
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh' 
-    }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <Spin size="large" tip="正在登录..." />
     </div>
   );

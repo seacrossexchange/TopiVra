@@ -12,6 +12,7 @@ import { apiClient } from '@/services/apiClient';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { AxiosError } from 'axios';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 const { Text, Paragraph } = Typography;
 
@@ -56,7 +57,7 @@ export default function TelegramQrLogin() {
       setPollingEnabled(true);
     },
     onError: (error: AxiosError<{ message: string }>) => {
-      message.error(error?.response?.data?.message || t('error.unknown'));
+      message.error(extractApiErrorMessage(error, t('error.unknown')));
     },
   });
 
@@ -143,7 +144,7 @@ export default function TelegramQrLogin() {
     <Card style={{ textAlign: 'center' }}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <div>
-          <MessageOutlined style={{ fontSize: 32, color: '#0088cc' }} />
+          <MessageOutlined style={{ fontSize: 32, color: 'var(--color-primary)' }} />
           <Paragraph style={{ marginTop: 8, marginBottom: 0 }} strong>
             {t('auth.telegramScanLogin')}
           </Paragraph>
@@ -157,7 +158,7 @@ export default function TelegramQrLogin() {
             position: 'relative',
             display: 'inline-block',
             padding: 16,
-            background: '#fff',
+            background: 'var(--color-bg-elevated)',
             borderRadius: 8,
           }}
         >
@@ -170,11 +171,11 @@ export default function TelegramQrLogin() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: '#f5f5f5',
+                background: 'var(--color-bg-secondary)',
                 borderRadius: 8,
               }}
             >
-              <QrcodeOutlined style={{ fontSize: 48, color: '#999' }} />
+              <QrcodeOutlined style={{ fontSize: 48, color: 'var(--color-text-tertiary)' }} />
               <Text type="secondary" style={{ marginTop: 16 }}>
                 {t('auth.qrExpired')}
               </Text>
@@ -201,7 +202,7 @@ export default function TelegramQrLogin() {
                 position: 'absolute',
                 top: 8,
                 right: 8,
-                background: timeLeft < 60 ? '#ff4d4f' : '#1890ff',
+                background: timeLeft < 60 ? 'var(--color-error)' : 'var(--color-primary)',
                 color: '#fff',
                 padding: '4px 8px',
                 borderRadius: 4,
@@ -218,10 +219,10 @@ export default function TelegramQrLogin() {
             percent={(timeLeft / 300) * 100}
             showInfo={false}
             strokeColor={{
-              '0%': '#108ee9',
-              '100%': '#87d068',
+              '0%': 'var(--color-primary)',
+              '100%': 'var(--color-success)',
             }}
-            trailColor="#f0f0f0"
+            trailColor="var(--color-bg-secondary)"
             size="small"
           />
         )}

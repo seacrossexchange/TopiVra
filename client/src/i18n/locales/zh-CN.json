@@ -108,12 +108,19 @@
     "login": "登录",
     "register": "注册",
     "sellerCenter": "卖家中心",
+    "buyerCenter": "买家中心",
+    "adminCenter": "管理后台",
     "applySeller": "成为卖家",
     "cart": "购物车",
     "language": "语言",
     "communityStats": "服务",
     "communityUnit": "万+",
-    "communityUsers": "全球用户"
+    "communityUsers": "全球用户",
+    "roleSwitch": "角色切换",
+    "currentRole": "当前身份",
+    "roleBuyer": "买家",
+    "roleSeller": "卖家",
+    "roleAdmin": "管理员"
   },
   "auth": {
     "loginTitle": "登录您的账户",
@@ -165,7 +172,13 @@
       "fair": "一般",
       "good": "良好",
       "strong": "强"
-    }
+    },
+    "qrExpired": "二维码已过期",
+    "generatingQr": "正在生成二维码...",
+    "telegramScanLogin": "使用 Telegram 扫码登录",
+    "telegramScanDesc": "打开 Telegram 扫描二维码，安全登录。",
+    "telegramSteps": "打开 Telegram，扫描二维码，并在手机上确认。",
+    "refreshQr": "刷新二维码"
   },
   "user": {
     "profile": "个人资料",
@@ -296,6 +309,35 @@
         "not_as_described": "与描述不符",
         "quality_issue": "质量问题",
         "other": "其他"
+      },
+      "modal": {
+        "orderNo": "订单号",
+        "orderAmount": "订单金额",
+        "reasonType": "退款原因",
+        "reasonTypeRequired": "请选择退款原因",
+        "selectReason": "请选择退款原因",
+        "detailReason": "详细说明",
+        "reasonMaxLength": "最多输入500字",
+        "evidence": "证据截图（可选）",
+        "upload": "上传",
+        "uploadTip": "最多上传3张图片，每张不超过5MB",
+        "onlyImage": "只能上传图片文件",
+        "imageSizeLimit": "图片大小不能超过 5MB",
+        "reasons": {
+          "PRODUCT_NOT_MATCH": "商品与描述不符",
+          "ACCOUNT_ABNORMAL": "账号无法登录/异常",
+          "NOT_DELIVERED": "未收到账号凭证",
+          "ACCOUNT_BANNED": "账号已被封禁",
+          "WRONG_INFO": "登录信息错误",
+          "OTHER": "其他原因"
+        },
+        "tips": {
+          "title": "退款说明",
+          "tip1": "审核时间：24小时内处理",
+          "tip2": "退款方式：原路返回至账户余额",
+          "tip3": "如有疑问：联系在线客服",
+          "tip4": "C2C交易：退款需卖家同意，平台将协调处理"
+        }
       }
     }
   },
@@ -327,7 +369,9 @@
     "checkout": "结账",
     "itemsCount": "{{count}} 件商品",
     "continueShopping": "继续购物",
-    "checkoutEmpty": "购物车为空"
+    "checkoutEmpty": "购物车为空",
+    "couponDiscount": "优惠券折扣",
+    "addSuccess": "已加入购物车"
   },
   "faq": {
     "title": "常见问题",
@@ -540,6 +584,62 @@
       "PINTEREST": "Pinterest",
       "WHATSAPP": "WhatsApp",
       "OTHER": "其他"
+    },
+    "types": {
+      "account": "账号",
+      "software": "软件",
+      "digital": "数字商品"
+    },
+    "delivery": {
+      "file": "文件",
+      "link": "链接",
+      "key": "密钥",
+      "hybrid": "混合交付"
+    },
+    "detail": {
+      "views": "浏览量",
+      "favorites": "收藏",
+      "reviews": "评论",
+      "anonymous": "匿名用户",
+      "tabs": {
+        "faq": "常见问题"
+      },
+      "guarantees": {
+        "title": "交易保障",
+        "refund": "退款支持",
+        "refundDesc": "商品存在有效问题时可申请处理。",
+        "escrow": "担保交易",
+        "escrowDesc": "订单流程中付款始终受平台保护。",
+        "instant": "快速发货",
+        "instantDesc": "大多数订单付款后自动发货。",
+        "support": "人工支持",
+        "supportDesc": "如有订单问题可联系客服。"
+      },
+      "info": {
+        "productType": "商品类型",
+        "deliveryType": "交付方式",
+        "countries": "国家地区",
+        "supportedSystems": "支持系统",
+        "fileType": "文件类型",
+        "version": "版本",
+        "fileSize": "文件大小",
+        "installGuide": "安装说明",
+        "updateNote": "更新说明",
+        "loginMethod": "登录方式",
+        "warranty": "质保"
+      },
+      "faq": {
+        "q1": "发货速度快吗？",
+        "a1": "大多数商品付款后会自动发货。",
+        "q2": "如果账号无法登录怎么办？",
+        "a2": "请联系在线客服，或提交带证据的退款申请。",
+        "q3": "有质保期吗？",
+        "a3": "质保以商品说明和平台规则为准。",
+        "q4": "购买后可以修改密码吗？",
+        "a4": "若商品支持，建议收货后尽快修改凭证。",
+        "q5": "支持哪些支付方式？",
+        "a5": "结账页面会显示当前可用的支付方式。"
+      }
     }
   },
   "about": {
@@ -628,7 +728,8 @@
     "import": "导入",
     "print": "打印",
     "share": "分享",
-    "help": "帮助"
+    "help": "帮助",
+    "loadMore": "加载更多"
   },
   "footer": {
     "company": "公司",
@@ -646,7 +747,19 @@
     "refund": "退款政策",
     "follow": "关注我们",
     "copyright": "© 2024 TopiVra. 保留所有权利。",
-    "allRightsReserved": "保留所有权利"
+    "allRightsReserved": "保留所有权利",
+    "slogan": "全球数字社交账号交易平台",
+    "quickLinks": "快捷链接",
+    "home": "首页",
+    "products": "产品",
+    "about": "关于我们",
+    "tutorials": "教程",
+    "applySeller": "申请成为卖家",
+    "rights": "保留所有权利",
+    "workingHours": "支持时间",
+    "workingHoursVal": "09:00 – 22:00 (UTC+8)",
+    "workdayLabel": "周一至周五",
+    "weekendNote": "紧急问题请提交工单"
   },
   "admin": {
     "dashboard": "仪表板",
@@ -765,7 +878,13 @@
     "settings": "通知设置",
     "emailNotifications": "邮件通知",
     "pushNotifications": "推送通知",
-    "smsNotifications": "短信通知"
+    "smsNotifications": "短信通知",
+    "markAllRead": "全部标为已读",
+    "refresh": "刷新",
+    "loading": "加载中...",
+    "empty": "暂无通知",
+    "delete": "删除",
+    "viewAll": "查看全部"
   },
   "mobile": {
     "menu": "菜单",
@@ -778,7 +897,8 @@
     "pullToRefresh": "下拉刷新",
     "releaseToRefresh": "释放刷新",
     "loading": "加载中...",
-    "noMore": "没有更多了"
+    "noMore": "没有更多了",
+    "me": "我的"
   },
   "blog": {
     "title": "博客",
@@ -796,7 +916,12 @@
     "comment": "评论",
     "comments": "评论",
     "noComments": "暂无评论",
-    "leaveComment": "发表评论"
+    "leaveComment": "发表评论",
+    "subtitle": "账号登录与使用教程",
+    "allCategories": "全部分类",
+    "searchPlaceholder": "搜索文章...",
+    "noPosts": "暂无文章",
+    "minRead": "分钟阅读"
   },
   "notFound": {
     "title": "页面未找到",
@@ -915,5 +1040,48 @@
     "viewDetails": "查看详情",
     "export": "导出日志",
     "clear": "清空日志"
+  },
+  "error": {
+    "unknown": "未知错误"
+  },
+  "guide": {
+    "welcome": {
+      "title": "欢迎来到 TopiVra",
+      "desc": "几分钟即可开始使用。",
+      "detail": "浏览账号，安全支付，并自动收货。",
+      "feature1": "担保交易保护",
+      "feature2": "自动发货",
+      "feature3": "需要时可联系客服"
+    },
+    "security": {
+      "title": "默认安全保障",
+      "desc": "每笔订单都有平台保护。",
+      "escrow": "担保保护",
+      "escrowDesc": "确认交付前，资金始终受保护。",
+      "auto": "自动发货",
+      "autoDesc": "付款后立即获取账号信息。",
+      "refund": "退款支持",
+      "refundDesc": "订单有问题时可发起退款申请。"
+    },
+    "gift": {
+      "title": "新用户福利",
+      "desc": "首单可享专属欢迎权益。",
+      "discount": "新人优惠",
+      "couponTitle": "欢迎优惠券",
+      "couponDesc": "符合条件的订单会自动使用优惠券。",
+      "autoApplied": "可用时自动生效",
+      "note": "具体规则以活动说明为准。"
+    },
+    "complete": "完成",
+    "prev": "上一步",
+    "next": "下一步",
+    "start": "立即开始",
+    "skip": "跳过"
+  },
+  "membership": {
+    "totalSpent": "累计消费",
+    "discount": "折扣",
+    "nextLevel": "下一等级",
+    "benefits": "会员权益"
   }
 }

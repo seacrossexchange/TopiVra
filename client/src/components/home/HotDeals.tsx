@@ -116,7 +116,7 @@ export default function HotDeals() {
                       <Text delete type="secondary" style={{ fontSize: 12 }}>
                         ${deal.originalPrice}
                       </Text>
-                      <Text strong style={{ fontSize: 20, color: '#ff4d4f' }}>
+                      <Text strong style={{ fontSize: 20, color: 'var(--color-error)' }}>
                         ${deal.price}
                       </Text>
                     </Space>
@@ -137,7 +137,7 @@ export default function HotDeals() {
                   <div className="hot-deal-progress">
                     <Progress
                       percent={Math.round((deal.soldCount / (deal.soldCount + deal.stock)) * 100)}
-                      strokeColor="#ff4d4f"
+                      strokeColor="var(--color-error)"
                       showInfo={false}
                       size="small"
                     />
@@ -161,6 +161,9 @@ export default function HotDeals() {
     </section>
   );
 }
+
+
+
 
 
 

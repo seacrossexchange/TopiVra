@@ -12,16 +12,20 @@ import {
   LogoutOutlined,
   MessageOutlined,
   DatabaseOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/hooks/useTheme';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 import './SellerLayout.css';
 
 const { Sider, Content, Header } = Layout;
 
 export default function SellerLayout() {
   const { t } = useTranslation();
+  const { isDark } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,6 +66,11 @@ export default function SellerLayout() {
       key: '/seller/tickets',
       icon: <CustomerServiceOutlined />,
       label: t('seller.tickets', '工单支持'),
+    },
+    {
+      key: '/seller/blog',
+      icon: <FileTextOutlined />,
+      label: t('seller.blog', '博客投稿'),
     },
     {
       key: '/seller/settings',
@@ -112,7 +121,7 @@ export default function SellerLayout() {
           </Link>
         </div>
         <Menu
-          theme="dark"
+          theme={isDark ? 'dark' : 'light'}
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
@@ -128,6 +137,7 @@ export default function SellerLayout() {
             className="seller-layout__trigger"
           />
           <div className="seller-layout__header-right">
+            <ThemeToggle />
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <div className="seller-layout__user">
                 <Avatar size="small" src={user?.avatar}>

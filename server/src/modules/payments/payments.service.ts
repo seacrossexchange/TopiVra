@@ -9,7 +9,6 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WebsocketGateway } from '../websocket/websocket.gateway';
 import { MailService } from '../../common/mail/mail.service';
-import { Decimal } from '@prisma/client/runtime/library';
 import * as crypto from 'crypto';
 import { PaymentGatewayFactory } from './gateways';
 import { OrdersService } from '../orders/orders.service';
@@ -916,7 +915,6 @@ export class PaymentsService {
 
     // 使用事务确保数据一致性
     await this.prisma.$transaction(async (tx) => {
-      // 更新支付状态
       await tx.payment.update({
         where: { id: payment.id },
         data: {
@@ -926,7 +924,6 @@ export class PaymentsService {
         },
       });
 
-      // 更新订单状态为已支付
       await tx.order.update({
         where: { id: payment.orderId },
         data: {
@@ -936,84 +933,6 @@ export class PaymentsService {
           paymentMethod: payment.method,
         },
       });
-
-      // 计算卖家收益
-      const sellerEarnings = order.orderItems.reduce((sum, item) => {
-        const itemPrice =
-          item.unitPrice instanceof Decimal
-            ? item.unitPrice.toNumber()
-            : Number(item.unitPrice);
-        return sum + itemPrice * item.quantity;
-      }, 0);
-
-      // 获取平台手续费率
-      const platformFeeRate = Number(
-        this.configService.get('PLATFORM_FEE_RATE') || 0.05,
-      );
-      const platformFee = sellerEarnings * platformFeeRate;
-      const sellerNetEarnings = sellerEarnings - platformFee;
-
-      // 获取卖家信息
-      const firstItem = order.orderItems[0];
-      const sellerId = firstItem?.product?.sellerId;
-
-      if (sellerId) {
-        // 获取卖家当前余额
-        const sellerProfile = await tx.sellerProfile.findUnique({
-          where: { userId: sellerId },
-        });
-
-        if (sellerProfile) {
-          const currentBalance =
-            sellerProfile.balance instanceof Decimal
-              ? sellerProfile.balance.toNumber()
-              : Number(sellerProfile.balance);
-          const newBalance = currentBalance + sellerNetEarnings;
-
-          // 更新卖家账户余额和总收入
-          const currentTotalEarnings =
-            (sellerProfile as any).totalEarnings instanceof Decimal
-              ? (sellerProfile as any).totalEarnings.toNumber()
-              : Number((sellerProfile as any).totalEarnings || 0);
-          const newTotalEarnings = currentTotalEarnings + sellerNetEarnings;
-
-          await tx.sellerProfile.update({
-            where: { userId: sellerId },
-            data: {
-              balance: new Decimal(newBalance),
-              totalEarnings: new Decimal(newTotalEarnings),
-            } as any,
-          });
-
-          // 记录卖家资金流水
-          await tx.sellerTransaction.create({
-            data: {
-              sellerId,
-              type: 'INCOME',
-              amount: new Decimal(sellerNetEarnings),
-              balanceAfter: new Decimal(newBalance),
-              currency: order.currency,
-              orderId: order.id,
-              description: `订单 ${order.orderNo} 销售收入`,
-            },
-          });
-
-          // 如果有平台手续费，记录佣金流水
-          if (platformFee > 0) {
-            await tx.sellerTransaction.create({
-              data: {
-                sellerId,
-                type: 'COMMISSION',
-                amount: new Decimal(-platformFee),
-                balanceAfter: new Decimal(newBalance),
-                currency: order.currency,
-                orderId: order.id,
-                description: `订单 ${order.orderNo} 平台手续费`,
-              },
-            });
-          }
-        }
-      }
     });
 
     this.logger.log(`支付完成: ${paymentNo}, 订单: ${order.orderNo}`);

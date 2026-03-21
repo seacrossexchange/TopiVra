@@ -187,5 +187,3 @@ export class EmailI18nService {
     // 此方法仅负责生成邮件模板
   }
 }
-
-

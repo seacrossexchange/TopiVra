@@ -24,6 +24,7 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import api from '../../services/apiClient';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 
 interface GatewayConfigField {
   key: string;
@@ -69,8 +70,8 @@ const PaymentGateways: React.FC = () => {
     try {
       const res = await api.get('/payment-gateways');
       setGateways(res.data || []);
-    } catch (error: any) {
-      message.error(error.response?.data?.message || '获取支付通道失败');
+    } catch (error: unknown) {
+      message.error(extractApiErrorMessage(error, '获取支付通道失败'));
     } finally {
       setLoading(false);
     }
@@ -81,8 +82,8 @@ const PaymentGateways: React.FC = () => {
       await api.put(`/payment-gateways/${code}`, { enabled });
       message.success(enabled ? '已启用' : '已禁用');
       fetchGateways();
-    } catch (error: any) {
-      message.error(error.response?.data?.message || '操作失败');
+    } catch (error: unknown) {
+      message.error(extractApiErrorMessage(error, '操作失败'));
     }
   };
 
@@ -101,8 +102,8 @@ const PaymentGateways: React.FC = () => {
       message.success('配置已保存');
       setConfigModal(false);
       fetchGateways();
-    } catch (error: any) {
-      message.error(error.response?.data?.message || '保存失败');
+    } catch (error: unknown) {
+      message.error(extractApiErrorMessage(error, '保存失败'));
     }
   };
 
@@ -115,11 +116,11 @@ const PaymentGateways: React.FC = () => {
       if (res.data.success) {
         message.success({ content: '测试成功', key: 'test' });
       } else {
-        message.error({ content: res.data.message || '测试失败', key: 'test' });
+        message.error({ content: extractApiErrorMessage({ response: { data: { message: res.data.message } } }, '测试失败'), key: 'test' });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       message.error({
-        content: error.response?.data?.message || '测试失败',
+        content: extractApiErrorMessage(error, '测试失败'),
         key: 'test',
       });
     }
@@ -130,8 +131,8 @@ const PaymentGateways: React.FC = () => {
       const res = await api.post('/payment-gateways/init');
       message.success(res.data.message || '初始化成功');
       fetchGateways();
-    } catch (error: any) {
-      message.error(error.response?.data?.message || '初始化失败');
+    } catch (error: unknown) {
+      message.error(extractApiErrorMessage(error, '初始化失败'));
     }
   };
 

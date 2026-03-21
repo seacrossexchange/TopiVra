@@ -7,6 +7,7 @@ import type { UploadProps } from 'antd';
 import apiClient from '@/services/apiClient';
 import MembershipCard from '@/components/common/MembershipCard';
 import ReferralCard from '@/components/user/ReferralCard';
+import { extractApiErrorMessage } from '@/utils/errorHandler';
 import './Profile.css';
 
 export default function Profile() {
@@ -28,7 +29,7 @@ export default function Profile() {
       // 重新获取用户信息
       await fetchUser();
     } catch (error: any) {
-      message.error(error.response?.data?.message || t('user.profileUpdateFailed'));
+      message.error(extractApiErrorMessage(error, t('user.profileUpdateFailed')));
     } finally {
       setLoading(false);
     }
@@ -97,7 +98,7 @@ export default function Profile() {
       });
       message.success(t('user.passwordChangeSuccess'));
     } catch (error: any) {
-      message.error(error.response?.data?.message || t('user.passwordChangeFailed'));
+      message.error(extractApiErrorMessage(error, t('user.passwordChangeFailed')));
     } finally {
       setLoading(false);
     }
@@ -127,7 +128,7 @@ export default function Profile() {
           message.success('头像更新成功');
           await fetchUser();
         } catch (error: any) {
-          message.error(error.response?.data?.message || '头像更新失败');
+          message.error(extractApiErrorMessage(error, t('user.avatarUpdateFailed', '头像更新失败')));
         }
       };
       reader.readAsDataURL(file);
@@ -309,9 +310,9 @@ export default function Profile() {
       >
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <p style={{ marginBottom: 8 }}>{t('user.scan2FAQr', '请使用 Google Authenticator 扫描二维码')}</p>
-          {twoFaQrUrl && <img src={twoFaQrUrl} alt="2FA QR" style={{ width: 180, height: 180, border: '1px solid #eee', borderRadius: 8 }} />}
-          <p style={{ marginTop: 12, fontSize: 12, color: '#888' }}>
-            {t('user.manualSecret', '手动输入密钥')}: <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: 4 }}>{twoFaSecret}</code>
+          {twoFaQrUrl && <img src={twoFaQrUrl} alt="2FA QR" style={{ width: 180, height: 180, border: '1px solid var(--color-border)', borderRadius: 8 }} />}
+          <p style={{ marginTop: 12, fontSize: 12, color: 'var(--color-text-secondary)' }}>
+            {t('user.manualSecret', '手动输入密钥')}: <code style={{ background: 'var(--color-bg-secondary)', padding: '2px 6px', borderRadius: 4 }}>{twoFaSecret}</code>
           </p>
         </div>
         <Input

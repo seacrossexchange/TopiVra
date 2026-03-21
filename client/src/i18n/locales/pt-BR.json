@@ -108,6 +108,13 @@
       "title": "Tem estoque de contas de qualidade?",
       "desc": "Junte-se à nossa comunidade de vendedores e comece seu negócio online com baixa comissão e saque rápido.",
       "apply": "Aplicar para ser Vendedor"
+    },
+    "hotProducts": {
+      "title": "Produtos em destaque",
+      "viewAll": "Ver todos",
+      "stock": "Estoque",
+      "sold": "Vendidos",
+      "views": "Visualizações"
     }
   },
   "theme": {
@@ -165,7 +172,13 @@
       "fair": "Razoável",
       "good": "Boa",
       "strong": "Forte"
-    }
+    },
+    "qrExpired": "QR code expirado",
+    "generatingQr": "Gerando QR code...",
+    "telegramScanLogin": "Entrar escaneando com o Telegram",
+    "telegramScanDesc": "Abra o Telegram para escanear o QR code e fazer login com segurança.",
+    "telegramSteps": "Abra o Telegram, escaneie o QR code e confirme no seu celular.",
+    "refreshQr": "Atualizar QR code"
   },
   "user": {
     "profile": "Perfil",
@@ -296,6 +309,35 @@
         "not_as_described": "Não Conforme Descrito",
         "quality_issue": "Problema de Qualidade",
         "other": "Outro"
+      },
+      "modal": {
+        "orderNo": "Nº do Pedido",
+        "orderAmount": "Valor do Pedido",
+        "reasonType": "Motivo do Reembolso",
+        "reasonTypeRequired": "Selecione um motivo do reembolso",
+        "selectReason": "Selecione um motivo do reembolso",
+        "detailReason": "Detalhes",
+        "reasonMaxLength": "Máximo de 500 caracteres",
+        "evidence": "Capturas de Tela da Evidência (Opcional)",
+        "upload": "Enviar",
+        "uploadTip": "Envie até 3 imagens, cada uma com no máximo 5MB",
+        "onlyImage": "Somente arquivos de imagem podem ser enviados",
+        "imageSizeLimit": "O tamanho da imagem não pode exceder 5MB",
+        "reasons": {
+          "PRODUCT_NOT_MATCH": "O produto não corresponde à descrição",
+          "ACCOUNT_ABNORMAL": "Não é possível entrar na conta / conta com problema",
+          "NOT_DELIVERED": "Não recebi as credenciais da conta",
+          "ACCOUNT_BANNED": "A conta foi banida",
+          "WRONG_INFO": "Informações de login incorretas",
+          "OTHER": "Outro motivo"
+        },
+        "tips": {
+          "title": "Informações sobre Reembolso",
+          "tip1": "Tempo de análise: processado em até 24 horas",
+          "tip2": "Método de reembolso: devolvido ao saldo da sua conta",
+          "tip3": "Em caso de dúvidas: fale com o suporte online",
+          "tip4": "Transações C2C: o reembolso requer aprovação do vendedor, e a plataforma fará a mediação"
+        }
       }
     }
   },
@@ -327,7 +369,14 @@
     "checkout": "Finalizar Compra",
     "itemsCount": "{{count}} itens",
     "continueShopping": "Continuar Comprando",
-    "checkoutEmpty": "Carrinho vazio"
+    "checkoutEmpty": "Carrinho vazio",
+    "couponDiscount": "Desconto do cupom",
+    "addSuccess": "Adicionado ao carrinho",
+    "recommendations": {
+      "title": "Quem comprou também levou",
+      "sold": "vendidos",
+      "add": "Adicionar ao carrinho"
+    }
   },
   "faq": {
     "title": "Perguntas Frequentes",
@@ -504,7 +553,29 @@
       "EU": "União Europeia",
       "JP": "Japão",
       "GB": "Reino Unido",
-      "IN": "Índia"
+      "IN": "Índia",
+      "TH": "Tailândia",
+      "PH": "Filipinas",
+      "MY": "Malásia",
+      "SG": "Singapura",
+      "KR": "Coreia do Sul",
+      "BR": "Brasil",
+      "MX": "México",
+      "AR": "Argentina",
+      "DE": "Alemanha",
+      "FR": "França",
+      "IT": "Itália",
+      "ES": "Espanha",
+      "RU": "Rússia",
+      "TR": "Turquia",
+      "SA": "Arábia Saudita",
+      "AE": "Emirados Árabes",
+      "EG": "Egito",
+      "ZA": "África do Sul",
+      "AU": "Austrália",
+      "NZ": "Nova Zelândia",
+      "CA": "Canadá",
+      "OTHER": "Outro"
     },
     "tree": {
       "allCategories": "Todas as Categorias",
@@ -553,7 +624,8 @@
       "sellerDefault": "Vendedor",
       "tabs": {
         "description": "Detalhes do Produto",
-        "reviews": "Avaliações"
+        "reviews": "Avaliações",
+        "faq": "Perguntas Frequentes"
       },
       "info": {
         "id": "ID do Produto",
@@ -569,7 +641,18 @@
         "sold": "Vendidos",
         "category": "Categoria",
         "rating": "Avaliação",
-        "createdAt": "Criado em"
+        "createdAt": "Criado em",
+        "productType": "Tipo de Produto",
+        "deliveryType": "Tipo de Entrega",
+        "countries": "Países/Regiões",
+        "supportedSystems": "Sistemas Suportados",
+        "fileType": "Tipo de Arquivo",
+        "version": "Versão",
+        "fileSize": "Tamanho do Arquivo",
+        "installGuide": "Guia de Instalação",
+        "updateNote": "Nota de Atualização",
+        "loginMethod": "Método de Login",
+        "warranty": "Garantia"
       },
       "noReviews": "Ainda não há avaliações",
       "buyModal": {
@@ -590,7 +673,62 @@
         "confirm": "Confirmar Pagamento",
         "cancel": "Cancelar",
         "success": "Pedido criado com sucesso, redirecionando para o pagamento..."
+      },
+      "views": "Visualizações",
+      "favorites": "Favoritos",
+      "reviews": "Avaliações",
+      "anonymous": "Usuário Anônimo",
+      "guarantees": {
+        "title": "Garantias de Transação",
+        "refund": "Suporte a Reembolso",
+        "refundDesc": "Solicite tratamento se houver problemas válidos com o produto.",
+        "escrow": "Transação com Escrow",
+        "escrowDesc": "O pagamento é protegido pela plataforma durante todo o processo.",
+        "instant": "Entrega Rápida",
+        "instantDesc": "A maioria dos pedidos é enviada automaticamente após o pagamento.",
+        "support": "Suporte Humano",
+        "supportDesc": "Contate o suporte se tiver problemas com o pedido."
+      },
+      "faq": {
+        "q1": "A entrega é rápida?",
+        "a1": "A maioria dos produtos é enviada automaticamente após o pagamento.",
+        "q2": "E se a conta não conseguir fazer login?",
+        "a2": "Contate o suporte online ou envie uma solicitação de reembolso com evidências.",
+        "q3": "Há período de garantia?",
+        "a3": "A garantia segue a descrição do produto e as regras da plataforma.",
+        "q4": "Posso alterar a senha após a compra?",
+        "a4": "Se o produto suportar, recomendamos alterar as credenciais logo após o recebimento.",
+        "q5": "Quais métodos de pagamento são suportados?",
+        "a5": "A página de checkout mostrará os métodos de pagamento disponíveis."
       }
+    },
+    "platforms": {
+      "FACEBOOK": "Facebook",
+      "INSTAGRAM": "Instagram",
+      "TIKTOK": "TikTok",
+      "TWITTER": "Twitter",
+      "YOUTUBE": "YouTube",
+      "TELEGRAM": "Telegram",
+      "GMAIL": "Gmail",
+      "LINKEDIN": "LinkedIn",
+      "SNAPCHAT": "Snapchat",
+      "REDDIT": "Reddit",
+      "DISCORD": "Discord",
+      "TWITCH": "Twitch",
+      "PINTEREST": "Pinterest",
+      "WHATSAPP": "WhatsApp",
+      "OTHER": "Outro"
+    },
+    "types": {
+      "account": "Conta",
+      "software": "Software",
+      "digital": "Produto Digital"
+    },
+    "delivery": {
+      "file": "Arquivo",
+      "link": "Link",
+      "key": "Chave",
+      "hybrid": "Entrega Híbrida"
     }
   },
   "about": {
@@ -612,7 +750,25 @@
     "secureTransaction": "Transação Segura Garantida",
     "secureTransactionDesc": "Garantia da plataforma, transações mais seguras",
     "professionalSupport": "Equipe de Suporte Profissional",
-    "professionalSupportDesc": "Atendimento ao cliente online 7x24 horas"
+    "professionalSupportDesc": "Atendimento ao cliente online 7x24 horas",
+    "subtitle": "Conheça a TopiVra",
+    "mission": "Nossa Missão",
+    "missionDesc": "Tornar fácil para todos obter contas de mídia social de qualidade, apoiando o desenvolvimento digital de indivíduos e empresas.",
+    "vision": "Nossa Visão",
+    "visionDesc": "Tornar-se a plataforma de negociação de contas digitais mais confiável do mundo.",
+    "values": "Valores Fundamentais",
+    "value1": "Integridade",
+    "value1Desc": "Honestidade e confiabilidade, garantindo cada transação",
+    "value2": "Segurança",
+    "value2Desc": "Verificação rigorosa, garantindo a qualidade das contas",
+    "value3": "Eficiência",
+    "value3Desc": "Entrega automática, entrega instantânea",
+    "value4": "Serviço",
+    "value4Desc": "Suporte ao cliente 7×24 horas",
+    "team": "Nossa Equipe",
+    "teamDesc": "Composta por profissionais experientes da internet, dedicados a fornecer os melhores serviços aos usuários.",
+    "contact": "Entre em Contato",
+    "contactDesc": "Se você tiver alguma dúvida ou sugestão, sinta-se à vontade para nos contatar a qualquer momento."
   },
   "contact": {
     "title": "Fale Conosco",
@@ -633,7 +789,22 @@
     "contentPlaceholder": "Por favor, insira sua mensagem",
     "contentRequired": "Por favor, insira sua mensagem",
     "submitMessage": "Enviar Mensagem",
-    "messageSuccess": "Mensagem enviada, entraremos em contato em breve!"
+    "messageSuccess": "Mensagem enviada, entraremos em contato em breve!",
+    "telegram": "Telegram",
+    "email": "Email",
+    "emailAddress": "support@topivra.com",
+    "workingHours": "Horário de Atendimento",
+    "available247": "Online 24/7",
+    "responseTime": "Tempo de Resposta",
+    "responseTimeDesc": "Normalmente responde em até 2 horas",
+    "formTitle": "Enviar Mensagem",
+    "subject": "Assunto",
+    "subjectPlaceholder": "Digite o assunto",
+    "message": "Mensagem",
+    "messagePlaceholder": "Digite sua mensagem...",
+    "send": "Enviar",
+    "sendSuccess": "Mensagem enviada com sucesso",
+    "sendFailed": "Falha ao enviar mensagem, tente novamente"
   },
   "common": {
     "home": "Início",
@@ -656,7 +827,38 @@
     "loadError": "Falha ao carregar",
     "totalItems": "Total de {{count}} itens",
     "minutes": "min",
-    "hours": "h"
+    "hours": "h",
+    "add": "Adicionar",
+    "filter": "Filtrar",
+    "reset": "Redefinir",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "noData": "Sem dados",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação",
+    "yes": "Sim",
+    "no": "Não",
+    "ok": "OK",
+    "close": "Fechar",
+    "view": "Ver",
+    "download": "Baixar",
+    "upload": "Enviar",
+    "copy": "Copiar",
+    "copySuccess": "Copiado com sucesso",
+    "more": "Mais",
+    "less": "Menos",
+    "all": "Todos",
+    "select": "Selecionar",
+    "selected": "Selecionado",
+    "clear": "Limpar",
+    "refresh": "Atualizar",
+    "export": "Exportar",
+    "import": "Importar",
+    "print": "Imprimir",
+    "share": "Compartilhar",
+    "help": "Ajuda",
+    "loadMore": "Carregar mais"
   },
   "footer": {
     "slogan": "Plataforma Global de Comércio de Contas de Mídia Social",
@@ -682,7 +884,19 @@
     "weekendLabel": "Sáb – Dom",
     "onlineLabel": "Online",
     "offlineLabel": "Offline",
-    "weekendNote": "Para casos urgentes, abra um ticket"
+    "weekendNote": "Para casos urgentes, abra um ticket",
+    "company": "Empresa",
+    "aboutUs": "Sobre Nós",
+    "careers": "Carreiras",
+    "blog": "Blog",
+    "press": "Imprensa",
+    "helpCenter": "Central de Ajuda",
+    "contactUs": "Fale Conosco",
+    "faq": "Perguntas Frequentes",
+    "legal": "Jurídico",
+    "follow": "Siga-nos",
+    "copyright": "© 2024 TopiVra. Todos os direitos reservados.",
+    "allRightsReserved": "Todos os direitos reservados"
   },
   "admin": {
     "dashboard": "Painel",
@@ -903,7 +1117,39 @@
       "HUPIJIAO": "Hupijiao",
       "PAYPAL": "PayPal",
       "STRIPE": "Stripe"
-    }
+    },
+    "statistics": "Estatísticas",
+    "reports": "Relatórios",
+    "activeUsers": "Usuários Ativos",
+    "newUsers": "Novos Usuários",
+    "pendingOrders": "Pedidos Pendentes",
+    "completedOrders": "Pedidos Concluídos",
+    "revenue": "Receita",
+    "growth": "Crescimento",
+    "userManagement": "Gerenciamento de Usuários",
+    "userDetails": "Detalhes do Usuário",
+    "banUser": "Banir Usuário",
+    "unbanUser": "Desbanir Usuário",
+    "deleteUser": "Excluir Usuário",
+    "productManagement": "Gerenciamento de Produtos",
+    "addProduct": "Adicionar Produto",
+    "editProduct": "Editar Produto",
+    "deleteProduct": "Excluir Produto",
+    "approveProduct": "Aprovar Produto",
+    "orderManagement": "Gerenciamento de Pedidos",
+    "orderDetails": "Detalhes do Pedido",
+    "processOrder": "Processar Pedido",
+    "cancelOrder": "Cancelar Pedido",
+    "refundOrder": "Reembolsar Pedido",
+    "ticketManagement": "Gerenciamento de Tickets",
+    "ticketDetails": "Detalhes do Ticket",
+    "assignTicket": "Atribuir Ticket",
+    "closeTicket": "Fechar Ticket",
+    "generalSettings": "Configurações Gerais",
+    "paymentSettings": "Configurações de Pagamento",
+    "emailSettings": "Configurações de Email",
+    "notificationSettings": "Configurações de Notificação",
+    "securitySettings": "Configurações de Segurança"
   },
   "seller": {
     "creditScore": "Pontuação de Crédito",
@@ -981,7 +1227,29 @@
     "shopName": "Nome da Loja",
     "shopDescription": "Descrição da Loja",
     "contactInfo": "Contato",
-    "saveSettings": "Salvar Configurações"
+    "saveSettings": "Salvar Configurações",
+    "myProducts": "我的产品",
+    "myOrders": "我的订单",
+    "myRevenue": "我的收入",
+    "statistics": "统计数据",
+    "activeProducts": "上架产品",
+    "soldProducts": "已售产品",
+    "completedOrders": "已完成订单",
+    "revenue": "收入",
+    "commission": "佣金",
+    "balance": "余额",
+    "productManagement": "产品管理",
+    "addNewProduct": "添加新产品",
+    "deleteProduct": "删除产品",
+    "stockManagement": "库存管理",
+    "priceManagement": "价格管理",
+    "orderManagement": "订单管理",
+    "processOrder": "处理订单",
+    "shipOrder": "发货",
+    "revenueManagement": "收入管理",
+    "viewRevenue": "查看收入",
+    "requestWithdraw": "申请提现",
+    "withdrawalSettings": "提现设置"
   },
   "inventory": {
     "title": "Gerenciar Estoque",
@@ -1028,7 +1296,20 @@
     "startImport": "Iniciar Importação",
     "uploadFileRequired": "Envie um arquivo",
     "onlyCSV": "Apenas arquivos CSV são suportados",
-    "exportSuccess": "Exportado com sucesso"
+    "exportSuccess": "Exportado com sucesso",
+    "addStock": "添加库存",
+    "stockList": "库存列表",
+    "stockDetails": "库存详情",
+    "lowStock": "库存不足",
+    "outOfStock": "缺货",
+    "inStock": "有货",
+    "stockAlert": "库存预警",
+    "restock": "补货",
+    "stockHistory": "库存历史",
+    "importStock": "导入库存",
+    "exportStock": "导出库存",
+    "batchUpload": "批量上传",
+    "template": "模板"
   },
   "notifications": {
     "title": "Notificações",
@@ -1053,10 +1334,35 @@
       "low": "Baixa",
       "medium": "Média",
       "high": "Alta"
-    }
+    },
+    "all": "全部通知",
+    "unread": "未读",
+    "read": "已读",
+    "markAsRead": "标记为已读",
+    "markAllAsRead": "全部标记为已读",
+    "deleteAll": "删除全部",
+    "noNotifications": "暂无通知",
+    "orderNotification": "订单通知",
+    "systemNotification": "系统通知",
+    "messageNotification": "消息通知",
+    "settings": "通知设置",
+    "emailNotifications": "邮件通知",
+    "pushNotifications": "推送通知",
+    "smsNotifications": "短信通知"
   },
   "mobile": {
-    "me": "Eu"
+    "me": "Eu",
+    "menu": "菜单",
+    "home": "首页",
+    "products": "产品",
+    "orders": "订单",
+    "profile": "我的",
+    "more": "更多",
+    "backToTop": "返回顶部",
+    "pullToRefresh": "下拉刷新",
+    "releaseToRefresh": "释放刷新",
+    "loading": "加载中...",
+    "noMore": "没有更多了"
   },
   "blog": {
     "title": "Tutoriais",
@@ -1088,10 +1394,21 @@
       "tips": "Dicas e Truques"
     },
     "loadError": "Falha ao carregar artigo",
-    "notFound": "Artigo não encontrado"
+    "notFound": "Artigo não encontrado",
+    "allPosts": "所有文章",
+    "publishedOn": "发布于",
+    "updatedOn": "更新于",
+    "comment": "评论",
+    "noComments": "暂无评论",
+    "leaveComment": "发表评论",
+    "minRead": "分钟阅读"
   },
   "notFound": {
-    "message": "Desculpe, a página que você está procurando não existe"
+    "message": "Desculpe, a página que você está procurando não existe",
+    "title": "页面未找到",
+    "goHome": "返回首页",
+    "error404": "404 错误",
+    "pageNotFound": "页面未找到"
   },
   "tools": {
     "title": "Ferramentas Úteis",
@@ -1141,7 +1458,13 @@
         "desc": "Ferramentas de gerenciamento de conta Hotmail",
         "tag": "Em Breve"
       }
-    }
+    },
+    "cookieConverter": "Cookie 转换器",
+    "tokenGenerator": "Token 生成器",
+    "accountChecker": "账号检测器",
+    "bulkUpload": "批量上传",
+    "dataExport": "数据导出",
+    "apiDocs": "API 文档"
   },
   "terms": {
     "title": "Termos de Serviço",
@@ -1161,7 +1484,18 @@
     "section7Content": "A plataforma protege rigorosamente a privacidade do usuário e não divulgará informações do usuário a terceiros, a menos que exigido por lei.",
     "section8Title": "8. Modificação dos Termos",
     "section8Content": "A plataforma se reserva o direito de modificar estes termos a qualquer momento. Os termos modificados serão publicados no site, e o uso contínuo da plataforma indica aceitação dos termos modificados.",
-    "lastUpdate": "Última Atualização: 28 de Fevereiro de 2026"
+    "lastUpdate": "Última Atualização: 28 de Fevereiro de 2026",
+    "lastUpdated": "最后更新",
+    "acceptance": "接受条款",
+    "services": "服务说明",
+    "userObligations": "用户义务",
+    "prohibitedActivities": "禁止行为",
+    "intellectualProperty": "知识产权",
+    "disclaimer": "免责声明",
+    "limitation": "责任限制",
+    "termination": "终止",
+    "changes": "条款变更",
+    "contact": "联系方式"
   },
   "privacy": {
     "title": "Política de Privacidade",
@@ -1181,7 +1515,18 @@
     "section7Content": "Você tem o direito de acessar, corrigir e excluir suas informações pessoais. Se você tiver necessidades, entre em contato com nossa equipe de atendimento ao cliente.",
     "section8Title": "8. Atualizações da Política",
     "section8Content": "Podemos atualizar esta política de privacidade periodicamente. Mudanças significativas serão notificadas através de anúncios no site.",
-    "lastUpdate": "Última Atualização: 28 de Fevereiro de 2026"
+    "lastUpdate": "Última Atualização: 28 de Fevereiro de 2026",
+    "lastUpdated": "最后更新",
+    "introduction": "简介",
+    "informationCollection": "信息收集",
+    "informationUse": "信息使用",
+    "informationSharing": "信息共享",
+    "dataSecurity": "数据安全",
+    "cookies": "Cookie",
+    "thirdParty": "第三方服务",
+    "userRights": "用户权利",
+    "changes": "政策变更",
+    "contact": "联系方式"
   },
   "refund": {
     "title": "Política de Reembolso",
@@ -1197,7 +1542,13 @@
     "section5Content": "Se houver disputa entre comprador e vendedor sobre o reembolso, a plataforma tomará uma decisão com base nas evidências fornecidas por ambas as partes. A decisão da plataforma é final.",
     "section6Title": "6. Contato do Atendimento ao Cliente",
     "section6Content": "Para questões relacionadas a reembolso, entre em contato com o atendimento ao cliente: support@topivra.com ou através do atendimento ao cliente do Telegram.",
-    "lastUpdate": "Última Atualização: 28 de Fevereiro de 2026"
+    "lastUpdate": "Última Atualização: 28 de Fevereiro de 2026",
+    "eligibility": "退款资格",
+    "process": "退款流程",
+    "timeframe": "退款时间",
+    "method": "退款方式",
+    "exceptions": "例外情况",
+    "contact": "联系客服"
   },
   "settings": {
     "adminTitle": "Configurações do Sistema",
@@ -1228,7 +1579,16 @@
     "socialGithub": "URL do GitHub",
     "socialTwitter": "URL do Twitter / X",
     "workingHours": "Horário de Trabalho do Suporte",
-    "workingHoursDesc": "Ex: Seg–Sex 09:00–18:00 (UTC+8)"
+    "workingHoursDesc": "Ex: Seg–Sex 09:00–18:00 (UTC+8)",
+    "title": "设置",
+    "account": "账户设置",
+    "security": "安全设置",
+    "notifications": "通知设置",
+    "privacy": "隐私设置",
+    "language": "语言设置",
+    "theme": "主题设置",
+    "general": "常规设置",
+    "advanced": "高级设置"
   },
   "checkout": {
     "title": "Checkout",
@@ -1266,7 +1626,14 @@
     "createOrderFailed": "Falha ao criar pedido",
     "addressCopied": "Endereço copiado",
     "paymentSuccess": "Pagamento bem-sucedido",
-    "paymentFailed": "Pagamento falhou"
+    "paymentFailed": "Pagamento falhou",
+    "shippingInfo": "收货信息",
+    "paymentInfo": "支付信息",
+    "placeOrder": "提交订单",
+    "processing": "处理中...",
+    "success": "支付成功",
+    "failed": "支付失败",
+    "retry": "重试"
   },
   "logs": {
     "title": "Logs do Sistema",
@@ -1286,7 +1653,15 @@
     "target": "Alvo",
     "ip": "Endereço IP",
     "details": "Detalhes",
-    "total": "Total de {{count}} registros"
+    "total": "Total de {{count}} registros",
+    "systemLogs": "系统日志",
+    "userLogs": "用户日志",
+    "orderLogs": "订单日志",
+    "paymentLogs": "支付日志",
+    "errorLogs": "错误日志",
+    "viewDetails": "查看详情",
+    "export": "导出日志",
+    "clear": "清空日志"
   },
   "applySeller": {
     "title": "Aplicar para ser Vendedor",
@@ -1308,6 +1683,80 @@
     "description": "Informações Adicionais",
     "descriptionPlaceholder": "Descreva suas fontes, volume diário de envio, etc.",
     "submit": "Enviar Aplicação",
-    "submitSuccess": "Aplicação enviada, revisaremos em breve!"
+    "submitSuccess": "Aplicação enviada, revisaremos em breve!",
+    "benefits": "卖家权益",
+    "benefit1": "低佣金",
+    "benefit2": "快速结算",
+    "benefit3": "流量支持",
+    "benefit4": "专属客服",
+    "benefit4Desc": "一对一客服支持",
+    "requirements": "申请要求",
+    "requirement1": "拥有稳定的账号货源",
+    "requirement2": "保证账号质量和真实性",
+    "requirement3": "及时处理订单和售后",
+    "requirement4": "遵守平台规则和政策",
+    "form": "申请表单",
+    "contactPerson": "联系人",
+    "contactPersonPlaceholder": "请输入联系人姓名",
+    "contactEmail": "联系邮箱",
+    "contactEmailPlaceholder": "请输入联系邮箱",
+    "contactPhone": "联系电话",
+    "contactPhonePlaceholder": "请输入联系电话",
+    "submitFailed": "提交失败，请重试"
+  },
+  "error": {
+    "unknown": "Erro desconhecido"
+  },
+  "guide": {
+    "welcome": {
+      "title": "Bem-vindo à TopiVra",
+      "desc": "Comece em apenas alguns minutos.",
+      "detail": "Navegue por contas, pague com segurança e receba a entrega automaticamente.",
+      "feature1": "Proteção escrow",
+      "feature2": "Entrega automática",
+      "feature3": "Suporte quando você precisar"
+    },
+    "security": {
+      "title": "Segurança por padrão",
+      "desc": "Cada pedido é protegido pela plataforma.",
+      "escrow": "Proteção escrow",
+      "escrowDesc": "Os fundos permanecem protegidos até a confirmação da entrega.",
+      "auto": "Entrega automática",
+      "autoDesc": "Receba os detalhes da conta logo após o pagamento.",
+      "refund": "Suporte a reembolso",
+      "refundDesc": "Envie uma solicitação de reembolso se houver um problema válido com o pedido."
+    },
+    "gift": {
+      "title": "Vantagens para novos usuários",
+      "desc": "Benefícios exclusivos de boas-vindas para o seu primeiro pedido.",
+      "discount": "Desconto para novos usuários",
+      "couponTitle": "Cupom de boas-vindas",
+      "couponDesc": "Pedidos elegíveis usam automaticamente o cupom de boas-vindas.",
+      "autoApplied": "Aplicado automaticamente quando disponível",
+      "note": "As regras específicas seguem os detalhes da promoção."
+    },
+    "complete": "Concluir",
+    "prev": "Anterior",
+    "next": "Próximo",
+    "start": "Começar agora",
+    "skip": "Pular"
+  },
+  "membership": {
+    "totalSpent": "Total Gasto",
+    "discount": "Desconto",
+    "nextLevel": "Próximo Nível",
+    "benefits": "Benefícios da Assinatura"
+  },
+  "coupon": {
+    "title": "Cupons",
+    "enterCode": "Digite o código do cupom",
+    "applied": "Cupom aplicado",
+    "invalid": "Cupom inválido",
+    "apply": "Aplicar",
+    "available": "Cupons disponíveis",
+    "noAvailable": "Nenhum cupom disponível",
+    "minPurchase": "Compra mínima",
+    "validUntil": "Válido até",
+    "saved": "Você economizou"
   }
 }

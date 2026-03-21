@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Avatar, Badge, Button, Input, message, Spin, Empty } from 'antd';
 import { SendOutlined, UserOutlined } from '@ant-design/icons';
 import { useMessageStore } from '@/store/messageStore';
@@ -9,6 +10,7 @@ import type { Conversation } from '@/services/messages';
 import '../user/Messages.css';
 
 const SellerMessages = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const userId = searchParams.get('userId');
   
@@ -80,7 +82,7 @@ const SellerMessages = () => {
       });
       setInputValue('');
     } catch {
-      message.error('发送失败，请重试');
+      message.error(t('messages.sendError'));
     }
   };
 
@@ -100,9 +102,9 @@ const SellerMessages = () => {
     if (days === 0) {
       return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
     } else if (days === 1) {
-      return '昨天';
+      return t('messages.yesterday');
     } else if (days < 7) {
-      return `${days}天前`;
+      return t('messages.daysAgo', { days });
     } else {
       return date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
     }
@@ -117,7 +119,7 @@ const SellerMessages = () => {
       {/* 左侧会话列表 */}
       <div className="conversations-panel">
         <div className="conversations-header">
-          <h2>客户消息</h2>
+          <h2>{t('messages.customerMessages')}</h2>
           {unreadCount > 0 && (
             <Badge count={unreadCount} />
           )}
@@ -125,7 +127,7 @@ const SellerMessages = () => {
         
         <div className="conversations-list">
           {conversations.length === 0 ? (
-            <Empty description="暂无会话" />
+            <Empty description={t('messages.noConversations')} />
           ) : (
             conversations.map(conv => (
               <div
@@ -146,7 +148,7 @@ const SellerMessages = () => {
                     </span>
                   </div>
                   <div className="conversation-preview">
-                    <span className="last-message">{conv.lastMessage || '暂无消息'}</span>
+                    <span className="last-message">{conv.lastMessage || t('messages.noMessage')}</span>
                     {conv.unreadCount > 0 && (
                       <Badge count={conv.unreadCount} />
                     )}
@@ -199,7 +201,7 @@ const SellerMessages = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="输入消息..."
+                placeholder={t('messages.inputPlaceholder')}
                 autoSize={{ minRows: 1, maxRows: 4 }}
               />
               <Button
@@ -208,13 +210,13 @@ const SellerMessages = () => {
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim()}
               >
-                发送
+                {t('messages.send')}
               </Button>
             </div>
           </>
         ) : (
           <div className="no-conversation">
-            <Empty description="选择一个会话开始聊天" />
+            <Empty description={t('messages.selectConversation')} />
           </div>
         )}
       </div>

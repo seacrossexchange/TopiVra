@@ -1,13 +1,14 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { HomeOutlined, ShoppingOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useCartStore } from '@/store/cartStore';
+import { useI18nNavigate } from '@/hooks/useI18nNavigate';
 import './MobileBottomNav.css';
 
 export default function MobileBottomNav() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const location = useLocation();
+  const { navigate: i18nNavigate } = useI18nNavigate();
   const { itemCount } = useCartStore();
 
   const navItems = [
@@ -33,7 +34,7 @@ export default function MobileBottomNav() {
     {
       key: 'user',
       icon: <UserOutlined />,
-      label: t('nav.user', '我的'),
+      label: t('mobile.me', '我的'),
       path: '/user',
     },
   ];
@@ -52,7 +53,7 @@ export default function MobileBottomNav() {
           <div
             key={item.key}
             className={`mobile-nav-item ${isActive(item.path) ? 'active' : ''}`}
-            onClick={() => navigate(item.path)}
+            onClick={() => i18nNavigate(item.path)}
           >
             <div className="mobile-nav-icon">
               {item.icon}

@@ -151,7 +151,7 @@ jobs:
         run: npm run test:cov
       
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./server/coverage/lcov.info
           flags: unittests
@@ -163,7 +163,7 @@ jobs:
         run: npm run test -- --run --coverage
       
       - name: Upload client coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./client/coverage/lcov.info
           flags: client

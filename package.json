@@ -33,7 +33,7 @@
   "homepage": "https://github.com/topivra/topivra#readme",
   "devDependencies": {
     "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
+    "lint-staged": "^16.4.0",
     "snyk": "^1.1275.0"
   },
   "lint-staged": {
